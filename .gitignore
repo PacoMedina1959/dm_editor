@@ -1,0 +1,28 @@
+# Dependencias y build (Vite / Node habitual)
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*.local
+
+# Logs y cachés
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+.cache/
+.parcel-cache/
+.vite/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# Cobertura / herramientas
+coverage/
+.nyc_output/
