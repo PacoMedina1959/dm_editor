@@ -6,6 +6,13 @@ Aplicación de **autoría** para campañas compatibles con [**DM Virtual**](http
 
 En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rellena el texto con una copia de `dm_virtual/backend/data/campañas/ejemplo/aventura.yaml` (fichero en `public/samples/`). Si el ejemplo del motor cambia mucho, conviene volver a copiar ese YAML al editor.
 
+## Catálogo de objetos (`/catalogo`)
+
+- **Cargar ejemplo**: copia empaquetada de `dm_virtual/backend/data/objetos/catalogo_objetos.json` (`public/samples/catalogo-ejemplo.json`).
+- **Abrir JSON**: fichero con el mismo esquema (clave = `id` de cada ficha).
+- **Edición**: tabla + formulario; **stats** y **efectos** como JSON objeto.
+- **Exportar JSON**: descarga para sustituir o comparar con `catalogo_objetos.json` del motor.
+
 ## Desarrollo
 
 ```bash

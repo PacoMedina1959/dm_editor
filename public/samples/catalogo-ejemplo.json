@@ -1,0 +1,248 @@
+{
+  "pocion_curacion": {
+    "id": "pocion_curacion",
+    "nombre": "Poción de curación",
+    "nombre_en": "Healing potion",
+    "categoria": "consumible",
+    "subtipo": "curacion",
+    "efectos": {},
+    "stats": { "curacion": 5 },
+    "precio": 100,
+    "usable_en_combate": true,
+    "descripcion": "Restaura salud"
+  },
+  "espada_corta": {
+    "id": "espada_corta",
+    "nombre": "Espada corta",
+    "nombre_en": "Short sword",
+    "categoria": "arma",
+    "subtipo": "espada",
+    "efectos": {},
+    "stats": { "danio": 15 },
+    "precio": 50,
+    "usable_en_combate": false,
+    "descripcion": "Hoja sencilla"
+  },
+  "armadura_ligera": {
+    "id": "armadura_ligera",
+    "nombre": "Armadura ligera",
+    "nombre_en": "Light armor",
+    "categoria": "armadura",
+    "subtipo": "ligera",
+    "efectos": {},
+    "stats": { "defensa": 2 },
+    "precio": 40,
+    "usable_en_combate": false,
+    "descripcion": "Protección básica sin restar demasiada movilidad"
+  },
+  "escudo_madera": {
+    "id": "escudo_madera",
+    "nombre": "Escudo de madera",
+    "nombre_en": "Wooden shield",
+    "categoria": "escudo",
+    "subtipo": "ligero",
+    "efectos": {},
+    "stats": { "defensa": 1 },
+    "precio": 15,
+    "usable_en_combate": false,
+    "descripcion": "Tablero reforzado; amortigua golpes"
+  },
+  "maza_roble": {
+    "id": "maza_roble",
+    "nombre": "Maza de roble",
+    "nombre_en": "Oak club",
+    "categoria": "arma",
+    "subtipo": "contundente",
+    "efectos": {},
+    "stats": { "danio": 2 },
+    "precio": 12,
+    "usable_en_combate": false,
+    "descripcion": "Palo contundente sencillo"
+  },
+  "cerveza": {
+    "id": "cerveza",
+    "nombre": "Cerveza",
+    "nombre_en": "Beer",
+    "categoria": "consumible",
+    "subtipo": "bebida",
+    "efectos": {},
+    "precio": 1,
+    "usable_en_combate": false,
+    "descripcion": "Jarra o copa de cerveza"
+  },
+  "vino": {
+    "id": "vino",
+    "nombre": "Vino",
+    "nombre_en": "Wine",
+    "categoria": "consumible",
+    "subtipo": "bebida",
+    "efectos": {},
+    "precio": 2,
+    "usable_en_combate": false,
+    "descripcion": "Copa de vino"
+  },
+  "pan": {
+    "id": "pan",
+    "nombre": "Pan",
+    "nombre_en": "Bread",
+    "categoria": "consumible",
+    "subtipo": "comida",
+    "efectos": {},
+    "stats": { "curacion": 2 },
+    "precio": 1,
+    "usable_en_combate": false,
+    "descripcion": "Ración de pan"
+  },
+  "estofado": {
+    "id": "estofado",
+    "nombre": "Estofado",
+    "nombre_en": "Stew",
+    "categoria": "consumible",
+    "subtipo": "comida",
+    "efectos": {},
+    "stats": { "curacion": 4 },
+    "precio": 3,
+    "usable_en_combate": false,
+    "descripcion": "Plato caliente; alimenta y reconforta"
+  },
+  "racion_viaje": {
+    "id": "racion_viaje",
+    "nombre": "Ración de viaje",
+    "nombre_en": "Travel ration",
+    "categoria": "consumible",
+    "subtipo": "comida",
+    "efectos": {},
+    "stats": { "curacion": 3 },
+    "precio": 2,
+    "usable_en_combate": false,
+    "descripcion": "Comida seca para el camino"
+  },
+  "agua": {
+    "id": "agua",
+    "nombre": "Agua (odre o jarra)",
+    "nombre_en": "Water (waterskin or pitcher)",
+    "categoria": "consumible",
+    "subtipo": "bebida",
+    "efectos": {},
+    "precio": 1,
+    "usable_en_combate": false,
+    "descripcion": "Agua fresca"
+  },
+  "habitacion_noche": {
+    "id": "habitacion_noche",
+    "nombre": "Habitación por una noche",
+    "nombre_en": "Room for one night",
+    "categoria": "servicio",
+    "subtipo": "hospedaje",
+    "efectos": {},
+    "precio": 5,
+    "usable_en_combate": false,
+    "descripcion": "Alojamiento sencillo hasta el mediodía siguiente"
+  },
+  "antorcha": {
+    "id": "antorcha",
+    "nombre": "Antorcha",
+    "nombre_en": "Torch",
+    "categoria": "util",
+    "subtipo": "luz",
+    "efectos": {},
+    "precio": 2,
+    "usable_en_combate": false,
+    "descripcion": "Ilumina; se gasta con el tiempo"
+  },
+  "cuerda": {
+    "id": "cuerda",
+    "nombre": "Cuerda (10 m)",
+    "nombre_en": "Rope (10 m)",
+    "categoria": "util",
+    "subtipo": "herramienta",
+    "efectos": {},
+    "precio": 3,
+    "usable_en_combate": false,
+    "descripcion": "Cáñamo resistente para trepar o atar"
+  },
+  "proyectil_arcano": {
+    "id": "proyectil_arcano",
+    "nombre": "Proyectil arcano",
+    "nombre_en": "Arcane bolt",
+    "categoria": "hechizo",
+    "subtipo": "arcano",
+    "efectos": {},
+    "stats": {
+      "danio": 4,
+      "area": 0,
+      "alcance": 6,
+      "coste": 1
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "descripcion": "Un proyectil mágico impacta a un enemigo."
+  },
+  "bola_fuego": {
+    "id": "bola_fuego",
+    "nombre": "Bola de fuego",
+    "nombre_en": "Fireball",
+    "categoria": "hechizo",
+    "subtipo": "fuego",
+    "efectos": {},
+    "stats": {
+      "danio": 6,
+      "area": 1,
+      "alcance": 5,
+      "coste": 2,
+      "objetivo_max": 3
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "descripcion": "Explosión de fuego que alcanza a varios enemigos cercanos."
+  },
+  "descarga_electrica": {
+    "id": "descarga_electrica",
+    "nombre": "Descarga eléctrica",
+    "nombre_en": "Lightning bolt",
+    "categoria": "hechizo",
+    "subtipo": "electricidad",
+    "efectos": {},
+    "stats": {
+      "danio": 5,
+      "area": 0,
+      "alcance": 7,
+      "coste": 2
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "descripcion": "Un rayo impacta con fuerza en un adversario."
+  },
+  "escudo_magico": {
+    "id": "escudo_magico",
+    "nombre": "Escudo mágico",
+    "nombre_en": "Magic shield",
+    "categoria": "hechizo",
+    "subtipo": "barrera",
+    "efectos": {},
+    "stats": {
+      "defensa": 2,
+      "duracion": 2,
+      "coste": 1
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "descripcion": "Barrera arcana que amortigua los golpes recibidos durante unos turnos."
+  },
+  "curacion_menor": {
+    "id": "curacion_menor",
+    "nombre": "Curación menor",
+    "nombre_en": "Minor healing",
+    "categoria": "hechizo",
+    "subtipo": "sanacion",
+    "efectos": {},
+    "stats": {
+      "curacion": 5,
+      "alcance": 3,
+      "coste": 1
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "descripcion": "Restaura una pequeña cantidad de salud a un aliado."
+  }
+}

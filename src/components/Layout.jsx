@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 export default function Layout({ children }) {
   const loc = useLocation()
-  const enValidar = loc.pathname.startsWith('/validar')
+  const path = loc.pathname
 
   return (
     <div className="layout">
@@ -14,9 +14,15 @@ export default function Layout({ children }) {
         <nav className="layout-nav">
           <Link
             to="/validar"
-            className={enValidar ? 'nav-link nav-link-active' : 'nav-link'}
+            className={path.startsWith('/validar') ? 'nav-link nav-link-active' : 'nav-link'}
           >
             Validar YAML
+          </Link>
+          <Link
+            to="/catalogo"
+            className={path.startsWith('/catalogo') ? 'nav-link nav-link-active' : 'nav-link'}
+          >
+            Catálogo
           </Link>
         </nav>
       </header>
