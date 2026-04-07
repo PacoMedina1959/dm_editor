@@ -15,13 +15,16 @@ En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rell
 
 ## Menú local (`tools/`)
 
-**Orden:** primero **arranca Vite** (`npm run dev` o el icono *Iniciar DM Editor*). Esta carpeta no levanta el servidor: el hub solo abre URLs en el navegador.
+Diseño para **no depender de la terminal**: el servidor puede arrancar **en segundo plano** y el navegador se abre solo.
 
-- **`tools/hub_editor.html`** — accesos a `/validar` y `/catalogo`; **autodetecta** puerto o usa `?base=`.
-- **`tools/menu_editor.sh`** — Zenity o menú terminal: **comprueba** si Vite responde en `:5180` y, si no, **ofrece abrir** `npm run dev` en una terminal nueva; luego abre **siempre** `http://localhost:5180/validar` o `/catalogo` (misma base que el servidor). El **hub HTML** queda como opción secundaria (`file://` no puede ser el flujo principal).
-- **`tools/start_vite.sh`** — Arranque mínimo de Vite (usa el menú o el escritorio).
+- **`tools/start_vite.sh`** — `npm run dev` en primer plano; con **`--background`** escribe en **`~/.cache/dm_editor/vite.log`** y guarda PID en **`vite.pid`** (misma carpeta).
+- **`tools/menu_editor.sh`** — Si hace falta, arranca con **`start_vite.sh --background`** (Zenity pregunta antes) y abre **`http://localhost:5180/validar`** o **`/catalogo`**. Opción **Modo desarrollador** si quieres una terminal con logs.
+- **`tools/lib_dm_editor.sh`** — Comprueba si el servidor responde (uso interno).
+- **`tools/hub_editor.html`** — Panel opcional; el flujo principal es la URL del Vite.
 
-Escritorio: **Menu DM Editor**, **Iniciar DM Editor** (equivalente a solo servidor).
+**Icono del escritorio *Iniciar DM Editor*** (si lo tienes): segundo plano + abre **`/validar`** sin dejarte una terminal obligatoria.
+
+**Detener el servidor:** `kill "$(cat ~/.cache/dm_editor/vite.pid)"` (o cerrar el proceso `node`/Vite desde el monitor del sistema).
 
 ## Desarrollo
 
