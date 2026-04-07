@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DM Editor — Utilidades</title>
+  <style>
+    :root {
+      --bg: #0e1218;
+      --panel: #171d27;
+      --accent: #3d9a6e;
+      --accent2: #5cb88a;
+      --text: #e8eaed;
+      --muted: #8a93a6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, "Segoe UI", sans-serif;
+      background: radial-gradient(ellipse at top, #1a232e, var(--bg));
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .wrap { width: min(420px, 100%); }
+    .header { text-align: center; margin-bottom: 1.25rem; }
+    .title { font-size: 1.65rem; font-weight: 600; }
+    .subtitle { color: var(--muted); font-size: 0.88rem; margin-top: 0.35rem; }
+    .base {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      word-break: break-all;
+    }
+    .panel {
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 1.1rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      margin: 0.45rem 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.15s, filter 0.15s;
+    }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+    .secondary { background: #2a3344; }
+    .status {
+      margin-top: 0.85rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+    .footer {
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">📐 DM Editor</div>
+      <div class="subtitle">Menú de utilidades (autoría)</div>
+      <div id="baseLine" class="base"></div>
+    </div>
+    <div class="panel">
+      <button type="button" class="btn primary" id="btnValidar">✓ Validar YAML</button>
+      <button type="button" class="btn primary" id="btnCatalogo">📦 Catálogo de objetos</button>
+      <button type="button" class="btn secondary" id="btnCheck">🔍 Comprobar dev server</button>
+      <div id="status" class="status">Estado: sin comprobar</div>
+    </div>
+    <div class="footer">
+      Amplía este HTML en <code>tools/hub_editor.html</code> al añadir rutas.
+      Otra URL base: abre este archivo con <code>?base=http://IP:5174</code>
+    </div>
+  </div>
+  <script>
+    const BASE = (() => {
+      try {
+        const q = new URLSearchParams(window.location.search).get('base');
+        if (q && String(q).trim()) return String(q).trim().replace(/\/$/, '');
+      } catch (e) { /* file:// */ }
+      return 'http://localhost:5174';
+    })();
+
+    document.getElementById('baseLine').textContent = 'Origen: ' + BASE;
+
+    function go(path) {
+      window.open(BASE.replace(/\/$/, '') + path, '_blank', 'noopener');
+    }
+
+    document.getElementById('btnValidar').onclick = () => go('/validar');
+    document.getElementById('btnCatalogo').onclick = () => go('/catalogo');
+
+    const statusEl = document.getElementById('status');
+    document.getElementById('btnCheck').onclick = async () => {
+      statusEl.textContent = '… comprobando';
+      try {
+        const r = await fetch(BASE + '/', { method: 'GET', mode: 'cors' });
+        statusEl.textContent = r.ok
+          ? '🟢 Respuesta OK — Vite suele estar activo'
+          : '⚠️ HTTP ' + r.status;
+      } catch (e) {
+        statusEl.textContent = '🔴 Sin respuesta — ¿npm run dev en el editor? (puerto ' + BASE + ')';
+      }
+    };
+  </script>
+</body>
+</html>

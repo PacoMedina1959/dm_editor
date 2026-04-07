@@ -13,6 +13,13 @@ En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rell
 - **Edición**: tabla + formulario; **stats** y **efectos** como JSON objeto.
 - **Exportar JSON**: descarga para sustituir o comparar con `catalogo_objetos.json` del motor.
 
+## Menú local (`tools/`)
+
+- **`tools/hub_editor.html`** — página con accesos a `/validar` y `/catalogo`. Ábrela con el navegador (`file://…`) o desde el menú. Query opcional: `?base=http://localhost:5174` (u otra máquina/puerto).
+- **`tools/menu_editor.sh`** — Zenity (si hay escritorio) o menú por terminal: hub, validar, catálogo. Variables: `DM_EDITOR_BASE`, `DM_EDITOR_HUB`.
+
+En el Escritorio: **Menu DM Editor** (lanza ese script).
+
 ## Desarrollo
 
 ```bash
