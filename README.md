@@ -10,7 +10,7 @@ npm install
 npm run dev
 ```
 
-- **URL del editor:** [http://localhost:5174](http://localhost:5174) (puerto distinto del frontend del motor, que suele usar 5173).
+- **URL del editor:** [http://localhost:5174](http://localhost:5174) por defecto (puerto distinto del frontend del motor, 5173). Si 5174 está ocupada, Vite elige la siguiente; **`vite.config.js`** abre el navegador en `/validar` con el puerto correcto.
 - Las peticiones a **`/api/*`** se reenvían al backend DM Virtual (`VITE_DEV_PROXY_TARGET`, por defecto `http://localhost:8000`). Arranca antes el motor (`uvicorn` en el repo `dm_virtual`).
 - Si prefieres URL absoluta del API (sin proxy), define **`VITE_API_BASE`** en `.env` (ver `.env.example`).
 
