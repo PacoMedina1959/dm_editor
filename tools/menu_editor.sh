@@ -2,13 +2,13 @@
 #
 # Menú DM Editor — abre el hub local o pestañas directas al Vite.
 #
-#   DM_EDITOR_BASE   URL del dev server (defecto: http://localhost:5174)
+#   DM_EDITOR_BASE   URL del dev server (defecto: http://localhost:5180)
 #   DM_EDITOR_HUB    ruta al hub HTML (defecto: junto a este script)
 #
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
-BASE="${DM_EDITOR_BASE:-http://localhost:5174}"
+BASE="${DM_EDITOR_BASE:-http://localhost:5180}"
 BASE="${BASE%/}"
 HUB_HTML="${DM_EDITOR_HUB:-$SCRIPT_DIR/hub_editor.html}"
 

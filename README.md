@@ -17,7 +17,7 @@ En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rell
 
 **Orden:** primero **arranca Vite** (`npm run dev` o el icono *Iniciar DM Editor*). Esta carpeta no levanta el servidor: el hub solo abre URLs en el navegador.
 
-- **`tools/hub_editor.html`** — accesos a `/validar` y `/catalogo`. Si Vite usa otro puerto (p. ej. 5175), abre el hub con `?base=http://localhost:5175`.
+- **`tools/hub_editor.html`** — accesos a `/validar` y `/catalogo`; **autodetecta** puerto o usa `?base=`.
 - **`tools/menu_editor.sh`** — Zenity o menú terminal. Variables: `DM_EDITOR_BASE`, `DM_EDITOR_HUB`.
 
 Escritorio: **Menu DM Editor**, **Iniciar DM Editor** (servidor).
@@ -30,7 +30,7 @@ npm install
 npm run dev
 ```
 
-- **URL del editor:** [http://localhost:5174](http://localhost:5174) por defecto (puerto distinto del frontend del motor, 5173). Si 5174 está ocupada, Vite elige la siguiente; **`vite.config.js`** abre el navegador en `/validar` con el puerto correcto.
+- **URL del editor:** [http://localhost:5180](http://localhost:5180) — puerto fijo en `vite.config.js` (`strictPort`) para no chocar con el frontend del motor (5173) ni con otros Vite en 5174+. Si 5180 está ocupado, Vite fallará: libera el puerto o cámbialo en la config.
 - Las peticiones a **`/api/*`** se reenvían al backend DM Virtual (`VITE_DEV_PROXY_TARGET`, por defecto `http://localhost:8000`). Arranca antes el motor (`uvicorn` en el repo `dm_virtual`).
 - Si prefieres URL absoluta del API (sin proxy), define **`VITE_API_BASE`** en `.env` (ver `.env.example`).
 

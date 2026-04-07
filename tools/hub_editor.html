@@ -93,59 +93,103 @@
     <div class="header">
       <div class="title">📐 DM Editor</div>
       <div class="subtitle">Menú de utilidades (autoría)</div>
-      <div id="baseLine" class="base"></div>
+      <div id="baseLine" class="base">Origen: …</div>
     </div>
     <div class="pasos">
-      <strong>Orden de arranque (no es un servidor: esto es solo un acceso directo)</strong>
+      <strong>Orden de arranque (el hub no levanta Vite, solo abre pestañas)</strong>
       <ol>
-        <li><b>Arranca Vite</b> en el proyecto <code>dm_editor</code>: icono del escritorio <b>Iniciar DM Editor</b>, o <code>npm run dev</code> (deja la terminal abierta).</li>
-        <li>Mira en esa terminal la línea <b>Local: http://localhost:…</b> — si no es el puerto de abajo, abre este archivo con <code>?base=</code> esa URL.</li>
-        <li>Luego usa los botones verdes o <b>Comprobar dev server</b>.</li>
+        <li><b>Arranca Vite</b>: icono <b>Iniciar DM Editor</b> o <code>npm run dev</code> en <code>dm_editor</code> (puerto fijo <b>5180</b> salvo que cambies <code>vite.config.js</code>).</li>
+        <li>La línea <b>Local</b> debe ser <code>http://localhost:5180/</code>. Si Vite dice «puerto en uso», cierra el otro proceso o cambia el puerto en la config y abre este hub con <code>?base=…</code>.</li>
+        <li>Al cargar, esta página <b>busca</b> automáticamente un servidor que sirva la app «DM Editor» en puertos habituales.</li>
       </ol>
     </div>
     <div class="panel">
       <button type="button" class="btn primary" id="btnValidar">✓ Validar YAML</button>
       <button type="button" class="btn primary" id="btnCatalogo">📦 Catálogo de objetos</button>
       <button type="button" class="btn secondary" id="btnCheck">🔍 Comprobar dev server</button>
-      <div id="status" class="status">Sin comprobar — si aún no arrancaste Vite, es normal. Usa el recuadro verde de arriba.</div>
+      <div id="status" class="status">Inicializando…</div>
     </div>
     <div class="footer">
-      Amplía este HTML en <code>tools/hub_editor.html</code> al añadir rutas.
-      Otra URL base: abre este archivo con <code>?base=http://IP:5174</code>
+      Más rutas: edita <code>tools/hub_editor.html</code>.
+      Otra base: <code>?base=http://127.0.0.1:5180</code>
     </div>
   </div>
   <script>
-    const BASE = (() => {
-      try {
-        const q = new URLSearchParams(window.location.search).get('base');
-        if (q && String(q).trim()) return String(q).trim().replace(/\/$/, '');
-      } catch (e) { /* file:// */ }
-      return 'http://localhost:5174';
-    })();
+    const DEFAULT_BASE = 'http://localhost:5180';
+    const MARK = '<title>DM Editor</title>';
 
-    document.getElementById('baseLine').textContent = 'Origen: ' + BASE;
-
-    function go(path) {
-      window.open(BASE.replace(/\/$/, '') + path, '_blank', 'noopener');
+    function normBase(u) {
+      return String(u || '').trim().replace(/\/$/, '');
     }
 
-    document.getElementById('btnValidar').onclick = () => go('/validar');
-    document.getElementById('btnCatalogo').onclick = () => go('/catalogo');
-
-    const statusEl = document.getElementById('status');
-    document.getElementById('btnCheck').onclick = async () => {
-      statusEl.textContent = '… comprobando';
-      try {
-        const r = await fetch(BASE + '/', { method: 'GET', mode: 'cors' });
-        statusEl.textContent = r.ok
-          ? '🟢 Respuesta OK — Vite suele estar activo'
-          : '⚠️ HTTP ' + r.status;
-      } catch (e) {
-        statusEl.textContent =
-          '🔴 No hay servidor en ' + BASE + ' — suele ser porque el paso 1 (Vite) no está en marcha. ' +
-          'Arranca «Iniciar DM Editor» o npm run dev y vuelve a comprobar.';
+    async function probeEditorBase() {
+      const ports = [];
+      for (let p = 5180; p <= 5199; p++) ports.push(p);
+      for (let p = 5174; p <= 5179; p++) ports.push(p);
+      for (const p of ports) {
+        try {
+          const url = `http://localhost:${p}/`;
+          const r = await fetch(url, { signal: AbortSignal.timeout(450), cache: 'no-store' });
+          const text = await r.text();
+          if (r.ok && text.includes(MARK)) return normBase(url);
+        } catch (_) { /* siguiente puerto */ }
       }
-    };
+      return null;
+    }
+
+    async function init() {
+      const baseLine = document.getElementById('baseLine');
+      const statusEl = document.getElementById('status');
+
+      let base = null;
+      try {
+        const q = new URLSearchParams(window.location.search).get('base');
+        if (q && String(q).trim()) base = normBase(q);
+      } catch (_) { /* file:// */ }
+
+      if (!base) {
+        baseLine.textContent = 'Origen: buscando servidor DM Editor…';
+        const found = await probeEditorBase();
+        base = found || DEFAULT_BASE;
+        baseLine.textContent =
+          'Origen: ' +
+          base +
+          (found ? ' (detectado automáticamente)' : ' (por defecto; comprueba con el botón)');
+      } else {
+        baseLine.textContent = 'Origen: ' + base + ' (desde ?base=)';
+      }
+
+      function go(path) {
+        window.open(normBase(base) + path, '_blank', 'noopener');
+      }
+
+      document.getElementById('btnValidar').onclick = () => go('/validar');
+      document.getElementById('btnCatalogo').onclick = () => go('/catalogo');
+
+      document.getElementById('btnCheck').onclick = async () => {
+        statusEl.textContent = '… comprobando';
+        try {
+          const r = await fetch(normBase(base) + '/', { method: 'GET', mode: 'cors', cache: 'no-store' });
+          const text = r.ok ? await r.text() : '';
+          if (r.ok && text.includes(MARK)) {
+            statusEl.textContent = '🟢 DM Editor respondiendo en ' + base;
+          } else if (r.ok) {
+            statusEl.textContent = '⚠️ Hay algo en ' + base + ' pero no parece esta app (revisa el puerto).';
+          } else {
+            statusEl.textContent = '⚠️ HTTP ' + r.status;
+          }
+        } catch (e) {
+          statusEl.textContent =
+            '🔴 No hay respuesta en ' +
+            base +
+            '. ¿Vite en marcha? Puerto esperado 5180. Si usas otro, abre el hub con ?base=…';
+        }
+      };
+
+      document.getElementById('btnCheck').click();
+    }
+
+    init();
   </script>
 </body>
 </html>

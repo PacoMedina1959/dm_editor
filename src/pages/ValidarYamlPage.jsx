@@ -64,7 +64,7 @@ export default function ValidarYamlPage() {
         ). Asegúrate de tener el backend en marcha; en desarrollo el proxy de Vite reenvía{' '}
         <code className="kbd">/api</code> a{' '}
         <code className="kbd">{import.meta.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8000'}</code>
-        (puerto del dev del editor: el que muestre Vite, p. ej. 5174).
+        (editor DM Virtual: puerto fijo <strong>5180</strong> en <code>vite.config.js</code>).
       </p>
 
       <div className="validar-toolbar">

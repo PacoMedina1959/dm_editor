@@ -8,8 +8,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-      port: 5174,
-      /** Abre el navegador en la ruta real (incluido si el puerto cambia por estar ocupado). */
+      /** 5180: evita colisiones con el frontend del motor (5173) y otros Vite en 5174+. */
+      port: 5180,
+      strictPort: true,
       open: '/validar',
       proxy: {
         '/api': {
