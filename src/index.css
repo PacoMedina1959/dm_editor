@@ -176,6 +176,19 @@ code,
   filter: brightness(1.08);
 }
 
+.btn-secondary {
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #5f6368;
+  background: #3c4043;
+  color: #e8eaed;
+  font-size: 0.88rem;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #4a4d51;
+}
+
 .field {
   display: flex;
   flex-direction: column;

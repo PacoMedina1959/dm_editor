@@ -3,6 +3,9 @@ import { postValidarCampana } from '../api/validarCampana.js'
 import IssueList from '../components/IssueList.jsx'
 import ResumenValidacion from '../components/ResumenValidacion.jsx'
 
+/** Copia empaquetada del ejemplo canónico del motor (`dm_virtual/.../ejemplo/aventura.yaml`). */
+const YAML_EJEMPLO_URL = `${import.meta.env.BASE_URL}samples/aventura-ejemplo.yaml`
+
 export default function ValidarYamlPage() {
   const [yamlText, setYamlText] = useState('')
   const [busy, setBusy] = useState(false)
@@ -39,6 +42,20 @@ export default function ValidarYamlPage() {
     }
   }
 
+  const cargarEjemplo = async () => {
+    setFetchError(null)
+    try {
+      const res = await fetch(YAML_EJEMPLO_URL)
+      if (!res.ok) {
+        throw new Error(`No se pudo cargar el ejemplo (${res.status})`)
+      }
+      setYamlText(await res.text())
+      setResultado(null)
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
   return (
     <div className="page validar-page">
       <h1 className="page-title">Validar aventura (YAML)</h1>
@@ -47,10 +64,13 @@ export default function ValidarYamlPage() {
         ). Asegúrate de tener el backend en marcha; en desarrollo el proxy de Vite reenvía{' '}
         <code className="kbd">/api</code> a{' '}
         <code className="kbd">{import.meta.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8000'}</code>
-        (puerto del editor: <strong>5174</strong>).
+        (puerto del dev del editor: el que muestre Vite, p. ej. 5174).
       </p>
 
       <div className="validar-toolbar">
+        <button type="button" className="btn-secondary" onClick={cargarEjemplo}>
+          Cargar ejemplo canónico
+        </button>
         <label className="btn-file">
           <input
             type="file"

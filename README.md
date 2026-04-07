@@ -2,6 +2,10 @@
 
 Aplicación de **autoría** para campañas compatibles con [**DM Virtual**](https://github.com/PacoMedina1959/dm_virtual): canon `aventura.yaml` / `GestorEscenas`. Este repo es solo el editor; el motor y la partida viven en el otro proyecto.
 
+## Probar sin un `aventura.yaml` propio
+
+En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rellena el texto con una copia de `dm_virtual/backend/data/campañas/ejemplo/aventura.yaml` (fichero en `public/samples/`). Si el ejemplo del motor cambia mucho, conviene volver a copiar ese YAML al editor.
+
 ## Desarrollo
 
 ```bash
