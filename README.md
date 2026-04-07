@@ -15,10 +15,12 @@ En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rell
 
 ## Menú local (`tools/`)
 
-- **`tools/hub_editor.html`** — página con accesos a `/validar` y `/catalogo`. Ábrela con el navegador (`file://…`) o desde el menú. Query opcional: `?base=http://localhost:5174` (u otra máquina/puerto).
-- **`tools/menu_editor.sh`** — Zenity (si hay escritorio) o menú por terminal: hub, validar, catálogo. Variables: `DM_EDITOR_BASE`, `DM_EDITOR_HUB`.
+**Orden:** primero **arranca Vite** (`npm run dev` o el icono *Iniciar DM Editor*). Esta carpeta no levanta el servidor: el hub solo abre URLs en el navegador.
 
-En el Escritorio: **Menu DM Editor** (lanza ese script).
+- **`tools/hub_editor.html`** — accesos a `/validar` y `/catalogo`. Si Vite usa otro puerto (p. ej. 5175), abre el hub con `?base=http://localhost:5175`.
+- **`tools/menu_editor.sh`** — Zenity o menú terminal. Variables: `DM_EDITOR_BASE`, `DM_EDITOR_HUB`.
+
+Escritorio: **Menu DM Editor**, **Iniciar DM Editor** (servidor).
 
 ## Desarrollo
 

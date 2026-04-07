@@ -71,6 +71,21 @@
       text-align: center;
       line-height: 1.45;
     }
+    .pasos {
+      background: rgba(61, 154, 110, 0.12);
+      border: 1px solid rgba(61, 154, 110, 0.35);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      text-align: left;
+      color: #c5e8d4;
+    }
+    .pasos strong { color: #e8eaed; display: block; margin-bottom: 0.35rem; }
+    .pasos ol { margin: 0.35rem 0 0; padding-left: 1.2rem; }
+    .pasos li { margin: 0.25rem 0; }
+    .pasos code { font-size: 0.78em; background: rgba(0,0,0,0.25); padding: 0.1em 0.35em; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -80,11 +95,19 @@
       <div class="subtitle">Menú de utilidades (autoría)</div>
       <div id="baseLine" class="base"></div>
     </div>
+    <div class="pasos">
+      <strong>Orden de arranque (no es un servidor: esto es solo un acceso directo)</strong>
+      <ol>
+        <li><b>Arranca Vite</b> en el proyecto <code>dm_editor</code>: icono del escritorio <b>Iniciar DM Editor</b>, o <code>npm run dev</code> (deja la terminal abierta).</li>
+        <li>Mira en esa terminal la línea <b>Local: http://localhost:…</b> — si no es el puerto de abajo, abre este archivo con <code>?base=</code> esa URL.</li>
+        <li>Luego usa los botones verdes o <b>Comprobar dev server</b>.</li>
+      </ol>
+    </div>
     <div class="panel">
       <button type="button" class="btn primary" id="btnValidar">✓ Validar YAML</button>
       <button type="button" class="btn primary" id="btnCatalogo">📦 Catálogo de objetos</button>
       <button type="button" class="btn secondary" id="btnCheck">🔍 Comprobar dev server</button>
-      <div id="status" class="status">Estado: sin comprobar</div>
+      <div id="status" class="status">Sin comprobar — si aún no arrancaste Vite, es normal. Usa el recuadro verde de arriba.</div>
     </div>
     <div class="footer">
       Amplía este HTML en <code>tools/hub_editor.html</code> al añadir rutas.
@@ -118,7 +141,9 @@
           ? '🟢 Respuesta OK — Vite suele estar activo'
           : '⚠️ HTTP ' + r.status;
       } catch (e) {
-        statusEl.textContent = '🔴 Sin respuesta — ¿npm run dev en el editor? (puerto ' + BASE + ')';
+        statusEl.textContent =
+          '🔴 No hay servidor en ' + BASE + ' — suele ser porque el paso 1 (Vite) no está en marcha. ' +
+          'Arranca «Iniciar DM Editor» o npm run dev y vuelve a comprobar.';
       }
     };
   </script>

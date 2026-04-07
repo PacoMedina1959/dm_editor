@@ -68,8 +68,8 @@ menu_terminal() {
 }
 
 if [[ -n "${DISPLAY:-}" ]] && command -v zenity >/dev/null 2>&1; then
-  choice="$(zenity --list --title="DM Editor" --width=360 --height=260 \
-    --text="Servidor dev: <b>$BASE</b>\n(Arranca con Iniciar DM Editor o npm run dev)" \
+  choice="$(zenity --list --title="DM Editor" --width=380 --height=300 \
+    --text="<b>1)</b> Arranca antes Vite: «Iniciar DM Editor» o <tt>npm run dev</tt> en dm_editor.\n<b>2)</b> Luego abre el hub o una ruta.\n\nServidor esperado: <b>$BASE</b>" \
     --column="" --hide-header \
     "📋 Hub de utilidades (recomendado)" \
     "✓ Abrir /validar" \
