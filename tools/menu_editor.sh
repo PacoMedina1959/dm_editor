@@ -115,7 +115,11 @@ print(p.as_uri() + "?" + q)
 }
 
 abrir() {
-  xdg-open "$1" 2>/dev/null &
+  local url="$1"
+  [[ -z "$url" ]] && return 0
+  command -v xdg-open >/dev/null 2>&1 || return 0
+  xdg-open "$url" 2>/dev/null &
+  disown 2>/dev/null || true
 }
 
 accion_dev_terminal() {
@@ -124,7 +128,15 @@ accion_dev_terminal() {
 }
 
 accion_hub() {
-  abrir "$(uri_hub)"
+  local u
+  u="$(uri_hub 2>/dev/null)" || u=""
+  if [[ -z "$u" ]]; then
+    if command -v zenity >/dev/null 2>&1; then
+      zenity --error --title="DM Editor" --text="No se encontró hub_editor.html" 2>/dev/null || true
+    fi
+    return 0
+  fi
+  abrir "$u"
 }
 
 accion_validar() {
@@ -135,35 +147,44 @@ accion_catalogo() {
   abrir "${BASE}/catalogo"
 }
 
+accion_aventura() {
+  abrir "${BASE}/aventura"
+}
+
 menu_terminal() {
   local logdir
   logdir="$(dm_editor_log_dir)"
   echo "DM Editor — base: $BASE (log segundo plano: $logdir/vite.log)"
   PS3="Opción: "
-  select opt in "Validar YAML" "Catálogo" "Iniciar servidor (segundo plano)" "Modo desarrollador (terminal con logs)" "Panel hub (HTML)" "Salir"; do
+  select opt in "Visor de aventura" "Validar YAML" "Catálogo" "Iniciar servidor (segundo plano)" "Modo desarrollador (terminal con logs)" "Panel hub (HTML)" "Salir"; do
     case $REPLY in
       1)
         asegurar_vite || true
-        accion_validar
+        accion_aventura
         break
         ;;
       2)
         asegurar_vite || true
-        accion_catalogo
+        accion_validar
         break
         ;;
       3)
+        asegurar_vite || true
+        accion_catalogo
+        break
+        ;;
+      4)
         iniciar_vite_segundo_plano
         esperar_editor 120 || echo "Revisa $logdir/vite.log" >&2
         break
         ;;
-      4) accion_dev_terminal; break ;;
-      5)
+      5) accion_dev_terminal; break ;;
+      6)
         asegurar_vite || true
         accion_hub
         break
         ;;
-      6) break ;;
+      7) break ;;
       *) echo "Número no válido" ;;
     esac
   done
@@ -172,21 +193,38 @@ menu_terminal() {
 if [[ -n "${DISPLAY:-}" ]] && command -v zenity >/dev/null 2>&1; then
   asegurar_vite || true
 
-  choice="$(zenity --list --title="DM Editor" --width=440 --height=380 \
-    --text="Todo en <b>$BASE</b> — el servidor puede arrancar solo en segundo plano (sin terminal)." \
-    --column="" --hide-header \
-    "✓ Validar YAML" \
-    "📦 Catálogo de objetos" \
-    "📋 Panel hub (opcional, archivo local)" \
-    "🔧 Modo desarrollador: terminal con logs" \
+  # ID en columna oculta: salida estable (1…4) aunque Zenity devuelva "1|texto".
+  choice="$(zenity --list --title="DM Editor" --width=460 --height=440 \
+    --text="Todo está en <b>$BASE</b>. Elige una opción:" \
+    --column="#" --column="Acción" --print-column=1 --hide-column=1 \
+    "1" "Visor de aventura" \
+    "2" "Validar YAML" \
+    "3" "Catálogo de objetos" \
+    "4" "Panel hub (archivo local)" \
+    "5" "Modo desarrollador (terminal con logs)" \
     2>/dev/null)" || exit 0
 
+  choice="${choice//$'\r'/}"
+  choice="${choice//$'\n'/}"
+  choice="${choice%%|*}"
+
+  if [[ -z "$choice" ]]; then
+    zenity --warning --title="DM Editor" --text="No se seleccionó ninguna fila (haz clic en una línea antes de Aceptar)." 2>/dev/null || true
+    exit 0
+  fi
+
+  set +e
   case "$choice" in
-    *Validar*) accion_validar ;;
-    *Catálogo*) accion_catalogo ;;
-    *hub*|*Panel*) accion_hub ;;
-    *desarrollador*|*terminal*|*logs*) accion_dev_terminal ;;
+    1) accion_aventura ;;
+    2) accion_validar ;;
+    3) accion_catalogo ;;
+    4) accion_hub ;;
+    5) accion_dev_terminal ;;
+    *)
+      zenity --warning --title="DM Editor" --text="Opción no reconocida: «$choice»" 2>/dev/null || true
+      ;;
   esac
+  set -e
   exit 0
 fi
 

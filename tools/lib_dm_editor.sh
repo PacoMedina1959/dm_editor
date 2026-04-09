@@ -38,3 +38,17 @@ esperar_editor() {
 dm_editor_log_dir() {
   echo "${XDG_CACHE_HOME:-$HOME/.cache}/dm_editor"
 }
+
+# Devuelve 0 si algo escucha en el puerto TCP dado (p. ej. 5180).
+dm_editor_puerto_ocupado() {
+  local puerto="${1:-5180}"
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltnH 2>/dev/null | grep -qE ":${puerto}\$" && return 0
+    return 1
+  fi
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -iTCP:"$puerto" -sTCP:LISTEN -n -P >/dev/null 2>&1 && return 0
+    return 1
+  fi
+  return 1
+}

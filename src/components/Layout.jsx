@@ -13,6 +13,12 @@ export default function Layout({ children }) {
         </div>
         <nav className="layout-nav">
           <Link
+            to="/aventura"
+            className={path.startsWith('/aventura') ? 'nav-link nav-link-active' : 'nav-link'}
+          >
+            Aventura
+          </Link>
+          <Link
             to="/validar"
             className={path.startsWith('/validar') ? 'nav-link nav-link-active' : 'nav-link'}
           >

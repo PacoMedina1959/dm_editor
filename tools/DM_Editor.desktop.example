@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=DM Editor
+Comment=Editor de campañas para DM Virtual (Validar YAML, Catálogo, etc.)
+# Ajusta la ruta si tu Escritorio o el repo están en otro sitio.
+Exec=/home/paco/Escritorio/DM_Editor.sh
+Icon=accessories-text-editor
+Terminal=false
+Categories=Development;Utility;Game;
