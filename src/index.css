@@ -1224,3 +1224,130 @@ select.av-input {
   font-weight: 600;
   margin: 0;
 }
+
+/* --- Mapa de escenas --- */
+
+.av-mapa {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.av-mapa-title {
+  color: #e8eaed;
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #21262d;
+}
+
+.av-mapa-grid {
+  display: grid;
+  gap: 1rem;
+  min-width: min-content;
+}
+
+.av-mapa-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.av-mapa-acto-label {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #58a6ff;
+  padding: 0.3rem;
+  background: #161b22;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.av-mapa-node {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0.5rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  transition: border-color 0.15s;
+}
+
+.av-mapa-node:hover {
+  border-color: #58a6ff;
+}
+
+.av-mapa-node-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.av-mapa-node-id {
+  font-size: 0.72rem;
+  color: #8b949e;
+  font-family: monospace;
+  background: #21262d;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+.av-mapa-node-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #e8eaed;
+}
+
+.av-mapa-tension {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  align-self: flex-start;
+}
+
+.av-mapa-tension-bajo { background: #0a2d0a; color: #60f080; }
+.av-mapa-tension-medio { background: #2d2200; color: #f0c060; }
+.av-mapa-tension-medio-alto { background: #3d1f00; color: #f0883e; }
+.av-mapa-tension-alto { background: #2d0a0a; color: #f08080; }
+.av-mapa-tension-maximo { background: #3d0020; color: #ff60a0; }
+
+.av-mapa-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.av-mapa-link {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  background: #1a2332;
+  color: #58a6ff;
+  border: 1px solid #1a3050;
+  cursor: default;
+}
+
+.av-mapa-link-final {
+  background: #2a1a10;
+  color: #f0a830;
+  border-color: #3a2a10;
+}
+
+.av-mapa-link-broken {
+  border-color: #8a2020;
+  color: #f08080;
+  text-decoration: line-through;
+}
+
+.av-mapa-dead {
+  font-size: 0.72rem;
+  color: #8b949e;
+  font-style: italic;
+}

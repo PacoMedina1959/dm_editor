@@ -45,6 +45,14 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate }) {
     onUpdate(copy)
   }
 
+  const duplicate = (i) => {
+    const clone = structuredClone(items[i])
+    clone.id = clone.id + '_copia'
+    const copy = [...items]
+    copy.splice(i + 1, 0, clone)
+    onUpdate(copy)
+  }
+
   if (!items.length && !editable) return null
 
   const zonas = {}
@@ -87,6 +95,7 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate }) {
                 loc={loc}
                 editable={editable}
                 onEdit={() => startEdit(realIdx)}
+                onDuplicate={() => duplicate(realIdx)}
                 onMoveUp={() => move(realIdx, -1)}
                 onMoveDown={() => move(realIdx, 1)}
                 isFirst={realIdx === 0}
@@ -102,7 +111,7 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate }) {
   )
 }
 
-function LocRow({ loc, editable, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
+function LocRow({ loc, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="av-crud-row">
@@ -123,6 +132,7 @@ function LocRow({ loc, editable, onEdit, onMoveUp, onMoveDown, isFirst, isLast }
       {editable && (
         <div className="av-crud-actions">
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
+          <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}
           {!isLast && <button type="button" className="av-btn-icon" onClick={onMoveDown} title="Bajar">▼</button>}
         </div>

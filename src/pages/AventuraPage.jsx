@@ -16,6 +16,7 @@ import SeccionHistoria from '../components/aventura/SeccionHistoria.jsx'
 import SeccionFinales from '../components/aventura/SeccionFinales.jsx'
 import SeccionEscenas from '../components/aventura/SeccionEscenas.jsx'
 import SeccionEventos from '../components/aventura/SeccionEventos.jsx'
+import MapaEscenas from '../components/aventura/MapaEscenas.jsx'
 
 const SAMPLE_URL = `${import.meta.env.BASE_URL}samples/aventura-ejemplo.yaml`
 
@@ -247,10 +248,13 @@ export default function AventuraPage() {
             />
           )}
           {visibles.has('escenas') && (
-            <SeccionEscenas
-              escenas={data.escenas || []}
-              onUpdate={(v) => updateSection('escenas', v)}
-            />
+            <>
+              <MapaEscenas escenas={data.escenas || []} finales={data.finales || []} />
+              <SeccionEscenas
+                escenas={data.escenas || []}
+                onUpdate={(v) => updateSection('escenas', v)}
+              />
+            </>
           )}
           {visibles.has('eventos_definidos') && (
             <SeccionEventos

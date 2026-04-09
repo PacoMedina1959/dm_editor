@@ -33,6 +33,10 @@ export default function SeccionFinales({ finales, onUpdate }) {
     const j = i + dir; if (j < 0 || j >= items.length) return
     const c = [...items]; [c[i], c[j]] = [c[j], c[i]]; onUpdate(c)
   }
+  const duplicate = (i) => {
+    const clone = structuredClone(items[i]); clone.id += '_copia'
+    const c = [...items]; c.splice(i + 1, 0, clone); onUpdate(c)
+  }
 
   if (!items.length && !editable) return null
 
@@ -55,7 +59,7 @@ export default function SeccionFinales({ finales, onUpdate }) {
           ) : (
             <FinalCard
               key={f.id} final_={f} editable={editable}
-              onEdit={() => startEdit(i)}
+              onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
               onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
               isFirst={i === 0} isLast={i === items.length - 1}
             />
@@ -68,7 +72,7 @@ export default function SeccionFinales({ finales, onUpdate }) {
   )
 }
 
-function FinalCard({ final_: f, editable, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
+function FinalCard({ final_: f, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
   return (
     <div className="av-card">
       <div className="av-card-header">
@@ -94,6 +98,7 @@ function FinalCard({ final_: f, editable, onEdit, onMoveUp, onMoveDown, isFirst,
       {editable && (
         <div className="av-crud-actions">
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
+          <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}
           {!isLast && <button type="button" className="av-btn-icon" onClick={onMoveDown} title="Bajar">▼</button>}
         </div>

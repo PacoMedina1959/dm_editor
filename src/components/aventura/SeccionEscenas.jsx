@@ -46,6 +46,10 @@ export default function SeccionEscenas({ escenas, onUpdate }) {
     const j = i + dir; if (j < 0 || j >= items.length) return
     const c = [...items]; [c[i], c[j]] = [c[j], c[i]]; onUpdate(c)
   }
+  const duplicate = (i) => {
+    const clone = structuredClone(items[i]); clone.id += '_copia'; clone.nombre += ' (copia)'
+    const c = [...items]; c.splice(i + 1, 0, clone); onUpdate(c)
+  }
 
   if (!items.length && !editable) return null
 
@@ -81,6 +85,7 @@ export default function SeccionEscenas({ escenas, onUpdate }) {
               <EscenaRow
                 key={e.id} escena={e} editable={editable}
                 onEdit={() => startEdit(realIdx)}
+                onDuplicate={() => duplicate(realIdx)}
                 onMoveUp={() => move(realIdx, -1)}
                 onMoveDown={() => move(realIdx, 1)}
                 isFirst={realIdx === 0} isLast={realIdx === items.length - 1}
@@ -97,7 +102,7 @@ export default function SeccionEscenas({ escenas, onUpdate }) {
 
 /* ───────── fila vista ───────── */
 
-function EscenaRow({ escena, editable, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
+function EscenaRow({ escena, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
   const int_ = escena.intencion_dm_default
   return (
@@ -111,6 +116,7 @@ function EscenaRow({ escena, editable, onEdit, onMoveUp, onMoveDown, isFirst, is
       {editable && (
         <div className="av-crud-actions">
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
+          <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}
           {!isLast && <button type="button" className="av-btn-icon" onClick={onMoveDown} title="Bajar">▼</button>}
         </div>

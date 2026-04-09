@@ -30,6 +30,10 @@ export default function SeccionBestiario({ bestiario, onUpdate }) {
     const j = i + dir; if (j < 0 || j >= items.length) return
     const c = [...items]; [c[i], c[j]] = [c[j], c[i]]; onUpdate(c)
   }
+  const duplicate = (i) => {
+    const clone = structuredClone(items[i]); clone.id += '_copia'
+    const c = [...items]; c.splice(i + 1, 0, clone); onUpdate(c)
+  }
 
   if (!items.length && !editable) return null
 
@@ -51,7 +55,7 @@ export default function SeccionBestiario({ bestiario, onUpdate }) {
         ) : (
           <BestiaRow
             key={b.id} bestia={b} editable={editable}
-            onEdit={() => startEdit(i)}
+            onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
             onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
             isFirst={i === 0} isLast={i === items.length - 1}
           />
@@ -69,7 +73,7 @@ function PeligroBadge({ peligro }) {
   return <span className="av-badge" style={{ background: colors[peligro.toLowerCase()] || '#555' }}>{peligro}</span>
 }
 
-function BestiaRow({ bestia, editable, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
+function BestiaRow({ bestia, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="av-crud-row">
@@ -91,6 +95,7 @@ function BestiaRow({ bestia, editable, onEdit, onMoveUp, onMoveDown, isFirst, is
       {editable && (
         <div className="av-crud-actions">
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
+          <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}
           {!isLast && <button type="button" className="av-btn-icon" onClick={onMoveDown} title="Bajar">▼</button>}
         </div>
