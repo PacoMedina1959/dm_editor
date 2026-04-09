@@ -7,6 +7,7 @@ import {
   descargarArchivo,
   validarAventura,
 } from '../domain/aventura.js'
+import useUndoRedo from '../hooks/useUndoRedo.js'
 import SeccionMeta from '../components/aventura/SeccionMeta.jsx'
 import SeccionMundo from '../components/aventura/SeccionMundo.jsx'
 import SeccionLocalizaciones from '../components/aventura/SeccionLocalizaciones.jsx'
@@ -64,7 +65,10 @@ function formatAge(ts) {
 }
 
 export default function AventuraPage() {
-  const [data, setData] = useState(null)
+  const {
+    state: data, pushState, resetState,
+    undo, redo, canUndo, canRedo,
+  } = useUndoRedo(null)
   const [loadError, setLoadError] = useState(null)
   const [sourceLabel, setSourceLabel] = useState('')
   const [dirty, setDirty] = useState(false)
@@ -73,7 +77,6 @@ export default function AventuraPage() {
   const [recoveryOffer, setRecoveryOffer] = useState(() => loadFromLocalStorage())
   const autosaveTimer = useRef(null)
 
-  // Autoguardado: cada vez que data cambia y hay dirty, guardar con debounce
   useEffect(() => {
     if (!data || !dirty) return
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current)
@@ -81,15 +84,27 @@ export default function AventuraPage() {
     return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current) }
   }, [data, dirty, sourceLabel])
 
+  // Atajos de teclado: Ctrl+Z = undo, Ctrl+Shift+Z / Ctrl+Y = redo
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+        if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo() }
+        else if ((e.key === 'z' && e.shiftKey) || e.key === 'y') { e.preventDefault(); redo() }
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [undo, redo])
+
   const cargar = (text, label) => {
     setLoadError(null)
     const result = parseAventuraYaml(text)
     if (!result.ok) {
       setLoadError(result.error)
-      setData(null)
+      resetState(null)
       return
     }
-    setData(result.data)
+    resetState(result.data)
     setSourceLabel(label)
     setDirty(false)
     setRecoveryOffer(null)
@@ -97,7 +112,7 @@ export default function AventuraPage() {
 
   const recuperarSesion = () => {
     if (!recoveryOffer?.data) return
-    setData(recoveryOffer.data)
+    resetState(recoveryOffer.data)
     setSourceLabel(recoveryOffer.sourceLabel || 'Sesión recuperada')
     setDirty(true)
     setRecoveryOffer(null)
@@ -119,7 +134,7 @@ export default function AventuraPage() {
   }
 
   const nuevaAventura = () => {
-    setData(plantillaAventura())
+    resetState(plantillaAventura())
     setSourceLabel('Nueva aventura')
     setLoadError(null)
     setDirty(false)
@@ -160,12 +175,12 @@ export default function AventuraPage() {
    * @param {any} value
    */
   const updateSection = useCallback((key, value) => {
-    setData(prev => {
+    pushState(prev => {
       if (!prev) return prev
       return { ...prev, [key]: value }
     })
     setDirty(true)
-  }, [])
+  }, [pushState])
 
   const toggleSeccion = (key) => {
     setVisibles(prev => {
@@ -217,6 +232,10 @@ export default function AventuraPage() {
         </button>
         {data && (
           <>
+            <span className="av-undo-group">
+              <button type="button" className="av-btn-undo" onClick={undo} disabled={!canUndo} title="Deshacer (Ctrl+Z)">↩</button>
+              <button type="button" className="av-btn-undo" onClick={redo} disabled={!canRedo} title="Rehacer (Ctrl+Shift+Z)">↪</button>
+            </span>
             <button type="button" className="btn-secondary" onClick={ejecutarValidacion}>
               Validar
             </button>

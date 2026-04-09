@@ -1416,3 +1416,29 @@ select.av-input {
   color: #e8eaed;
   border-color: #58a6ff;
 }
+
+/* ── undo / redo ── */
+.av-undo-group {
+  display: inline-flex;
+  gap: 2px;
+  margin-right: 0.25rem;
+}
+.av-btn-undo {
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e8eaed;
+  font-size: 1.05rem;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s;
+}
+.av-btn-undo:hover:not(:disabled) {
+  background: #30363d;
+  border-color: #58a6ff;
+}
+.av-btn-undo:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
