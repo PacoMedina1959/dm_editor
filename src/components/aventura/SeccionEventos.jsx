@@ -28,6 +28,10 @@ export default function SeccionEventos({ eventos, onUpdate }) {
     const j = i + dir; if (j < 0 || j >= items.length) return
     const c = [...items]; [c[i], c[j]] = [c[j], c[i]]; onUpdate(c)
   }
+  const duplicate = (i) => {
+    const clone = structuredClone(items[i]); clone.id += '_copia'
+    const c = [...items]; c.splice(i + 1, 0, clone); onUpdate(c)
+  }
 
   if (!items.length && !editable) return null
 
@@ -49,7 +53,7 @@ export default function SeccionEventos({ eventos, onUpdate }) {
         ) : (
           <EventoRow
             key={ev.id} evento={ev} editable={editable}
-            onEdit={() => startEdit(i)}
+            onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
             onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
             isFirst={i === 0} isLast={i === items.length - 1}
           />
@@ -61,7 +65,7 @@ export default function SeccionEventos({ eventos, onUpdate }) {
   )
 }
 
-function EventoRow({ evento, editable, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
+function EventoRow({ evento, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
   const det = evento.deteccion_automatica
   return (
     <div className="av-crud-row">
@@ -77,6 +81,7 @@ function EventoRow({ evento, editable, onEdit, onMoveUp, onMoveDown, isFirst, is
       {editable && (
         <div className="av-crud-actions">
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
+          <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}
           {!isLast && <button type="button" className="av-btn-icon" onClick={onMoveDown} title="Bajar">▼</button>}
         </div>

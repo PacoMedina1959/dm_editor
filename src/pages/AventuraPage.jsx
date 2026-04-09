@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   parseAventuraYaml,
   resumenAventura,
@@ -32,14 +32,54 @@ const SECCIONES = [
   { key: 'eventos_definidos', label: 'Eventos' },
 ]
 
+const LS_KEY = 'dm_editor_autosave'
+
+function saveToLocalStorage(data, sourceLabel) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ data, sourceLabel, ts: Date.now() }))
+  } catch { /* quota exceeded — ignore */ }
+}
+
+function loadFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed?.data) return null
+    return parsed
+  } catch { return null }
+}
+
+function clearLocalStorage() {
+  try { localStorage.removeItem(LS_KEY) } catch {}
+}
+
+function formatAge(ts) {
+  const mins = Math.round((Date.now() - ts) / 60000)
+  if (mins < 1) return 'hace unos segundos'
+  if (mins < 60) return `hace ${mins} min`
+  const hrs = Math.round(mins / 60)
+  if (hrs < 24) return `hace ${hrs}h`
+  return `hace ${Math.round(hrs / 24)} días`
+}
+
 export default function AventuraPage() {
-  /** @type {[object|null, function]} data = raw parsed YAML object (mutable) */
   const [data, setData] = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [sourceLabel, setSourceLabel] = useState('')
   const [dirty, setDirty] = useState(false)
   const [validacion, setValidacion] = useState(null)
   const [visibles, setVisibles] = useState(new Set(SECCIONES.map(s => s.key)))
+  const [recoveryOffer, setRecoveryOffer] = useState(() => loadFromLocalStorage())
+  const autosaveTimer = useRef(null)
+
+  // Autoguardado: cada vez que data cambia y hay dirty, guardar con debounce
+  useEffect(() => {
+    if (!data || !dirty) return
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current)
+    autosaveTimer.current = setTimeout(() => saveToLocalStorage(data, sourceLabel), 1500)
+    return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current) }
+  }, [data, dirty, sourceLabel])
 
   const cargar = (text, label) => {
     setLoadError(null)
@@ -52,6 +92,20 @@ export default function AventuraPage() {
     setData(result.data)
     setSourceLabel(label)
     setDirty(false)
+    setRecoveryOffer(null)
+  }
+
+  const recuperarSesion = () => {
+    if (!recoveryOffer?.data) return
+    setData(recoveryOffer.data)
+    setSourceLabel(recoveryOffer.sourceLabel || 'Sesión recuperada')
+    setDirty(true)
+    setRecoveryOffer(null)
+  }
+
+  const descartarRecuperacion = () => {
+    clearLocalStorage()
+    setRecoveryOffer(null)
   }
 
   const cargarEjemplo = async () => {
@@ -96,6 +150,8 @@ export default function AventuraPage() {
     const nombre = (data.aventura?.nombre || 'aventura')
       .toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
     descargarArchivo(aventuraToYaml(data), `${nombre}.yaml`)
+    setDirty(false)
+    clearLocalStorage()
   }
 
   /**
@@ -128,6 +184,20 @@ export default function AventuraPage() {
       <p className="page-lead">
         Carga, edita y exporta un <code className="kbd">aventura.yaml</code> completo.
       </p>
+
+      {!data && recoveryOffer && (
+        <div className="av-recovery">
+          <span>
+            Hay una sesión sin guardar ({recoveryOffer.sourceLabel || 'sin nombre'}, {formatAge(recoveryOffer.ts)}).
+          </span>
+          <button type="button" className="btn-primary av-btn-small" onClick={recuperarSesion}>
+            Recuperar
+          </button>
+          <button type="button" className="btn-secondary av-btn-small" onClick={descartarRecuperacion}>
+            Descartar
+          </button>
+        </div>
+      )}
 
       <div className="validar-toolbar">
         <button type="button" className="btn-secondary" onClick={cargarEjemplo}>
