@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import yaml from 'js-yaml'
+import FilterInput from './FilterInput.jsx'
 
 /* ───────── constantes ───────── */
 
@@ -53,9 +54,6 @@ export default function SeccionEscenas({ escenas, onUpdate }) {
 
   if (!items.length && !editable) return null
 
-  const actos = {}
-  for (const e of items) { const a = e.acto ?? '?'; if (!actos[a]) actos[a] = []; actos[a].push(e) }
-
   return (
     <section className="av-section">
       <div className="av-section-header">
@@ -67,33 +65,39 @@ export default function SeccionEscenas({ escenas, onUpdate }) {
         <EscenaForm draft={editIdx.draft} onSave={saveItem} onCancel={cancel} />
       )}
 
-      {Object.entries(actos).map(([acto, escs]) => (
-        <div key={acto} className="av-group">
-          <h3 className="av-group-title">Acto {acto}</h3>
-          {escs.map(e => {
-            const realIdx = items.indexOf(e)
-            const isEditing = editIdx?.mode === 'edit' && editIdx.index === realIdx
-            return isEditing ? (
-              <EscenaForm
-                key={e.id}
-                draft={editIdx.draft}
-                onSave={saveItem}
-                onCancel={cancel}
-                onDelete={() => remove(realIdx)}
-              />
-            ) : (
-              <EscenaRow
-                key={e.id} escena={e} editable={editable}
-                onEdit={() => startEdit(realIdx)}
-                onDuplicate={() => duplicate(realIdx)}
-                onMoveUp={() => move(realIdx, -1)}
-                onMoveDown={() => move(realIdx, 1)}
-                isFirst={realIdx === 0} isLast={realIdx === items.length - 1}
-              />
-            )
-          })}
-        </div>
-      ))}
+      <FilterInput items={items} fields={['id', 'nombre', 'objetivo']}>
+        {filtered => {
+          const actos = {}
+          for (const e of filtered) { const a = e.acto ?? '?'; if (!actos[a]) actos[a] = []; actos[a].push(e) }
+          return Object.entries(actos).map(([acto, escs]) => (
+            <div key={acto} className="av-group">
+              <h3 className="av-group-title">Acto {acto}</h3>
+              {escs.map(e => {
+                const realIdx = items.indexOf(e)
+                const isEditing = editIdx?.mode === 'edit' && editIdx.index === realIdx
+                return isEditing ? (
+                  <EscenaForm
+                    key={e.id}
+                    draft={editIdx.draft}
+                    onSave={saveItem}
+                    onCancel={cancel}
+                    onDelete={() => remove(realIdx)}
+                  />
+                ) : (
+                  <EscenaRow
+                    key={e.id} escena={e} editable={editable}
+                    onEdit={() => startEdit(realIdx)}
+                    onDuplicate={() => duplicate(realIdx)}
+                    onMoveUp={() => move(realIdx, -1)}
+                    onMoveDown={() => move(realIdx, 1)}
+                    isFirst={realIdx === 0} isLast={realIdx === items.length - 1}
+                  />
+                )
+              })}
+            </div>
+          ))
+        }}
+      </FilterInput>
 
       {!items.length && <p className="av-empty">Sin escenas. Pulsa «+ Añadir» para crear una.</p>}
     </section>

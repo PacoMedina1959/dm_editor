@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import FilterInput from './FilterInput.jsx'
 
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', ubicacion: '', actitud_inicial: 'neutral',
@@ -48,19 +49,22 @@ export default function SeccionNpcs({ npcs, onUpdate }) {
         <NpcForm draft={editIdx.draft} onSave={saveItem} onCancel={cancel} />
       )}
 
-      {items.map((npc, i) => {
-        const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
-        return isEditing ? (
-          <NpcForm key={npc.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
-        ) : (
-          <NpcRow
-            key={npc.id} npc={npc} editable={editable}
-            onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
-            onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
-            isFirst={i === 0} isLast={i === items.length - 1}
-          />
-        )
-      })}
+      <FilterInput items={items} fields={['id', 'nombre', 'ubicacion', 'descripcion']}>
+        {filtered => filtered.map(npc => {
+          const i = items.indexOf(npc)
+          const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
+          return isEditing ? (
+            <NpcForm key={npc.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
+          ) : (
+            <NpcRow
+              key={npc.id} npc={npc} editable={editable}
+              onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
+              onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
+              isFirst={i === 0} isLast={i === items.length - 1}
+            />
+          )
+        })}
+      </FilterInput>
 
       {!items.length && <p className="av-empty">Sin NPCs. Pulsa «+ Añadir» para crear uno.</p>}
     </section>

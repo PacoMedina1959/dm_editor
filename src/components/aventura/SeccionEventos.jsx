@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import FilterInput from './FilterInput.jsx'
 
 const EMPTY = { id: '', descripcion: '', deteccion_automatica: null }
 const TIPOS_DETECCION = ['item_en_inventario', 'npc_conocido', 'ubicacion_visitada']
@@ -46,19 +47,22 @@ export default function SeccionEventos({ eventos, onUpdate }) {
         <EventoForm draft={editIdx.draft} onSave={saveItem} onCancel={cancel} />
       )}
 
-      {items.map((ev, i) => {
-        const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
-        return isEditing ? (
-          <EventoForm key={ev.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
-        ) : (
-          <EventoRow
-            key={ev.id} evento={ev} editable={editable}
-            onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
-            onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
-            isFirst={i === 0} isLast={i === items.length - 1}
-          />
-        )
-      })}
+      <FilterInput items={items} fields={['id', 'descripcion']}>
+        {filtered => filtered.map(ev => {
+          const i = items.indexOf(ev)
+          const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
+          return isEditing ? (
+            <EventoForm key={ev.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
+          ) : (
+            <EventoRow
+              key={ev.id} evento={ev} editable={editable}
+              onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
+              onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
+              isFirst={i === 0} isLast={i === items.length - 1}
+            />
+          )
+        })}
+      </FilterInput>
 
       {!items.length && <p className="av-empty">Sin eventos definidos. Pulsa «+ Añadir» para crear uno.</p>}
     </section>

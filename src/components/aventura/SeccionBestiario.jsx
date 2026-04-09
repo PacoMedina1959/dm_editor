@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import FilterInput from './FilterInput.jsx'
 
 const EMPTY = {
   id: '', nombre: '', ubicacion: '', peligro: 'medio',
@@ -48,19 +49,22 @@ export default function SeccionBestiario({ bestiario, onUpdate }) {
         <BestiaForm draft={editIdx.draft} onSave={saveItem} onCancel={cancel} />
       )}
 
-      {items.map((b, i) => {
-        const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
-        return isEditing ? (
-          <BestiaForm key={b.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
-        ) : (
-          <BestiaRow
-            key={b.id} bestia={b} editable={editable}
-            onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
-            onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
-            isFirst={i === 0} isLast={i === items.length - 1}
-          />
-        )
-      })}
+      <FilterInput items={items} fields={['id', 'nombre', 'ubicacion', 'aspecto']}>
+        {filtered => filtered.map(b => {
+          const i = items.indexOf(b)
+          const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
+          return isEditing ? (
+            <BestiaForm key={b.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
+          ) : (
+            <BestiaRow
+              key={b.id} bestia={b} editable={editable}
+              onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
+              onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
+              isFirst={i === 0} isLast={i === items.length - 1}
+            />
+          )
+        })}
+      </FilterInput>
 
       {!items.length && <p className="av-empty">Sin bestias. Pulsa «+ Añadir» para crear una.</p>}
     </section>

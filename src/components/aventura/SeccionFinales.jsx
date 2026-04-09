@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import FilterInput from './FilterInput.jsx'
 
 const EMPTY = {
   id: '', nombre: '', tono: 'agridulce', descripcion: '', requisitos: [], consecuencias: [],
@@ -51,21 +52,26 @@ export default function SeccionFinales({ finales, onUpdate }) {
         <FinalForm draft={editIdx.draft} onSave={saveItem} onCancel={cancel} />
       )}
 
-      <div className="av-cards-grid">
-        {items.map((f, i) => {
-          const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
-          return isEditing ? (
-            <FinalForm key={f.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
-          ) : (
-            <FinalCard
-              key={f.id} final_={f} editable={editable}
-              onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
-              onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
-              isFirst={i === 0} isLast={i === items.length - 1}
-            />
-          )
-        })}
-      </div>
+      <FilterInput items={items} fields={['id', 'nombre', 'descripcion', 'tono']}>
+        {filtered => (
+          <div className="av-cards-grid">
+            {filtered.map(f => {
+              const i = items.indexOf(f)
+              const isEditing = editIdx?.mode === 'edit' && editIdx.index === i
+              return isEditing ? (
+                <FinalForm key={f.id} draft={editIdx.draft} onSave={saveItem} onCancel={cancel} onDelete={() => remove(i)} />
+              ) : (
+                <FinalCard
+                  key={f.id} final_={f} editable={editable}
+                  onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
+                  onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
+                  isFirst={i === 0} isLast={i === items.length - 1}
+                />
+              )
+            })}
+          </div>
+        )}
+      </FilterInput>
 
       {!items.length && <p className="av-empty">Sin finales. Pulsa «+ Añadir» para crear uno.</p>}
     </section>

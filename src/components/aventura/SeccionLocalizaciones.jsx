@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import FilterInput from './FilterInput.jsx'
 
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', zona: '', conexiones: [],
@@ -55,13 +56,6 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate }) {
 
   if (!items.length && !editable) return null
 
-  const zonas = {}
-  for (const loc of items) {
-    const z = loc.zona || '(sin zona)'
-    if (!zonas[z]) zonas[z] = []
-    zonas[z].push(loc)
-  }
-
   return (
     <section className="av-section">
       <div className="av-section-header">
@@ -75,36 +69,46 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate }) {
         <LocForm draft={editIdx.draft} onSave={saveItem} onCancel={cancel} />
       )}
 
-      {Object.entries(zonas).map(([zona, locs]) => (
-        <div key={zona} className="av-group">
-          <h3 className="av-group-title">{zona}</h3>
-          {locs.map(loc => {
-            const realIdx = items.indexOf(loc)
-            const isEditing = editIdx?.mode === 'edit' && editIdx.index === realIdx
-            return isEditing ? (
-              <LocForm
-                key={loc.id}
-                draft={editIdx.draft}
-                onSave={saveItem}
-                onCancel={cancel}
-                onDelete={() => remove(realIdx)}
-              />
-            ) : (
-              <LocRow
-                key={loc.id}
-                loc={loc}
-                editable={editable}
-                onEdit={() => startEdit(realIdx)}
-                onDuplicate={() => duplicate(realIdx)}
-                onMoveUp={() => move(realIdx, -1)}
-                onMoveDown={() => move(realIdx, 1)}
-                isFirst={realIdx === 0}
-                isLast={realIdx === items.length - 1}
-              />
-            )
-          })}
-        </div>
-      ))}
+      <FilterInput items={items} fields={['id', 'nombre', 'zona', 'descripcion', 'conexiones']}>
+        {filtered => {
+          const zonas = {}
+          for (const loc of filtered) {
+            const z = loc.zona || '(sin zona)'
+            if (!zonas[z]) zonas[z] = []
+            zonas[z].push(loc)
+          }
+          return Object.entries(zonas).map(([zona, locs]) => (
+            <div key={zona} className="av-group">
+              <h3 className="av-group-title">{zona}</h3>
+              {locs.map(loc => {
+                const realIdx = items.indexOf(loc)
+                const isEditing = editIdx?.mode === 'edit' && editIdx.index === realIdx
+                return isEditing ? (
+                  <LocForm
+                    key={loc.id}
+                    draft={editIdx.draft}
+                    onSave={saveItem}
+                    onCancel={cancel}
+                    onDelete={() => remove(realIdx)}
+                  />
+                ) : (
+                  <LocRow
+                    key={loc.id}
+                    loc={loc}
+                    editable={editable}
+                    onEdit={() => startEdit(realIdx)}
+                    onDuplicate={() => duplicate(realIdx)}
+                    onMoveUp={() => move(realIdx, -1)}
+                    onMoveDown={() => move(realIdx, 1)}
+                    isFirst={realIdx === 0}
+                    isLast={realIdx === items.length - 1}
+                  />
+                )
+              })}
+            </div>
+          ))
+        }}
+      </FilterInput>
 
       {!items.length && <p className="av-empty">Sin localizaciones. Pulsa «+ Añadir» para crear una.</p>}
     </section>
