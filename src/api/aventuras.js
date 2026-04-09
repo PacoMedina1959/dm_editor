@@ -52,3 +52,17 @@ export async function borrarAventura(slug) {
   })
   return _json(res)
 }
+
+/** @returns {Promise<{ ok: boolean, yaml_text: string, parsed: any }>} */
+export async function generarContenido(seccion, instrucciones, contextoAventura) {
+  const res = await fetch(apiUrl('/api/editor/generar'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      seccion,
+      instrucciones,
+      contexto_aventura: contextoAventura || '',
+    }),
+  })
+  return _json(res)
+}

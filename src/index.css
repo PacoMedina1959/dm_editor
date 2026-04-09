@@ -1624,3 +1624,63 @@ select.av-input {
   padding: 0.75rem 1.2rem;
   border-top: 1px solid #30363d;
 }
+
+/* ── botón IA ── */
+.av-btn-ia {
+  background: linear-gradient(135deg, #6e40c9, #58a6ff);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity 0.15s;
+}
+.av-btn-ia:hover {
+  opacity: 0.85;
+}
+
+/* ── diálogo asistente IA ── */
+.av-ia-dialog {
+  background: #161b22;
+  border: 1px solid #6e40c9;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(110, 64, 201, 0.25);
+}
+.av-ia-body {
+  padding: 1rem 1.2rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.av-ia-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.av-ia-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: #8b949e;
+  font-weight: 600;
+}
+.av-ia-result {
+  border-top: 1px solid #30363d;
+  padding-top: 0.75rem;
+}
+.av-ia-yaml {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}

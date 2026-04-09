@@ -10,6 +10,7 @@ import {
 import useUndoRedo from '../hooks/useUndoRedo.js'
 import { guardarAventura } from '../api/aventuras.js'
 import DialogoServidor from '../components/aventura/DialogoServidor.jsx'
+import AsistenteIA from '../components/aventura/AsistenteIA.jsx'
 import SeccionMeta from '../components/aventura/SeccionMeta.jsx'
 import SeccionMundo from '../components/aventura/SeccionMundo.jsx'
 import SeccionLocalizaciones from '../components/aventura/SeccionLocalizaciones.jsx'
@@ -80,6 +81,7 @@ export default function AventuraPage() {
   const [serverOpen, setServerOpen] = useState(false)
   const [serverSlug, setServerSlug] = useState('')
   const [serverMsg, setServerMsg] = useState(null)
+  const [iaOpen, setIaOpen] = useState(false)
   const autosaveTimer = useRef(null)
 
   useEffect(() => {
@@ -178,6 +180,10 @@ export default function AventuraPage() {
     cargar(yamlText, label)
     if (slug) setServerSlug(slug)
     setServerOpen(false)
+  }
+
+  const handleIaApply = (seccion, value) => {
+    updateSection(seccion, value)
   }
 
   const toSlug = (name) =>
@@ -288,6 +294,9 @@ export default function AventuraPage() {
             <button type="button" className="btn-primary" onClick={handleServerSave}>
               Guardar en servidor{dirty ? ' *' : ''}
             </button>
+            <button type="button" className="av-btn-ia" onClick={() => setIaOpen(true)} title="Generar contenido con IA">
+              IA
+            </button>
           </>
         )}
       </div>
@@ -296,6 +305,13 @@ export default function AventuraPage() {
         open={serverOpen}
         onClose={() => setServerOpen(false)}
         onLoad={handleServerLoad}
+      />
+
+      <AsistenteIA
+        open={iaOpen}
+        data={data}
+        onClose={() => setIaOpen(false)}
+        onApply={handleIaApply}
       />
 
       {serverMsg && (
