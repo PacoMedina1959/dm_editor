@@ -401,6 +401,7 @@ export default function AventuraPage() {
               <SeccionEscenas
                 escenas={data.escenas || []}
                 onUpdate={(v) => updateSection('escenas', v)}
+                data={data}
               />
             </>
           )}

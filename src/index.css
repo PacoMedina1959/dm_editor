@@ -1563,3 +1563,64 @@ select.av-input {
   border: 1px solid #f85149;
   color: #f88;
 }
+
+/* ── preview IA ── */
+.av-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+.av-preview {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+.av-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.2rem;
+  border-bottom: 1px solid #30363d;
+}
+.av-preview-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #58a6ff;
+  white-space: nowrap;
+}
+.av-preview-hint {
+  flex: 1;
+  font-size: 0.78rem;
+  color: #6e7681;
+}
+.av-preview-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.2rem;
+  margin: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #0d1117;
+}
+.av-preview-footer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding: 0.75rem 1.2rem;
+  border-top: 1px solid #30363d;
+}

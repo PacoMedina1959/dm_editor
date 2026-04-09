@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import yaml from 'js-yaml'
 import FilterInput from './FilterInput.jsx'
+import PreviewEscena from './PreviewEscena.jsx'
 
 /* ───────── constantes ───────── */
 
@@ -24,8 +25,9 @@ const EMPTY_REGLA = { tipo: 'evento', evento: '', descripcion_humana: '' }
 
 /* ───────── componente principal ───────── */
 
-export default function SeccionEscenas({ escenas, onUpdate }) {
+export default function SeccionEscenas({ escenas, onUpdate, data }) {
   const [editIdx, setEditIdx] = useState(null)
+  const [previewEscena, setPreviewEscena] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = escenas ?? []
 
@@ -88,6 +90,7 @@ export default function SeccionEscenas({ escenas, onUpdate }) {
                     key={e.id} escena={e} editable={editable}
                     onEdit={() => startEdit(realIdx)}
                     onDuplicate={() => duplicate(realIdx)}
+                    onPreview={() => setPreviewEscena(e)}
                     onMoveUp={() => move(realIdx, -1)}
                     onMoveDown={() => move(realIdx, 1)}
                     isFirst={realIdx === 0} isLast={realIdx === items.length - 1}
@@ -100,13 +103,21 @@ export default function SeccionEscenas({ escenas, onUpdate }) {
       </FilterInput>
 
       {!items.length && <p className="av-empty">Sin escenas. Pulsa «+ Añadir» para crear una.</p>}
+
+      {previewEscena && (
+        <PreviewEscena
+          escena={previewEscena}
+          data={data}
+          onClose={() => setPreviewEscena(null)}
+        />
+      )}
     </section>
   )
 }
 
 /* ───────── fila vista ───────── */
 
-function EscenaRow({ escena, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
+function EscenaRow({ escena, editable, onEdit, onDuplicate, onPreview, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
   const int_ = escena.intencion_dm_default
   return (
@@ -119,6 +130,7 @@ function EscenaRow({ escena, editable, onEdit, onDuplicate, onMoveUp, onMoveDown
       {expanded && <EscenaDetail escena={escena} />}
       {editable && (
         <div className="av-crud-actions">
+          <button type="button" className="av-btn-icon" onClick={onPreview} title="Vista IA">👁</button>
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
           <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}
