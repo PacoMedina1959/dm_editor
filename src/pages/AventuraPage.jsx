@@ -8,6 +8,8 @@ import {
   validarAventura,
 } from '../domain/aventura.js'
 import useUndoRedo from '../hooks/useUndoRedo.js'
+import { guardarAventura } from '../api/aventuras.js'
+import DialogoServidor from '../components/aventura/DialogoServidor.jsx'
 import SeccionMeta from '../components/aventura/SeccionMeta.jsx'
 import SeccionMundo from '../components/aventura/SeccionMundo.jsx'
 import SeccionLocalizaciones from '../components/aventura/SeccionLocalizaciones.jsx'
@@ -75,6 +77,9 @@ export default function AventuraPage() {
   const [validacion, setValidacion] = useState(null)
   const [visibles, setVisibles] = useState(new Set(SECCIONES.map(s => s.key)))
   const [recoveryOffer, setRecoveryOffer] = useState(() => loadFromLocalStorage())
+  const [serverOpen, setServerOpen] = useState(false)
+  const [serverSlug, setServerSlug] = useState('')
+  const [serverMsg, setServerMsg] = useState(null)
   const autosaveTimer = useRef(null)
 
   useEffect(() => {
@@ -169,6 +174,41 @@ export default function AventuraPage() {
     clearLocalStorage()
   }
 
+  const handleServerLoad = (yamlText, label, slug) => {
+    cargar(yamlText, label)
+    if (slug) setServerSlug(slug)
+    setServerOpen(false)
+  }
+
+  const toSlug = (name) =>
+    name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_-]/g, '').slice(0, 64) || 'aventura'
+
+  const handleServerSave = async () => {
+    if (!data) return
+    const result = ejecutarValidacion()
+    if (result?.errores?.length) return
+
+    let slug = serverSlug
+    if (!slug) {
+      const suggested = toSlug(data.aventura?.nombre || 'aventura')
+      const input = window.prompt('Nombre identificador (slug) para guardar en el servidor:', suggested)
+      if (!input) return
+      slug = toSlug(input)
+    }
+
+    setServerMsg(null)
+    try {
+      await guardarAventura(slug, aventuraToYaml(data))
+      setServerSlug(slug)
+      setDirty(false)
+      clearLocalStorage()
+      setServerMsg({ ok: true, text: `Guardado en servidor como «${slug}»` })
+      setTimeout(() => setServerMsg(null), 4000)
+    } catch (e) {
+      setServerMsg({ ok: false, text: e.message })
+    }
+  }
+
   /**
    * Actualiza una clave raíz del data (p.ej. 'aventura', 'mundo', 'historia').
    * @param {string} key
@@ -215,6 +255,9 @@ export default function AventuraPage() {
       )}
 
       <div className="validar-toolbar">
+        <button type="button" className="btn-secondary" onClick={() => setServerOpen(true)}>
+          Servidor
+        </button>
         <button type="button" className="btn-secondary" onClick={cargarEjemplo}>
           Cargar ejemplo
         </button>
@@ -225,10 +268,10 @@ export default function AventuraPage() {
             className="sr-only"
             onChange={onPickFile}
           />
-          Cargar archivo .yaml
+          Cargar .yaml
         </label>
         <button type="button" className="btn-secondary" onClick={nuevaAventura}>
-          Nueva aventura
+          Nueva
         </button>
         {data && (
           <>
@@ -242,9 +285,25 @@ export default function AventuraPage() {
             <button type="button" className="btn-primary" onClick={exportarYaml}>
               Exportar YAML{dirty ? ' *' : ''}
             </button>
+            <button type="button" className="btn-primary" onClick={handleServerSave}>
+              Guardar en servidor{dirty ? ' *' : ''}
+            </button>
           </>
         )}
       </div>
+
+      <DialogoServidor
+        open={serverOpen}
+        onClose={() => setServerOpen(false)}
+        onLoad={handleServerLoad}
+      />
+
+      {serverMsg && (
+        <div className={`av-server-msg ${serverMsg.ok ? 'av-server-msg-ok' : 'av-server-msg-err'}`}>
+          {serverMsg.text}
+          <button type="button" className="av-filter-clear" onClick={() => setServerMsg(null)}>✕</button>
+        </div>
+      )}
 
       {loadError && (
         <div className="alert alert-error" role="alert">

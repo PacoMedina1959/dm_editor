@@ -1442,3 +1442,124 @@ select.av-input {
   opacity: 0.35;
   cursor: default;
 }
+
+/* ── modal servidor ── */
+.av-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+.av-modal {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.av-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.2rem;
+  border-bottom: 1px solid #30363d;
+}
+.av-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #e8eaed;
+}
+.av-modal-close {
+  background: none;
+  border: none;
+  color: #8b949e;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+.av-modal-close:hover {
+  color: #e8eaed;
+}
+.av-modal-body {
+  padding: 1rem 1.2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+.av-modal-footer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding: 0.75rem 1.2rem;
+  border-top: 1px solid #30363d;
+}
+.av-modal-error {
+  padding: 0.55rem 1.2rem;
+  background: #3d1a1a;
+  color: #f88;
+  font-size: 0.85rem;
+}
+.av-modal-status {
+  color: #8b949e;
+  text-align: center;
+  padding: 2rem 0;
+}
+.av-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.av-modal-table th {
+  text-align: left;
+  color: #8b949e;
+  font-weight: 600;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid #30363d;
+}
+.av-modal-table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid #21262d;
+  color: #c9d1d9;
+}
+.av-modal-nombre {
+  font-weight: 600;
+  color: #e8eaed;
+}
+.av-modal-slug {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+.av-modal-actions {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+/* ── mensajes del servidor ── */
+.av-server-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.av-server-msg-ok {
+  background: #1a3d2a;
+  border: 1px solid #3fb950;
+  color: #7ee787;
+}
+.av-server-msg-err {
+  background: #3d1a1a;
+  border: 1px solid #f85149;
+  color: #f88;
+}
