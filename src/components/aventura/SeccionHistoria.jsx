@@ -7,7 +7,7 @@ const LABELS = {
   secreto_mayor: 'Secreto Mayor',
 }
 
-export default function SeccionHistoria({ historia, onUpdate }) {
+export default function SeccionHistoria({ historia, onUpdate, onOpenIA }) {
   const [editing, setEditing] = useState(false)
   if (!historia || typeof historia !== 'object') return null
   const entries = Object.entries(historia)
@@ -35,6 +35,7 @@ export default function SeccionHistoria({ historia, onUpdate }) {
         >
           {editing ? '✓ Listo' : '✎ Editar'}
         </button>
+        {onOpenIA && <button type="button" className="av-btn-ia-inline" onClick={onOpenIA} title="Generar con IA">✨ IA</button>}
       </div>
 
       {editing ? (

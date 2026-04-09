@@ -25,7 +25,7 @@ const EMPTY_REGLA = { tipo: 'evento', evento: '', descripcion_humana: '' }
 
 /* ───────── componente principal ───────── */
 
-export default function SeccionEscenas({ escenas, onUpdate, data }) {
+export default function SeccionEscenas({ escenas, onUpdate, data, onOpenIA }) {
   const [editIdx, setEditIdx] = useState(null)
   const [previewEscena, setPreviewEscena] = useState(null)
   const editable = typeof onUpdate === 'function'
@@ -61,6 +61,7 @@ export default function SeccionEscenas({ escenas, onUpdate, data }) {
       <div className="av-section-header">
         <h2 className="av-section-title">Escenas ({items.length})</h2>
         {editable && <button type="button" className="av-edit-toggle" onClick={startAdd}>+ Añadir</button>}
+        {onOpenIA && <button type="button" className="av-btn-ia-inline" onClick={onOpenIA} title="Generar con IA">✨ IA</button>}
       </div>
 
       {editIdx?.mode === 'add' && (

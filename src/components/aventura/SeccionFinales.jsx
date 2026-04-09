@@ -11,7 +11,7 @@ const TONO_COLORS = {
   heroico: '#2d7a3a', tragico: '#8a2020', agridulce: '#8a7730', oscuro: '#4a0e4e',
 }
 
-export default function SeccionFinales({ finales, onUpdate }) {
+export default function SeccionFinales({ finales, onUpdate, onOpenIA }) {
   const [editIdx, setEditIdx] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = finales ?? []
@@ -46,6 +46,7 @@ export default function SeccionFinales({ finales, onUpdate }) {
       <div className="av-section-header">
         <h2 className="av-section-title">Finales ({items.length})</h2>
         {editable && <button type="button" className="av-edit-toggle" onClick={startAdd}>+ Añadir</button>}
+        {onOpenIA && <button type="button" className="av-btn-ia-inline" onClick={onOpenIA} title="Generar con IA">✨ IA</button>}
       </div>
 
       {editIdx?.mode === 'add' && (

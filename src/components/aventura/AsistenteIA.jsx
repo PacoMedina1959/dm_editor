@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import yaml from 'js-yaml'
 import { generarContenido } from '../../api/aventuras.js'
 
@@ -38,8 +38,9 @@ function buildContextSummary(data) {
   return parts.join('\n')
 }
 
-export default function AsistenteIA({ open, data, onClose, onApply }) {
-  const [seccion, setSeccion] = useState('localizaciones')
+export default function AsistenteIA({ open, data, onClose, onApply, seccionInicial }) {
+  const [seccion, setSeccion] = useState(seccionInicial || 'localizaciones')
+  useEffect(() => { if (seccionInicial) setSeccion(seccionInicial) }, [seccionInicial])
   const [instrucciones, setInstrucciones] = useState('')
   const [resultado, setResultado] = useState(null)
   const [yamlText, setYamlText] = useState('')

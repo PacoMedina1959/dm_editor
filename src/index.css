@@ -1642,6 +1642,23 @@ select.av-input {
   opacity: 0.85;
 }
 
+.av-btn-ia-inline {
+  background: linear-gradient(135deg, #6e40c9, #58a6ff);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  margin-left: auto;
+  letter-spacing: 0.03em;
+  transition: opacity 0.15s;
+}
+.av-btn-ia-inline:hover {
+  opacity: 0.85;
+}
+
 /* ── diálogo asistente IA ── */
 .av-ia-dialog {
   background: #161b22;

@@ -8,7 +8,7 @@ const EMPTY = {
 
 const PELIGROS = ['bajo', 'medio', 'medio-alto', 'alto']
 
-export default function SeccionBestiario({ bestiario, onUpdate }) {
+export default function SeccionBestiario({ bestiario, onUpdate, onOpenIA }) {
   const [editIdx, setEditIdx] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = bestiario ?? []
@@ -43,6 +43,7 @@ export default function SeccionBestiario({ bestiario, onUpdate }) {
       <div className="av-section-header">
         <h2 className="av-section-title">Bestiario ({items.length})</h2>
         {editable && <button type="button" className="av-edit-toggle" onClick={startAdd}>+ Añadir</button>}
+        {onOpenIA && <button type="button" className="av-btn-ia-inline" onClick={onOpenIA} title="Generar con IA">✨ IA</button>}
       </div>
 
       {editIdx?.mode === 'add' && (

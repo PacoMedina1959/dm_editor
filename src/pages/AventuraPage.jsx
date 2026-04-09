@@ -83,8 +83,10 @@ export default function AventuraPage() {
   const [serverSlug, setServerSlug] = useState('')
   const [serverMsg, setServerMsg] = useState(null)
   const [iaOpen, setIaOpen] = useState(false)
+  const [iaSeccion, setIaSeccion] = useState('')
   const [importOpen, setImportOpen] = useState(false)
   const autosaveTimer = useRef(null)
+  const quickSaveRef = useRef(null)
 
   useEffect(() => {
     if (!data || !dirty) return
@@ -93,12 +95,12 @@ export default function AventuraPage() {
     return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current) }
   }, [data, dirty, sourceLabel])
 
-  // Atajos de teclado: Ctrl+Z = undo, Ctrl+Shift+Z / Ctrl+Y = redo
   useEffect(() => {
     const handler = (e) => {
       if ((e.ctrlKey || e.metaKey) && !e.altKey) {
         if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo() }
         else if ((e.key === 'z' && e.shiftKey) || e.key === 'y') { e.preventDefault(); redo() }
+        else if (e.key === 's') { e.preventDefault(); quickSaveRef.current?.() }
       }
     }
     window.addEventListener('keydown', handler)
@@ -188,6 +190,11 @@ export default function AventuraPage() {
     updateSection(seccion, value)
   }
 
+  const openIA = useCallback((sec) => {
+    setIaSeccion(sec || '')
+    setIaOpen(true)
+  }, [])
+
   const toSlug = (name) =>
     name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_-]/g, '').slice(0, 64) || 'aventura'
 
@@ -216,6 +223,8 @@ export default function AventuraPage() {
       setServerMsg({ ok: false, text: e.message })
     }
   }
+
+  quickSaveRef.current = serverSlug ? handleServerSave : exportarYaml
 
   /**
    * Actualiza una clave raíz del data (p.ej. 'aventura', 'mundo', 'historia').
@@ -299,7 +308,7 @@ export default function AventuraPage() {
             <button type="button" className="btn-primary" onClick={handleServerSave}>
               Guardar en servidor{dirty ? ' *' : ''}
             </button>
-            <button type="button" className="av-btn-ia" onClick={() => setIaOpen(true)} title="Generar contenido con IA">
+            <button type="button" className="av-btn-ia" onClick={() => openIA('')} title="Generar contenido con IA">
               IA
             </button>
           </>
@@ -317,6 +326,7 @@ export default function AventuraPage() {
         data={data}
         onClose={() => setIaOpen(false)}
         onApply={handleIaApply}
+        seccionInicial={iaSeccion}
       />
 
       <ImportarAventura
@@ -396,30 +406,35 @@ export default function AventuraPage() {
             <SeccionLocalizaciones
               localizaciones={data.localizaciones || []}
               onUpdate={(v) => updateSection('localizaciones', v)}
+              onOpenIA={() => openIA('localizaciones')}
             />
           )}
           {visibles.has('npcs') && (
             <SeccionNpcs
               npcs={data.npcs || []}
               onUpdate={(v) => updateSection('npcs', v)}
+              onOpenIA={() => openIA('npcs')}
             />
           )}
           {visibles.has('bestiario') && (
             <SeccionBestiario
               bestiario={data.bestiario || []}
               onUpdate={(v) => updateSection('bestiario', v)}
+              onOpenIA={() => openIA('bestiario')}
             />
           )}
           {visibles.has('historia') && (
             <SeccionHistoria
               historia={data.historia}
               onUpdate={(v) => updateSection('historia', v)}
+              onOpenIA={() => openIA('historia')}
             />
           )}
           {visibles.has('finales') && (
             <SeccionFinales
               finales={data.finales || []}
               onUpdate={(v) => updateSection('finales', v)}
+              onOpenIA={() => openIA('finales')}
             />
           )}
           {visibles.has('escenas') && (
@@ -429,6 +444,7 @@ export default function AventuraPage() {
                 escenas={data.escenas || []}
                 onUpdate={(v) => updateSection('escenas', v)}
                 data={data}
+                onOpenIA={() => openIA('escenas')}
               />
             </>
           )}
@@ -436,6 +452,7 @@ export default function AventuraPage() {
             <SeccionEventos
               eventos={data.eventos_definidos || []}
               onUpdate={(v) => updateSection('eventos_definidos', v)}
+              onOpenIA={() => openIA('eventos_definidos')}
             />
           )}
         </>

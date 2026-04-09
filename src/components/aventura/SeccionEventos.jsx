@@ -4,7 +4,7 @@ import FilterInput from './FilterInput.jsx'
 const EMPTY = { id: '', descripcion: '', deteccion_automatica: null }
 const TIPOS_DETECCION = ['item_en_inventario', 'npc_conocido', 'ubicacion_visitada']
 
-export default function SeccionEventos({ eventos, onUpdate }) {
+export default function SeccionEventos({ eventos, onUpdate, onOpenIA }) {
   const [editIdx, setEditIdx] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = eventos ?? []
@@ -41,6 +41,7 @@ export default function SeccionEventos({ eventos, onUpdate }) {
       <div className="av-section-header">
         <h2 className="av-section-title">Eventos definidos ({items.length})</h2>
         {editable && <button type="button" className="av-edit-toggle" onClick={startAdd}>+ Añadir</button>}
+        {onOpenIA && <button type="button" className="av-btn-ia-inline" onClick={onOpenIA} title="Generar con IA">✨ IA</button>}
       </div>
 
       {editIdx?.mode === 'add' && (

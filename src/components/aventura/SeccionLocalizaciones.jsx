@@ -6,7 +6,7 @@ const EMPTY = {
   oculta: false, descripcion: '', notas_dm: '',
 }
 
-export default function SeccionLocalizaciones({ localizaciones, onUpdate }) {
+export default function SeccionLocalizaciones({ localizaciones, onUpdate, onOpenIA }) {
   const [editIdx, setEditIdx] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
@@ -63,6 +63,7 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate }) {
         {editable && (
           <button type="button" className="av-edit-toggle" onClick={startAdd}>+ Añadir</button>
         )}
+        {onOpenIA && <button type="button" className="av-btn-ia-inline" onClick={onOpenIA} title="Generar con IA">✨ IA</button>}
       </div>
 
       {editIdx?.mode === 'add' && (
