@@ -1684,3 +1684,27 @@ select.av-input {
   font-size: 0.8rem;
   line-height: 1.5;
 }
+
+/* ── importar aventura ── */
+.av-importar-dialog {
+  max-width: 780px;
+}
+.av-importar-hint {
+  color: #8b949e;
+  font-size: 0.85rem;
+  margin: 0;
+}
+.av-importar-input {
+  min-height: 180px;
+  font-size: 0.85rem;
+}
+.av-importar-meta {
+  display: flex;
+  justify-content: flex-end;
+}
+.av-importar-progreso {
+  color: #58a6ff;
+  font-size: 0.85rem;
+  margin: 0;
+  padding: 0.3rem 0;
+}

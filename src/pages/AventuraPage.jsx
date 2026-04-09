@@ -11,6 +11,7 @@ import useUndoRedo from '../hooks/useUndoRedo.js'
 import { guardarAventura } from '../api/aventuras.js'
 import DialogoServidor from '../components/aventura/DialogoServidor.jsx'
 import AsistenteIA from '../components/aventura/AsistenteIA.jsx'
+import ImportarAventura from '../components/aventura/ImportarAventura.jsx'
 import SeccionMeta from '../components/aventura/SeccionMeta.jsx'
 import SeccionMundo from '../components/aventura/SeccionMundo.jsx'
 import SeccionLocalizaciones from '../components/aventura/SeccionLocalizaciones.jsx'
@@ -82,6 +83,7 @@ export default function AventuraPage() {
   const [serverSlug, setServerSlug] = useState('')
   const [serverMsg, setServerMsg] = useState(null)
   const [iaOpen, setIaOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
   const autosaveTimer = useRef(null)
 
   useEffect(() => {
@@ -265,7 +267,7 @@ export default function AventuraPage() {
           Servidor
         </button>
         <button type="button" className="btn-secondary" onClick={cargarEjemplo}>
-          Cargar ejemplo
+          Ejemplo
         </button>
         <label className="btn-file">
           <input
@@ -274,10 +276,13 @@ export default function AventuraPage() {
             className="sr-only"
             onChange={onPickFile}
           />
-          Cargar .yaml
+          .yaml
         </label>
         <button type="button" className="btn-secondary" onClick={nuevaAventura}>
           Nueva
+        </button>
+        <button type="button" className="av-btn-ia" onClick={() => setImportOpen(true)} title="Importar aventura desde texto con IA">
+          Importar IA
         </button>
         {data && (
           <>
@@ -312,6 +317,12 @@ export default function AventuraPage() {
         data={data}
         onClose={() => setIaOpen(false)}
         onApply={handleIaApply}
+      />
+
+      <ImportarAventura
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImport={(yamlText, label) => cargar(yamlText, label)}
       />
 
       {serverMsg && (
