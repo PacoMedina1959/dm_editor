@@ -186,11 +186,12 @@ export function validarAventura(data) {
     return seen
   }
 
-  checkIds(asArray(data.localizaciones), 'Localizaciones')
-  checkIds(asArray(data.npcs), 'NPCs')
-  checkIds(asArray(data.bestiario), 'Bestiario')
-  checkIds(asArray(data.finales), 'Finales')
-  checkIds(asArray(data.eventos_definidos), 'Eventos definidos')
+  const locIds = checkIds(asArray(data.localizaciones), 'Localizaciones')
+  const npcIds = checkIds(asArray(data.npcs), 'NPCs')
+  const bestiaIds = checkIds(asArray(data.bestiario), 'Bestiario')
+  const finalIds = checkIds(asArray(data.finales), 'Finales')
+  const eventoIds = checkIds(asArray(data.eventos_definidos), 'Eventos definidos')
+  const allCharIds = new Set([...npcIds, ...bestiaIds])
 
   const escenas = asArray(data.escenas)
   const escenaIds = checkIds(escenas, 'Escenas')
@@ -199,25 +200,94 @@ export function validarAventura(data) {
     errores.push(`La escena inicial «${meta.escena_inicial}» no existe en la lista de escenas.`)
   }
 
-  const finalIds = new Set(asArray(data.finales).map(f => f.id).filter(Boolean))
-
+  // Referencias cruzadas por escena
   for (const esc of escenas) {
+    const tag = `Escena «${esc.id || '?'}»`
+
+    // Ubicaciones activas → deben existir en localizaciones
+    for (const u of asArray(esc.ubicaciones_activas)) {
+      if (!locIds.has(u)) avisos.push(`${tag}: ubicación activa «${u}» no está en Localizaciones.`)
+    }
+
+    // NPCs activos → deben existir en NPCs o bestiario
+    for (const n of asArray(esc.npcs_activos)) {
+      if (!allCharIds.has(n)) avisos.push(`${tag}: NPC activo «${n}» no está en NPCs ni en Bestiario.`)
+    }
+
+    // Condiciones de avance → destinos deben existir
     for (const ca of asArray(esc.condiciones_avance)) {
       if (ca.destino && !escenaIds.has(ca.destino)) {
-        errores.push(`Escena «${esc.id}»: condición de avance apunta a escena «${ca.destino}» que no existe.`)
+        errores.push(`${tag}: condición de avance apunta a escena «${ca.destino}» que no existe.`)
       }
+      validarReglasRefs(asArray(ca.reglas), tag + ' (avance)', eventoIds, npcIds, locIds, avisos)
     }
+
+    // Condiciones de final → finales deben existir
     for (const cf of asArray(esc.condiciones_final)) {
       if (cf.final && !finalIds.has(cf.final)) {
-        avisos.push(`Escena «${esc.id}»: condición de final referencia «${cf.final}» que no está en Finales.`)
+        avisos.push(`${tag}: condición de final referencia «${cf.final}» que no está en Finales.`)
+      }
+      validarReglasRefs(asArray(cf.reglas), tag + ' (final)', eventoIds, npcIds, locIds, avisos)
+    }
+
+    // Eventos opcionales → sus IDs deberían estar en eventos_definidos
+    for (const ev of asArray(esc.eventos_opcionales)) {
+      if (ev.id && !eventoIds.has(ev.id)) {
+        avisos.push(`${tag}: evento opcional «${ev.id}» no está en Eventos definidos.`)
       }
     }
-    if (!esc.nombre?.trim()) avisos.push(`Escena «${esc.id || '?'}»: no tiene nombre.`)
-    if (!esc.objetivo?.trim()) avisos.push(`Escena «${esc.id || '?'}»: no tiene objetivo definido.`)
+
+    if (!esc.nombre?.trim()) avisos.push(`${tag}: no tiene nombre.`)
+    if (!esc.objetivo?.trim()) avisos.push(`${tag}: no tiene objetivo definido.`)
+  }
+
+  // Eventos definidos sin uso en ninguna escena
+  if (eventoIds.size > 0) {
+    const eventosUsados = new Set()
+    for (const esc of escenas) {
+      for (const ev of asArray(esc.eventos_opcionales)) if (ev.id) eventosUsados.add(ev.id)
+      for (const ca of asArray(esc.condiciones_avance))
+        for (const r of asArray(ca.reglas)) if (r.tipo === 'evento' && r.evento) eventosUsados.add(r.evento)
+      for (const cf of asArray(esc.condiciones_final))
+        for (const r of asArray(cf.reglas)) if (r.tipo === 'evento' && r.evento) eventosUsados.add(r.evento)
+    }
+    for (const id of eventoIds) {
+      if (!eventosUsados.has(id)) avisos.push(`Evento definido «${id}» no se usa en ninguna escena.`)
+    }
+  }
+
+  // NPCs y localizaciones sin uso en escenas
+  if (escenas.length > 0) {
+    const npcsUsados = new Set()
+    const locsUsadas = new Set()
+    for (const esc of escenas) {
+      for (const n of asArray(esc.npcs_activos)) npcsUsados.add(n)
+      for (const u of asArray(esc.ubicaciones_activas)) locsUsadas.add(u)
+    }
+    for (const id of npcIds) {
+      if (!npcsUsados.has(id)) avisos.push(`NPC «${id}» no aparece como activo en ninguna escena.`)
+    }
+    for (const id of locIds) {
+      if (!locsUsadas.has(id)) avisos.push(`Localización «${id}» no aparece como activa en ninguna escena.`)
+    }
   }
 
   if (!escenas.length) avisos.push('La aventura no tiene escenas.')
   if (!asArray(data.localizaciones).length) avisos.push('No hay localizaciones definidas.')
 
   return { errores, avisos }
+}
+
+function validarReglasRefs(reglas, context, eventoIds, npcIds, locIds, avisos) {
+  for (const r of reglas) {
+    if (r.tipo === 'evento' && r.evento && !eventoIds.has(r.evento)) {
+      avisos.push(`${context}: regla referencia evento «${r.evento}» no definido en Eventos.`)
+    }
+    if ((r.tipo === 'npc_conocido' || r.tipo === 'actitud_npc') && r.npc && !npcIds.has(r.npc)) {
+      avisos.push(`${context}: regla referencia NPC «${r.npc}» no definido.`)
+    }
+    if (r.tipo === 'ubicacion_visitada' && r.lugar && !locIds.has(r.lugar)) {
+      avisos.push(`${context}: regla referencia ubicación «${r.lugar}» no definida.`)
+    }
+  }
 }
