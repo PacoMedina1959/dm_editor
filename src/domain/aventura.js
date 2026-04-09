@@ -161,3 +161,63 @@ export function descargarArchivo(contenido, nombreArchivo) {
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
+
+/**
+ * Valida la coherencia interna de una aventura.
+ * @param {object} data - objeto raíz del YAML
+ * @returns {{ errores: string[], avisos: string[] }}
+ */
+export function validarAventura(data) {
+  const errores = []
+  const avisos = []
+  if (!data) { errores.push('No hay datos cargados.'); return { errores, avisos } }
+
+  const meta = data.aventura
+  if (!meta) errores.push('Falta el bloque «aventura» (metadatos).')
+  else if (!meta.nombre?.trim()) errores.push('El nombre de la aventura está vacío.')
+
+  const checkIds = (arr, label) => {
+    const seen = new Set()
+    for (const item of arr) {
+      if (!item.id?.trim()) errores.push(`${label}: hay una entrada sin ID.`)
+      else if (seen.has(item.id)) errores.push(`${label}: ID duplicado «${item.id}».`)
+      else seen.add(item.id)
+    }
+    return seen
+  }
+
+  checkIds(asArray(data.localizaciones), 'Localizaciones')
+  checkIds(asArray(data.npcs), 'NPCs')
+  checkIds(asArray(data.bestiario), 'Bestiario')
+  checkIds(asArray(data.finales), 'Finales')
+  checkIds(asArray(data.eventos_definidos), 'Eventos definidos')
+
+  const escenas = asArray(data.escenas)
+  const escenaIds = checkIds(escenas, 'Escenas')
+
+  if (meta?.escena_inicial && !escenaIds.has(meta.escena_inicial)) {
+    errores.push(`La escena inicial «${meta.escena_inicial}» no existe en la lista de escenas.`)
+  }
+
+  const finalIds = new Set(asArray(data.finales).map(f => f.id).filter(Boolean))
+
+  for (const esc of escenas) {
+    for (const ca of asArray(esc.condiciones_avance)) {
+      if (ca.destino && !escenaIds.has(ca.destino)) {
+        errores.push(`Escena «${esc.id}»: condición de avance apunta a escena «${ca.destino}» que no existe.`)
+      }
+    }
+    for (const cf of asArray(esc.condiciones_final)) {
+      if (cf.final && !finalIds.has(cf.final)) {
+        avisos.push(`Escena «${esc.id}»: condición de final referencia «${cf.final}» que no está en Finales.`)
+      }
+    }
+    if (!esc.nombre?.trim()) avisos.push(`Escena «${esc.id || '?'}»: no tiene nombre.`)
+    if (!esc.objetivo?.trim()) avisos.push(`Escena «${esc.id || '?'}»: no tiene objetivo definido.`)
+  }
+
+  if (!escenas.length) avisos.push('La aventura no tiene escenas.')
+  if (!asArray(data.localizaciones).length) avisos.push('No hay localizaciones definidas.')
+
+  return { errores, avisos }
+}

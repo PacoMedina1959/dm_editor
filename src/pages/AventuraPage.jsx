@@ -5,6 +5,7 @@ import {
   aventuraToYaml,
   plantillaAventura,
   descargarArchivo,
+  validarAventura,
 } from '../domain/aventura.js'
 import SeccionMeta from '../components/aventura/SeccionMeta.jsx'
 import SeccionMundo from '../components/aventura/SeccionMundo.jsx'
@@ -14,6 +15,7 @@ import SeccionBestiario from '../components/aventura/SeccionBestiario.jsx'
 import SeccionHistoria from '../components/aventura/SeccionHistoria.jsx'
 import SeccionFinales from '../components/aventura/SeccionFinales.jsx'
 import SeccionEscenas from '../components/aventura/SeccionEscenas.jsx'
+import SeccionEventos from '../components/aventura/SeccionEventos.jsx'
 
 const SAMPLE_URL = `${import.meta.env.BASE_URL}samples/aventura-ejemplo.yaml`
 
@@ -26,6 +28,7 @@ const SECCIONES = [
   { key: 'historia', label: 'Historia' },
   { key: 'finales', label: 'Finales' },
   { key: 'escenas', label: 'Escenas' },
+  { key: 'eventos_definidos', label: 'Eventos' },
 ]
 
 export default function AventuraPage() {
@@ -34,6 +37,7 @@ export default function AventuraPage() {
   const [loadError, setLoadError] = useState(null)
   const [sourceLabel, setSourceLabel] = useState('')
   const [dirty, setDirty] = useState(false)
+  const [validacion, setValidacion] = useState(null)
   const [visibles, setVisibles] = useState(new Set(SECCIONES.map(s => s.key)))
 
   const cargar = (text, label) => {
@@ -77,8 +81,17 @@ export default function AventuraPage() {
     }
   }
 
+  const ejecutarValidacion = () => {
+    if (!data) return null
+    const result = validarAventura(data)
+    setValidacion(result)
+    return result
+  }
+
   const exportarYaml = () => {
     if (!data) return
+    const result = ejecutarValidacion()
+    if (result?.errores?.length) return
     const nombre = (data.aventura?.nombre || 'aventura')
       .toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
     descargarArchivo(aventuraToYaml(data), `${nombre}.yaml`)
@@ -132,9 +145,14 @@ export default function AventuraPage() {
           Nueva aventura
         </button>
         {data && (
-          <button type="button" className="btn-primary" onClick={exportarYaml}>
-            Exportar YAML{dirty ? ' *' : ''}
-          </button>
+          <>
+            <button type="button" className="btn-secondary" onClick={ejecutarValidacion}>
+              Validar
+            </button>
+            <button type="button" className="btn-primary" onClick={exportarYaml}>
+              Exportar YAML{dirty ? ' *' : ''}
+            </button>
+          </>
         )}
       </div>
 
@@ -142,6 +160,26 @@ export default function AventuraPage() {
         <div className="alert alert-error" role="alert">
           <strong>Error al cargar</strong>
           <pre className="alert-pre">{loadError}</pre>
+        </div>
+      )}
+
+      {validacion && (validacion.errores.length > 0 || validacion.avisos.length > 0) && (
+        <div className="av-validacion">
+          {validacion.errores.length > 0 && (
+            <div className="av-validacion-bloque av-validacion-errores">
+              <strong>Errores ({validacion.errores.length})</strong>
+              <ul>{validacion.errores.map((e, i) => <li key={i}>{e}</li>)}</ul>
+            </div>
+          )}
+          {validacion.avisos.length > 0 && (
+            <div className="av-validacion-bloque av-validacion-avisos">
+              <strong>Avisos ({validacion.avisos.length})</strong>
+              <ul>{validacion.avisos.map((a, i) => <li key={i}>{a}</li>)}</ul>
+            </div>
+          )}
+          {validacion.errores.length === 0 && (
+            <p className="av-validacion-ok">✓ Sin errores. La aventura se puede exportar.</p>
+          )}
         </div>
       )}
 
@@ -212,6 +250,12 @@ export default function AventuraPage() {
             <SeccionEscenas
               escenas={data.escenas || []}
               onUpdate={(v) => updateSection('escenas', v)}
+            />
+          )}
+          {visibles.has('eventos_definidos') && (
+            <SeccionEventos
+              eventos={data.eventos_definidos || []}
+              onUpdate={(v) => updateSection('eventos_definidos', v)}
             />
           )}
         </>
