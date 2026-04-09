@@ -1706,14 +1706,60 @@ select.av-input {
 .av-importar-dialog {
   max-width: 780px;
 }
+.av-importar-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.av-importar-tab {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  background: #161b22;
+  color: #8b949e;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all .15s;
+}
+.av-importar-tab:hover { background: #21262d; color: #c9d1d9; }
+.av-importar-tab.active {
+  background: #1f6feb33;
+  border-color: #1f6feb;
+  color: #58a6ff;
+}
 .av-importar-hint {
   color: #8b949e;
   font-size: 0.85rem;
-  margin: 0;
+  margin: 0 0 6px 0;
 }
 .av-importar-input {
   min-height: 180px;
   font-size: 0.85rem;
+}
+.av-importar-url-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  font-size: 0.9rem;
+}
+.av-importar-url-input:focus {
+  border-color: #1f6feb;
+  outline: none;
+}
+.av-importar-pdf-zone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.av-importar-pdf-btn {
+  white-space: nowrap;
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .av-importar-meta {
   display: flex;
