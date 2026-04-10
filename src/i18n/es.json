@@ -1,0 +1,10 @@
+{
+  "lang.label": "Idioma UI",
+  "help.role_guide": "Ayuda",
+  "help.doc_title": "Guía del editor",
+  "help.back": "Volver",
+  "help.toc_title": "En esta página",
+  "help.toc_empty": "Sin secciones detectadas.",
+  "help.loading": "Cargando guía…",
+  "help.load_error": "No se pudo cargar la guía. Comprueba la conexión o vuelve a intentarlo."
+}

@@ -1,6 +1,6 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 
-export default function Layout({ children }) {
+export default function Layout() {
   const loc = useLocation()
   const path = loc.pathname
 
@@ -30,9 +30,17 @@ export default function Layout({ children }) {
           >
             Catálogo
           </Link>
+          <Link
+            to="/ayuda"
+            className={path.startsWith('/ayuda') ? 'nav-link nav-link-active' : 'nav-link'}
+          >
+            Ayuda
+          </Link>
         </nav>
       </header>
-      <main className="layout-main">{children}</main>
+      <main className="layout-main">
+        <Outlet />
+      </main>
     </div>
   )
 }

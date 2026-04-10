@@ -1,0 +1,10 @@
+{
+  "lang.label": "UI Language",
+  "help.role_guide": "Help",
+  "help.doc_title": "Editor guide",
+  "help.back": "Back",
+  "help.toc_title": "On this page",
+  "help.toc_empty": "No sections found.",
+  "help.loading": "Loading guide…",
+  "help.load_error": "Could not load the guide. Check your connection or try again."
+}

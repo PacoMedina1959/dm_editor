@@ -6,6 +6,10 @@ Aplicación de **autoría** para campañas compatibles con [**DM Virtual**](http
 
 En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rellena el texto con una copia de `dm_virtual/backend/data/campañas/ejemplo/aventura.yaml` (fichero en `public/samples/`). Si el ejemplo del motor cambia mucho, conviene volver a copiar ese YAML al editor.
 
+## Ayuda del editor
+
+Ruta **`/ayuda`**: misma idea que en el frontend del motor — Markdown renderizado, índice lateral (TOC), selector **ES/EN** (preferencia en `localStorage` bajo `dm_editor_ui_lang`). El contenido se carga desde `public/ayuda/GUIA_EDITOR_DM.md` y `GUIA_EDITOR_DM_EN.md` (copia de `dm_virtual/frontend/public/ayuda/`; resincroniza si cambias la guía allí).
+
 ## Catálogo de objetos (`/catalogo`)
 
 - **Cargar ejemplo**: copia empaquetada de `dm_virtual/backend/data/objetos/catalogo_objetos.json` (`public/samples/catalogo-ejemplo.json`).
