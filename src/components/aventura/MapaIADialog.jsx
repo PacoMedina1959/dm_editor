@@ -4,6 +4,7 @@ import {
   esperarJobMapa,
   urlMapaPublico,
   previsualizarPromptMapa,
+  subirImagenMapa,
 } from '../../api/mapaIA.js'
 
 /**
@@ -63,6 +64,10 @@ export default function MapaIADialog({
 
   const canceladoRef = useRef(false)
   const jobIdRef = useRef(null)
+  // Input file oculto para el flujo de "subir imagen propia" (F3.4).
+  // Usamos ref + click programático para poder diseñar un botón con
+  // estilo coherente con el resto del modal en lugar del input feo.
+  const fileInputRef = useRef(null)
 
   // Reset al abrir
   useEffect(() => {
@@ -189,24 +194,57 @@ export default function MapaIADialog({
     })
   }
 
+  const handleElegirArchivo = () => {
+    if (enMarcha) return
+    fileInputRef.current?.click()
+  }
+
+  const handleArchivoSeleccionado = async (e) => {
+    const file = e.target.files?.[0]
+    // Reset del input: si el DM elige el mismo fichero dos veces
+    // seguidas, el onChange no vuelve a dispararse sin este reset.
+    e.target.value = ''
+    if (!file) return
+    setError(null)
+    setEstadoJob(null)
+    setCargando(true)
+    canceladoRef.current = false
+    try {
+      const subido = await subirImagenMapa(slug, loc.id, file)
+      jobIdRef.current = null
+      setEstadoJob(subido)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setCargando(false)
+    }
+  }
+
   const handleAplicar = () => {
     if (!terminado || !estadoJob.ruta_relativa) return
     const extrasLimpio = (extrasPrompt || '').trim()
+    const esManual = estadoJob.origen === 'manual' || estadoJob.modelo === 'manual'
     const mapa = {
       imagen: estadoJob.ruta_relativa,
       tipo: proyeccion,
       generado_ia: {
         hash: estadoJob.hash,
-        prompt: estadoJob.prompt,
-        seed: estadoJob.seed,
-        modelo: estadoJob.modelo,
+        // En subidas manuales el prompt viene vacío y no aporta nada
+        // al YAML; lo omitimos para no ensuciar con campos muertos.
+        ...(esManual
+          ? { origen: 'manual' }
+          : {
+              prompt: estadoJob.prompt,
+              seed: estadoJob.seed,
+              modelo: estadoJob.modelo,
+              // Solo persistimos extras_prompt si el DM lo ha usado; así
+              // las localizaciones sin retoques quedan más limpias en el
+              // YAML. Almacenamos el texto crudo (sin truncar); el
+              // stylist lo higieniza cada vez que compone el prompt.
+              ...(extrasLimpio ? { extras_prompt: extrasLimpio } : {}),
+            }),
         ancho: estadoJob.ancho,
         alto: estadoJob.alto,
-        // Solo persistimos extras_prompt si el DM lo ha usado; así las
-        // localizaciones sin retoques del DM quedan más limpias en el
-        // YAML. Almacenamos el texto crudo (sin truncar); el stylist
-        // lo higieniza cada vez que compone el prompt.
-        ...(extrasLimpio ? { extras_prompt: extrasLimpio } : {}),
       },
     }
     // Si el DM ha elegido una hora distinta a la almacenada en el YAML,
@@ -404,10 +442,35 @@ export default function MapaIADialog({
                   Cancelar
                 </button>
               )}
-              {terminado && (
+              {terminado && estadoJob?.origen !== 'manual' && (
                 <button type="button" className="btn-secondary" onClick={handleRegenerar}>
                   Probar otra variante
                 </button>
+              )}
+              {!enMarcha && (
+                <>
+                  <span style={{ color: '#475569', padding: '0 4px' }}>·</span>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleElegirArchivo}
+                    disabled={!slug}
+                    title={
+                      !slug
+                        ? 'Guarda la aventura en el servidor primero'
+                        : 'Subir una imagen PNG/WebP/JPEG ya generada fuera (p. ej. gemini.google.com)'
+                    }
+                  >
+                    Subir imagen propia…
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/webp,image/jpeg"
+                    style={{ display: 'none' }}
+                    onChange={handleArchivoSeleccionado}
+                  />
+                </>
               )}
             </div>
 
@@ -564,6 +627,27 @@ export default function MapaIADialog({
 
               {urlPreview && (
                 <>
+                  {estadoJob?.origen === 'manual' && (
+                    <div
+                      style={{
+                        marginTop: 10,
+                        padding: '6px 10px',
+                        background: '#0c4a6e',
+                        border: '1px solid #0ea5e9',
+                        borderRadius: 4,
+                        color: '#e0f2fe',
+                        fontSize: 12,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      <b style={{ color: '#7dd3fc' }}>ⓘ Imagen subida manualmente</b>{' '}
+                      — No regenerable por seed ni extras. Si quieres otra
+                      variante, vuelve a generar desde fuera (p. ej. en{' '}
+                      <code style={{ background: '#0f172a', padding: '1px 4px', borderRadius: 3 }}>
+                        gemini.google.com
+                      </code>) y súbela de nuevo.
+                    </div>
+                  )}
                   <div style={{ marginTop: 12, textAlign: 'center' }}>
                     <img
                       key={urlPreview}

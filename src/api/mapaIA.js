@@ -182,6 +182,35 @@ export function urlMapaPublico(slug, rutaRelativa) {
 }
 
 /**
+ * Sube una imagen de mapa pre-generada (F3.4) para una localizacion.
+ *
+ * Pensado para el flujo hibrido: el DM genera la imagen en otra
+ * herramienta (gemini.google.com, Midjourney, pintura propia) y la
+ * sube aqui sin pasar por el pipeline IA de nuestra API.
+ *
+ * El backend valida formato por magic bytes (PNG/WebP/JPEG),
+ * tamagno maximo 10 MB, y guarda bajo esquema canonico
+ * `mapas/{loc_id}/{loc_id}__manual__{hash8}.{ext}`. La respuesta
+ * tiene el MISMO shape que `generarMapaIA` (con `origen="manual"`),
+ * asi que el codigo de aplicacion del dialogo se reutiliza tal cual.
+ *
+ * @param {string} slug
+ * @param {string} locId
+ * @param {File|Blob} file   Fichero obtenido de un <input type="file">.
+ * @returns {Promise<JobMapaEstado & { origen: 'manual' }>}
+ */
+export async function subirImagenMapa(slug, locId, file) {
+  const url = apiUrl(
+    `/api/editor/aventuras/${encodeURIComponent(slug)}` +
+    `/localizaciones/${encodeURIComponent(locId)}/mapa/subir`,
+  )
+  const fd = new FormData()
+  fd.append('archivo', file, file.name || 'mapa')
+  const res = await fetch(url, { method: 'POST', body: fd })
+  return _json(res)
+}
+
+/**
  * Hace polling del job hasta que termina (ok/error) o hasta el timeout.
  * Llama a `onTick(estado)` en cada actualizacion para que la UI pinte
  * progreso en vivo.
