@@ -33,7 +33,10 @@ export default function MapaIADialog({
 }) {
   const [proyeccion, setProyeccion] = useState('tactico')
   const [seed, setSeed] = useState(0)
-  const [tamagno, setTamagno] = useState('1024')
+  // Tamaños reales admitidos por gpt-image-1. Valor con formato "WxH";
+  // el backend acepta ancho y alto separados. Los tamaños que no encajen
+  // se remapean al más cercano, así que aquí solo exponemos los 3 válidos.
+  const [tamagno, setTamagno] = useState('1024x1024')
   const [force, setForce] = useState(false)
   // '' = auto (backend usa loc.hora_del_dia del YAML si existe).
   // 'dia' | 'amanecer' | 'atardecer' | 'noche' = override explícito.
@@ -265,17 +268,17 @@ export default function MapaIADialog({
 
             <div className="av-form-row2">
               <label className="av-ia-label">
-                Tamagno (px)
+                Tamaño (px)
                 <select
                   value={tamagno}
                   onChange={e => setTamagno(e.target.value)}
                   className="av-input"
                   disabled={enMarcha}
+                  title="gpt-image-1 solo admite 3 tamaños reales; otros se remapean al más cercano"
                 >
-                  <option value="512">512 x 512</option>
-                  <option value="1024">1024 x 1024</option>
-                  <option value="1536">1536 x 1536</option>
-                  <option value="2048">2048 x 2048</option>
+                  <option value="1024x1024">1024 × 1024 — cuadrado (interiores, tácticos)</option>
+                  <option value="1536x1024">1536 × 1024 — paisaje (plazas, exteriores, overworld)</option>
+                  <option value="1024x1536">1024 × 1536 — retrato (torres, pasillos)</option>
                 </select>
               </label>
               <div className="av-ia-label" style={{ alignSelf: 'end' }}>
