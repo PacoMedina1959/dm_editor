@@ -109,28 +109,58 @@ export default function CalibradorGridDialog({
 
     const mapa = { tile_w: tileW, tile_h: tileH, cols, rows, origen_px: [ox, oy] }
 
-    ctx.strokeStyle = 'rgba(96, 165, 250, 0.7)'
-    ctx.lineWidth = 1
-    ctx.fillStyle = 'rgba(96, 165, 250, 0.06)'
-
+    // El canvas se renderiza a resolución natural de la imagen (p. ej. 1024 px)
+    // y se escala con CSS al ancho del contenedor (~580 px). Si usáramos
+    // lineWidth=1 nativo, se vería como ~0.5 px visuales, casi invisible. Por
+    // eso escalamos el grosor a la resolución real y dibujamos en dos pasadas
+    // (halo oscuro + línea cálida) para que el grid se lea sobre cualquier
+    // fondo que devuelva la IA (empedrado, césped, tejas...).
+    const grosorBase = Math.max(2, Math.round(canvas.width / 400))
+    const rombos = []
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const { px, py } = celdaAPx(mapa, x, y)
+        rombos.push({ px, py })
+      }
+    }
+
+    const pintarRombos = (stroke, fill, lineWidth) => {
+      ctx.strokeStyle = stroke
+      ctx.lineWidth = lineWidth
+      if (fill) ctx.fillStyle = fill
+      for (const { px, py } of rombos) {
         ctx.beginPath()
         ctx.moveTo(px, py - tileH / 2)
         ctx.lineTo(px + tileW / 2, py)
         ctx.lineTo(px, py + tileH / 2)
         ctx.lineTo(px - tileW / 2, py)
         ctx.closePath()
-        ctx.fill()
+        if (fill) ctx.fill()
         ctx.stroke()
       }
     }
 
-    // Origen destacado.
+    // Pasada 1: halo oscuro (ensancha la línea, asegura contraste sobre
+    // cualquier textura clara).
+    pintarRombos('rgba(0, 0, 0, 0.85)', null, grosorBase * 2)
+    // Pasada 2: línea cálida con un toque de relleno apenas perceptible
+    // para que el rombo se intuya sin tapar detalle del arte.
+    pintarRombos(
+      'rgba(253, 224, 71, 0.95)',
+      'rgba(253, 224, 71, 0.08)',
+      grosorBase,
+    )
+
+    // Origen destacado: anillo oscuro + punto amarillo, del mismo grosor.
+    const radioOrigen = grosorBase * 3
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)'
+    ctx.lineWidth = grosorBase
+    ctx.beginPath()
+    ctx.arc(ox, oy, radioOrigen, 0, Math.PI * 2)
+    ctx.stroke()
     ctx.fillStyle = '#fbbf24'
     ctx.beginPath()
-    ctx.arc(ox, oy, 5, 0, Math.PI * 2)
+    ctx.arc(ox, oy, radioOrigen - grosorBase, 0, Math.PI * 2)
     ctx.fill()
   }, [tileW, tileH, cols, rows, ox, oy, imgDims])
 
