@@ -41,6 +41,15 @@ export default function MapaIADialog({
   // '' = auto (backend usa loc.hora_del_dia del YAML si existe).
   // 'dia' | 'amanecer' | 'atardecer' | 'noche' = override explícito.
   const [hora, setHora] = useState('')
+  // Instrucciones extra del DM (F3.3). Texto libre que se añade al
+  // prompt como bloque "DM notes". Se persiste en
+  // ``mapa.generado_ia.extras_prompt`` al aplicar para recordar la
+  // última variante usada. Tope conservador 500 chars (coincide con
+  // el MAX_CHARS_EXTRAS del backend).
+  const [extrasPrompt, setExtrasPrompt] = useState('')
+  // Valor "debouncado" para no spamear el preview mientras se escribe.
+  const [extrasDebounced, setExtrasDebounced] = useState('')
+  const MAX_EXTRAS = 500
 
   const [estadoJob, setEstadoJob] = useState(null)
   const [error, setError] = useState(null)
@@ -70,7 +79,21 @@ export default function MapaIADialog({
     // El default de ``hora`` es el valor del YAML ('' => "auto").
     // El usuario puede sobrescribirlo temporalmente sin mutar el YAML.
     setHora(loc?.hora_del_dia || '')
-  }, [open, loc?.id, loc?.hora_del_dia])
+    // Precargar los extras con lo último aplicado (si existe) para
+    // que el DM pueda iterar desde su última variante.
+    const extrasPrev = loc?.mapa?.generado_ia?.extras_prompt || ''
+    setExtrasPrompt(extrasPrev)
+    setExtrasDebounced(extrasPrev)
+  }, [open, loc?.id, loc?.hora_del_dia, loc?.mapa?.generado_ia?.extras_prompt])
+
+  // Debounce de ``extrasPrompt`` para recargar el preview del prompt sin
+  // spamear la API mientras el DM escribe. 400 ms es un compromiso
+  // razonable (el endpoint es barato pero sigue cruzando red + YAML).
+  useEffect(() => {
+    if (!open) return
+    const t = setTimeout(() => setExtrasDebounced(extrasPrompt), 400)
+    return () => clearTimeout(t)
+  }, [open, extrasPrompt])
 
   // Carga/recarga del prompt previsualizado al abrir o al cambiar proyeccion.
   // El endpoint es barato (solo lee YAML + invoca stylist), asi que no hace
@@ -81,7 +104,10 @@ export default function MapaIADialog({
     setCargandoPrompt(true)
     setErrorPrompt(null)
     setCopiado(false)
-    previsualizarPromptMapa(slug, loc.id, proyeccion, { hora })
+    previsualizarPromptMapa(slug, loc.id, proyeccion, {
+      hora,
+      extras: extrasDebounced,
+    })
       .then(data => { if (!cancelado) setPromptPreview(data) })
       .catch(err => {
         if (!cancelado) {
@@ -91,7 +117,7 @@ export default function MapaIADialog({
       })
       .finally(() => { if (!cancelado) setCargandoPrompt(false) })
     return () => { cancelado = true }
-  }, [open, slug, loc?.id, proyeccion, hora])
+  }, [open, slug, loc?.id, proyeccion, hora, extrasDebounced])
 
   // Cancelar polling al cerrar
   useEffect(() => {
@@ -121,6 +147,7 @@ export default function MapaIADialog({
       alto: Number.isFinite(alto) && alto > 0 ? alto : (Number.isFinite(ancho) ? ancho : 1024),
       force,
       hora,
+      extrasPrompt,
     }
 
     try {
@@ -164,6 +191,7 @@ export default function MapaIADialog({
 
   const handleAplicar = () => {
     if (!terminado || !estadoJob.ruta_relativa) return
+    const extrasLimpio = (extrasPrompt || '').trim()
     const mapa = {
       imagen: estadoJob.ruta_relativa,
       tipo: proyeccion,
@@ -174,6 +202,11 @@ export default function MapaIADialog({
         modelo: estadoJob.modelo,
         ancho: estadoJob.ancho,
         alto: estadoJob.alto,
+        // Solo persistimos extras_prompt si el DM lo ha usado; así las
+        // localizaciones sin retoques del DM quedan más limpias en el
+        // YAML. Almacenamos el texto crudo (sin truncar); el stylist
+        // lo higieniza cada vez que compone el prompt.
+        ...(extrasLimpio ? { extras_prompt: extrasLimpio } : {}),
       },
     }
     // Si el DM ha elegido una hora distinta a la almacenada en el YAML,
@@ -379,6 +412,52 @@ export default function MapaIADialog({
             </div>
 
             <div className="av-ia-prompt-block" style={{ marginTop: 12 }}>
+              <div
+                className="av-ia-label"
+                style={{
+                  fontWeight: 600,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 4,
+                }}
+              >
+                <span>
+                  Instrucciones extra del DM{' '}
+                  <span style={{ fontWeight: 400, fontSize: 11, color: '#94a3b8' }}>
+                    (opcional, se añaden al prompt como &quot;DM notes&quot;)
+                  </span>
+                </span>
+                <span
+                  style={{
+                    fontWeight: 400,
+                    fontSize: 11,
+                    color: extrasPrompt.length > MAX_EXTRAS ? '#f87171' : '#94a3b8',
+                  }}
+                >
+                  {extrasPrompt.length} / {MAX_EXTRAS}
+                </span>
+              </div>
+              <textarea
+                className="av-input"
+                rows={3}
+                value={extrasPrompt}
+                onChange={e => setExtrasPrompt(e.target.value.slice(0, MAX_EXTRAS))}
+                placeholder={'Ej.: "cutaway roof, show ceiling beams from above, warm tavern palette with golden lantern light"'}
+                disabled={enMarcha}
+                style={{
+                  width: '100%',
+                  fontFamily:
+                    'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+                  fontSize: 12,
+                  lineHeight: 1.4,
+                  background: '#0f172a',
+                  color: '#e2e8f0',
+                  resize: 'vertical',
+                  marginBottom: 12,
+                }}
+              />
+
               <div
                 style={{
                   display: 'flex',

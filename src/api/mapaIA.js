@@ -46,6 +46,12 @@ import { apiUrl } from './client.js'
  *   Franja horaria. '' o undefined => el backend usa ``localizacion.hora_del_dia``
  *   del YAML si existe; si no, no se añade directiva de tiempo. Solo afecta
  *   a escenas outdoor y a proyección overworld; en indoor se ignora.
+ * @property {string} [extrasPrompt]
+ *   Instrucciones extra del DM (F3.3). Se añaden al prompt como bloque
+ *   ``DM notes`` antes del negativo. Máximo ~500 chars efectivos tras
+ *   higiene en backend; aquí limitamos a 2000 chars por seguridad
+ *   (el backend rechaza más). Vacío o undefined => no se envía y el
+ *   hash de cache coincide con el de la variante sin extras.
  */
 
 async function _json(res) {
@@ -84,6 +90,12 @@ export async function generarMapaIA(slug, locId, params = {}) {
   // Solo incluimos `hora` si es un valor con contenido: el backend
   // interpreta null/ausente como "usa lo que diga el YAML".
   if (params.hora) body.hora = params.hora
+  // Instrucciones extra del DM (F3.3). Si viene vacío/undefined no
+  // lo mandamos: así el hash de cache coincide con el de la variante
+  // "sin extras" y evitamos regeneraciones innecesarias.
+  if (params.extrasPrompt && params.extrasPrompt.trim()) {
+    body.extras_prompt = params.extrasPrompt
+  }
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -133,6 +145,9 @@ export async function consultarJobMapa(jobId) {
  * @param {('dia'|'amanecer'|'atardecer'|'noche'|'')} [opts.hora]
  *   Franja horaria para previsualizar. Si se omite o va vacia, el backend
  *   usa ``localizacion.hora_del_dia`` del YAML si existe.
+ * @param {string} [opts.extras]
+ *   Instrucciones extra del DM (F3.3). Se envian tal cual al backend,
+ *   que las higieniza y trunca. Vacio/undefined => no se envian.
  * @returns {Promise<PromptPreview>}
  */
 export async function previsualizarPromptMapa(
@@ -143,6 +158,7 @@ export async function previsualizarPromptMapa(
 ) {
   const qs = new URLSearchParams({ proyeccion })
   if (opts.hora) qs.set('hora', opts.hora)
+  if (opts.extras && opts.extras.trim()) qs.set('extras', opts.extras)
   const url = apiUrl(
     `/api/editor/aventuras/${encodeURIComponent(slug)}` +
     `/localizaciones/${encodeURIComponent(locId)}/mapa/prompt?${qs.toString()}`,
