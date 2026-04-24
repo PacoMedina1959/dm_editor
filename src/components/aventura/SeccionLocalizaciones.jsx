@@ -1,13 +1,24 @@
 import { useState } from 'react'
 import FilterInput from './FilterInput.jsx'
+import MapaIADialog from './MapaIADialog.jsx'
+import CalibradorGridDialog from './CalibradorGridDialog.jsx'
+import { urlMapaPublico } from '../../api/mapaIA.js'
 
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', zona: '', conexiones: [],
   oculta: false, descripcion: '', notas_dm: '',
 }
 
-export default function SeccionLocalizaciones({ localizaciones, onUpdate, onOpenIA }) {
+export default function SeccionLocalizaciones({
+  localizaciones,
+  onUpdate,
+  onOpenIA,
+  serverSlug,
+  dirty,
+}) {
   const [editIdx, setEditIdx] = useState(null)
+  const [mapaIdx, setMapaIdx] = useState(null)
+  const [calibradorIdx, setCalibradorIdx] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
 
@@ -54,6 +65,39 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate, onOpen
     onUpdate(copy)
   }
 
+  /**
+   * Actualiza (o borra, con `mapa = null`) el sub-objeto `mapa` de una
+   * localizacion. Es el callback que usa `MapaIADialog` al aplicar.
+   *
+   * Opcionalmente acepta un `locPatch` para actualizar en el mismo
+   * commit otros campos de la loc (por ejemplo `hora_del_dia` cuando
+   * el DM ha hecho override en el dialogo).
+   */
+  const updateMapa = (i, mapa, locPatch = null) => {
+    if (!editable) return
+    const copy = [...items]
+    const loc = { ...copy[i] }
+    if (mapa == null) {
+      delete loc.mapa
+    } else {
+      loc.mapa = mapa
+    }
+    if (locPatch && typeof locPatch === 'object') {
+      for (const [k, v] of Object.entries(locPatch)) {
+        // `null` => borrar el campo; cualquier otro valor => set.
+        if (v === null) delete loc[k]
+        else loc[k] = v
+      }
+    }
+    copy[i] = loc
+    onUpdate(copy)
+  }
+
+  const quitarMapa = (i) => {
+    if (!window.confirm('¿Quitar el mapa asignado a esta localizacion? (La imagen permanece en disco por cache)')) return
+    updateMapa(i, null)
+  }
+
   if (!items.length && !editable) return null
 
   return (
@@ -97,10 +141,15 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate, onOpen
                     key={loc.id}
                     loc={loc}
                     editable={editable}
+                    serverSlug={serverSlug}
+                    dirty={dirty}
                     onEdit={() => startEdit(realIdx)}
                     onDuplicate={() => duplicate(realIdx)}
                     onMoveUp={() => move(realIdx, -1)}
                     onMoveDown={() => move(realIdx, 1)}
+                    onGenerarMapa={() => setMapaIdx(realIdx)}
+                    onQuitarMapa={() => quitarMapa(realIdx)}
+                    onCalibrarGrid={() => setCalibradorIdx(realIdx)}
                     isFirst={realIdx === 0}
                     isLast={realIdx === items.length - 1}
                   />
@@ -112,12 +161,48 @@ export default function SeccionLocalizaciones({ localizaciones, onUpdate, onOpen
       </FilterInput>
 
       {!items.length && <p className="av-empty">Sin localizaciones. Pulsa «+ Añadir» para crear una.</p>}
+
+      <MapaIADialog
+        open={mapaIdx !== null}
+        slug={serverSlug}
+        loc={mapaIdx !== null ? items[mapaIdx] : null}
+        onClose={() => setMapaIdx(null)}
+        onAplicar={(mapa, extras) => {
+          if (mapaIdx !== null) updateMapa(mapaIdx, mapa, extras)
+        }}
+      />
+
+      {calibradorIdx !== null && (
+        <CalibradorGridDialog
+          key={`cal-${calibradorIdx}`}
+          open
+          slug={serverSlug}
+          loc={items[calibradorIdx]}
+          onClose={() => setCalibradorIdx(null)}
+          onAplicar={(mapa) => updateMapa(calibradorIdx, mapa)}
+        />
+      )}
     </section>
   )
 }
 
-function LocRow({ loc, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
+function LocRow({
+  loc,
+  editable,
+  serverSlug,
+  dirty,
+  onEdit,
+  onDuplicate,
+  onMoveUp,
+  onMoveDown,
+  onGenerarMapa,
+  onQuitarMapa,
+  onCalibrarGrid,
+  isFirst,
+  isLast,
+}) {
   const [expanded, setExpanded] = useState(false)
+  const tieneMapa = !!loc.mapa?.imagen
   return (
     <div className="av-crud-row">
       <div className="av-crud-row-main" onClick={() => setExpanded(!expanded)}>
@@ -126,20 +211,150 @@ function LocRow({ loc, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFi
         <span className="av-cell-tags">
           {(loc.conexiones || []).map(c => <span key={c} className="av-tag">{c}</span>)}
         </span>
+        {tieneMapa && <span className="av-tag" title={`Mapa ${loc.mapa.tipo || ''}`}>🗺️</span>}
         {loc.oculta && <span className="av-tag">🔒</span>}
       </div>
       {expanded && (
         <div className="av-detail">
           {loc.descripcion && <p className="av-desc">{loc.descripcion}</p>}
           {loc.notas_dm && <p className="av-desc av-desc-dm">🎭 {loc.notas_dm}</p>}
+          {editable && (
+            <MapaBloque
+              loc={loc}
+              serverSlug={serverSlug}
+              dirty={dirty}
+              onGenerar={onGenerarMapa}
+              onQuitar={onQuitarMapa}
+              onCalibrar={onCalibrarGrid}
+            />
+          )}
         </div>
       )}
       {editable && (
         <div className="av-crud-actions">
+          <button
+            type="button"
+            className="av-btn-icon"
+            onClick={onGenerarMapa}
+            disabled={!serverSlug}
+            title={serverSlug
+              ? (tieneMapa ? 'Regenerar mapa 2.5D con IA' : 'Generar mapa 2.5D con IA')
+              : 'Guarda la aventura en el servidor para generar mapa'}
+            style={tieneMapa ? { color: '#60a5fa' } : undefined}
+          >
+            🗺️
+          </button>
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
           <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}
           {!isLast && <button type="button" className="av-btn-icon" onClick={onMoveDown} title="Bajar">▼</button>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Bloque de gestion del mapa 2.5D (imagen de fondo generada por IA) para una
+ * localizacion. Muestra estado actual + botones de accion.
+ *
+ * Estados:
+ *  - Sin `serverSlug`: botones deshabilitados con pista para guardar primero.
+ *  - `serverSlug` valido y sin mapa: boton "Generar mapa con IA".
+ *  - `serverSlug` valido y con mapa: thumbnail + "Regenerar" + "Quitar".
+ *  - `dirty`: aviso de que el prompt se construye con el YAML del disco.
+ */
+function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar }) {
+  const tieneMapa = !!loc.mapa?.imagen
+  const puede = !!serverSlug
+  const urlThumb = tieneMapa && serverSlug
+    ? urlMapaPublico(serverSlug, loc.mapa.imagen)
+    : null
+
+  return (
+    <div
+      style={{
+        marginTop: 8,
+        padding: 8,
+        borderTop: '1px dashed #334155',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        flexWrap: 'wrap',
+      }}
+    >
+      <strong style={{ fontSize: 13 }}>🗺️ Mapa 2.5D</strong>
+
+      {urlThumb && (
+        <img
+          src={urlThumb}
+          alt={`Mapa ${loc.id}`}
+          style={{
+            width: 96,
+            height: 96,
+            objectFit: 'cover',
+            border: '1px solid #334155',
+            borderRadius: 4,
+            background: '#0f172a',
+          }}
+        />
+      )}
+
+      {tieneMapa && (
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>
+          {loc.mapa.tipo || 'tactico'}
+          {loc.mapa.generado_ia?.seed != null && ` · seed ${loc.mapa.generado_ia.seed}`}
+        </span>
+      )}
+
+      {!tieneMapa && (
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>
+          Sin mapa asignado.
+        </span>
+      )}
+
+      <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+        <button
+          type="button"
+          className={tieneMapa ? 'btn-secondary av-btn-small' : 'btn-primary av-btn-small'}
+          onClick={onGenerar}
+          disabled={!puede}
+          title={!puede ? 'Guarda primero la aventura en el servidor' : ''}
+        >
+          {tieneMapa ? 'Regenerar con IA' : 'Generar mapa con IA'}
+        </button>
+        {tieneMapa && onCalibrar && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onCalibrar}
+            disabled={!puede}
+            title="Ajustar grid isométrico sobre la imagen"
+          >
+            📐 Calibrar grid
+          </button>
+        )}
+        {tieneMapa && (
+          <button
+            type="button"
+            className="av-btn-danger av-btn-small"
+            onClick={onQuitar}
+            disabled={!puede}
+          >
+            Quitar mapa
+          </button>
+        )}
+      </div>
+
+      {!puede && (
+        <div style={{ flexBasis: '100%', fontSize: 11, color: '#f59e0b' }}>
+          Para generar el mapa primero hay que guardar la aventura en el servidor (se necesita el slug).
+        </div>
+      )}
+
+      {puede && dirty && (
+        <div style={{ flexBasis: '100%', fontSize: 11, color: '#f59e0b' }}>
+          Tienes cambios sin guardar; el prompt del mapa se construira con la ultima version guardada en el servidor.
         </div>
       )}
     </div>

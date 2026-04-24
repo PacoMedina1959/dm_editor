@@ -407,6 +407,8 @@ export default function AventuraPage() {
               localizaciones={data.localizaciones || []}
               onUpdate={(v) => updateSection('localizaciones', v)}
               onOpenIA={() => openIA('localizaciones')}
+              serverSlug={serverSlug}
+              dirty={dirty}
             />
           )}
           {visibles.has('npcs') && (

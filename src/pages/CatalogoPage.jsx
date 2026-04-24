@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   catalogoAString,
   entradasOrdenadas,
@@ -33,6 +33,7 @@ export default function CatalogoPage() {
   const [statsText, setStatsText] = useState('{}')
   const [efectosText, setEfectosText] = useState('{}')
   const [editorError, setEditorError] = useState(null)
+  const idInputRef = useRef(null)
 
   const filas = useMemo(() => {
     if (!catalog) return []
@@ -238,6 +239,38 @@ export default function CatalogoPage() {
     setSelectedId(id)
   }
 
+  /** Id sugerido al duplicar: `<base>_copia`, `<base>_copia2`, … sin colisión en catálogo. */
+  const sugerirIdDuplicado = (baseRaw) => {
+    if (!catalog) return `item_copia_${Date.now()}`
+    const base = (baseRaw || '').trim() || 'item'
+    let candidate = `${base}_copia`
+    let i = 2
+    while (catalog[candidate]) {
+      candidate = `${base}_copia${i}`
+      i += 1
+    }
+    return candidate
+  }
+
+  /**
+   * Copia los valores actuales del formulario (incl. cambios sin guardar) a un ítem nuevo.
+   * El usuario puede renombrar el id (p. ej. guiso_pescado) antes de «Guardar ítem».
+   */
+  const duplicarItem = () => {
+    if (!catalog) return
+    if (!isNew && !selectedId) return
+    const baseForId = idEdit.trim() || selectedId || 'item'
+    const nuevoId = sugerirIdDuplicado(baseForId)
+    setIsNew(true)
+    setSelectedId(null)
+    setIdEdit(nuevoId)
+    setEditorError(null)
+    requestAnimationFrame(() => {
+      idInputRef.current?.focus?.()
+      idInputRef.current?.select?.()
+    })
+  }
+
   const eliminarItem = () => {
     if (!catalog || !selectedId || isNew) return
     if (!globalThis.confirm(`¿Eliminar del catálogo la entrada «${selectedId}»?`)) return
@@ -373,6 +406,7 @@ export default function CatalogoPage() {
               <label className="field">
                 <span className="field-label">id</span>
                 <input
+                  ref={idInputRef}
                   className="catalogo-input"
                   value={idEdit}
                   onChange={(e) => setIdEdit(e.target.value)}
@@ -470,6 +504,15 @@ export default function CatalogoPage() {
                 disabled={!catalog || (!isNew && !selectedId)}
               >
                 Guardar ítem
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={duplicarItem}
+                disabled={!catalog || (!isNew && !selectedId)}
+                title="Copia el formulario actual (aunque no esté guardado) a un ítem nuevo; ajusta el id y guarda."
+              >
+                Duplicar
               </button>
               <button type="button" className="btn-secondary" onClick={eliminarItem} disabled={!selectedId || isNew}>
                 Eliminar
