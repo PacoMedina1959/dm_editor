@@ -4,7 +4,9 @@ import MapaIADialog from './MapaIADialog.jsx'
 import CalibradorGridDialog from './CalibradorGridDialog.jsx'
 import WalkmaskBrushDialog from './WalkmaskBrushDialog.jsx'
 import TransitionPointsDialog from './TransitionPointsDialog.jsx'
+import SpawnEntranceDialog from './SpawnEntranceDialog.jsx'
 import { urlMapaPublico } from '../../api/mapaIA.js'
+import { validarMapaRuntimeLocalizacion } from '../../domain/aventura.js'
 
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', zona: '', conexiones: [],
@@ -23,6 +25,8 @@ export default function SeccionLocalizaciones({
   const [calibradorIdx, setCalibradorIdx] = useState(null)
   const [walkmaskIdx, setWalkmaskIdx] = useState(null)
   const [transicionesIdx, setTransicionesIdx] = useState(null)
+  const [spawnIdx, setSpawnIdx] = useState(null)
+  const [mapaAvisos, setMapaAvisos] = useState({})
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
 
@@ -69,6 +73,37 @@ export default function SeccionLocalizaciones({
     onUpdate(copy)
   }
 
+  const mapaEsTactico = (mapa) => {
+    if (!mapa || typeof mapa !== 'object') return false
+    if (mapa.tipo === 'overworld' || mapa.proyeccion === 'overworld' || mapa.proyeccion === 'bandas') return false
+    return mapa.tipo === 'tactico'
+      || mapa.proyeccion === 'tactico'
+      || mapa.proyeccion === 'dimetrico_2_1'
+      || !!mapa.imagen
+  }
+
+  const normalizarMapaTactico = (mapa) => {
+    if (!mapa || typeof mapa !== 'object') return mapa
+    const next = { ...mapa }
+    if (mapaEsTactico(next)) {
+      next.tipo = next.tipo || 'tactico'
+      next.proyeccion = 'dimetrico_2_1'
+    }
+    return next
+  }
+
+  const cambioRiesgosoDeMapa = (prev, next) => {
+    if (!prev || !next) return false
+    const tieneEstructura =
+      prev.spawn_entrada
+      || prev.pisable
+      || (Array.isArray(prev.puntos_interes) && prev.puntos_interes.length > 0)
+    if (!tieneEstructura) return false
+    return ['imagen', 'tile_w', 'tile_h', 'cols', 'rows', 'origen_px'].some((k) => (
+      JSON.stringify(prev[k] ?? null) !== JSON.stringify(next[k] ?? null)
+    ))
+  }
+
   /**
    * Actualiza (o borra, con `mapa = null`) el sub-objeto `mapa` de una
    * localizacion. Es el callback que usa `MapaIADialog` al aplicar.
@@ -84,9 +119,16 @@ export default function SeccionLocalizaciones({
     if (mapa == null) {
       delete loc.mapa
     } else {
-      loc.mapa = {
+      const prevMapa = loc.mapa || {}
+      loc.mapa = normalizarMapaTactico({
         ...(loc.mapa || {}),
         ...mapa,
+      })
+      if (cambioRiesgosoDeMapa(prevMapa, loc.mapa)) {
+        setMapaAvisos(prev => ({
+          ...prev,
+          [loc.id]: 'Has cambiado la imagen o calibración. Revisa spawn, walkmask y transiciones antes de jugar.',
+        }))
       }
     }
     if (locPatch && typeof locPatch === 'object') {
@@ -147,6 +189,7 @@ export default function SeccionLocalizaciones({
                   <LocRow
                     key={loc.id}
                     loc={loc}
+                    localizaciones={items}
                     editable={editable}
                     serverSlug={serverSlug}
                     dirty={dirty}
@@ -159,6 +202,8 @@ export default function SeccionLocalizaciones({
                     onCalibrarGrid={() => setCalibradorIdx(realIdx)}
                     onPintarWalkmask={() => setWalkmaskIdx(realIdx)}
                     onEditarTransiciones={() => setTransicionesIdx(realIdx)}
+                    onEditarSpawn={() => setSpawnIdx(realIdx)}
+                    avisoMapa={mapaAvisos[loc.id]}
                     isFirst={realIdx === 0}
                     isLast={realIdx === items.length - 1}
                   />
@@ -214,12 +259,24 @@ export default function SeccionLocalizaciones({
           onAplicar={(mapa) => updateMapa(transicionesIdx, mapa)}
         />
       )}
+
+      {spawnIdx !== null && (
+        <SpawnEntranceDialog
+          key={`spawn-${spawnIdx}`}
+          open
+          slug={serverSlug}
+          loc={items[spawnIdx]}
+          onClose={() => setSpawnIdx(null)}
+          onAplicar={(mapa) => updateMapa(spawnIdx, mapa)}
+        />
+      )}
     </section>
   )
 }
 
 function LocRow({
   loc,
+  localizaciones,
   editable,
   serverSlug,
   dirty,
@@ -232,6 +289,8 @@ function LocRow({
   onCalibrarGrid,
   onPintarWalkmask,
   onEditarTransiciones,
+  onEditarSpawn,
+  avisoMapa,
   isFirst,
   isLast,
 }) {
@@ -262,6 +321,9 @@ function LocRow({
               onCalibrar={onCalibrarGrid}
               onPintarWalkmask={onPintarWalkmask}
               onEditarTransiciones={onEditarTransiciones}
+              onEditarSpawn={onEditarSpawn}
+              avisoMapa={avisoMapa}
+              localizaciones={localizaciones}
             />
           )}
         </div>
@@ -300,12 +362,35 @@ function LocRow({
  *  - `serverSlug` valido y con mapa: thumbnail + "Regenerar" + "Quitar".
  *  - `dirty`: aviso de que el prompt se construye con el YAML del disco.
  */
-function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar, onPintarWalkmask, onEditarTransiciones }) {
+function MapaBloque({
+  loc,
+  serverSlug,
+  dirty,
+  onGenerar,
+  onQuitar,
+  onCalibrar,
+  onPintarWalkmask,
+  onEditarTransiciones,
+  onEditarSpawn,
+  avisoMapa,
+  localizaciones = [],
+}) {
   const tieneMapa = !!loc.mapa?.imagen
   const puede = !!serverSlug
   const urlThumb = tieneMapa && serverSlug
     ? urlMapaPublico(serverSlug, loc.mapa.imagen)
     : null
+  const salud = tieneMapa ? validarMapaRuntimeLocalizacion(loc, localizaciones) : null
+  const estadoLabel = salud?.estado === 'ok'
+    ? 'Mapa listo'
+    : salud?.estado === 'warning'
+      ? 'Mapa con avisos'
+      : 'Mapa incompleto'
+  const estadoColor = salud?.estado === 'ok'
+    ? '#86efac'
+    : salud?.estado === 'warning'
+      ? '#fbbf24'
+      : '#fca5a5'
 
   return (
     <div
@@ -341,6 +426,21 @@ function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar, o
           {loc.mapa.tipo || 'tactico'}
           {loc.mapa.generado_ia?.seed != null && ` · seed ${loc.mapa.generado_ia.seed}`}
         </span>
+      )}
+
+      {tieneMapa && salud && (
+        <details style={{ flexBasis: '100%', fontSize: 12 }}>
+          <summary style={{ cursor: 'pointer', color: estadoColor, fontWeight: 700 }}>
+            {estadoLabel}
+          </summary>
+          <ul style={{ margin: '6px 0 0', paddingLeft: 18, color: '#cbd5e1' }}>
+            {salud.issues.map(issue => (
+              <li key={`${issue.code}-${issue.message}`} style={{ color: issue.severity === 'error' ? '#fca5a5' : issue.severity === 'warning' ? '#fbbf24' : '#86efac' }}>
+                {issue.message}
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       {!tieneMapa && (
@@ -392,6 +492,17 @@ function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar, o
             🚪 Transiciones
           </button>
         )}
+        {tieneMapa && onEditarSpawn && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onEditarSpawn}
+            disabled={!puede}
+            title="Colocar la celda donde aparece el grupo al entrar"
+          >
+            📍 Spawn entrada
+          </button>
+        )}
         {tieneMapa && (
           <button
             type="button"
@@ -413,6 +524,12 @@ function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar, o
       {puede && dirty && (
         <div style={{ flexBasis: '100%', fontSize: 11, color: '#f59e0b' }}>
           Tienes cambios sin guardar; el prompt del mapa se construira con la ultima version guardada en el servidor.
+        </div>
+      )}
+
+      {avisoMapa && (
+        <div style={{ flexBasis: '100%', fontSize: 11, color: '#f59e0b' }}>
+          {avisoMapa}
         </div>
       )}
     </div>

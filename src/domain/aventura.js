@@ -59,6 +59,135 @@ function asArray(v) {
   return [v]
 }
 
+function esEnteroPositivo(v) {
+  return Number.isInteger(v) && v > 0
+}
+
+function esCelda(v) {
+  return Array.isArray(v) && v.length === 2 && v.every(Number.isInteger)
+}
+
+function parsePisables(pisable, cols, rows) {
+  if (typeof pisable !== 'string') return { ok: false, filas: null }
+  const filas = pisable.split(/\r?\n/)
+  while (filas[0]?.trim() === '') filas.shift()
+  while (filas[filas.length - 1]?.trim() === '') filas.pop()
+  const ok = filas.length === rows && filas.every(f => f.length === cols && /^[#.]+$/.test(f))
+  return { ok, filas: ok ? filas : null }
+}
+
+function celdaDentro(celda, cols, rows) {
+  return esCelda(celda) && celda[0] >= 0 && celda[1] >= 0 && celda[0] < cols && celda[1] < rows
+}
+
+function localizacionTieneMapaTacticoListo(loc, localizaciones) {
+  return validarMapaRuntimeLocalizacion(loc, localizaciones, { validarDestinoListo: false }).estado !== 'error'
+}
+
+/**
+ * Valida si el mapa tactico de una localizacion esta listo para runtime.
+ *
+ * @param {object} loc
+ * @param {object[]} localizaciones
+ * @param {{ validarDestinoListo?: boolean }} opts
+ * @returns {{ estado: 'ok'|'warning'|'error', issues: Array<{ severity: 'ok'|'warning'|'error', code: string, message: string }> }}
+ */
+export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = {}) {
+  const validarDestinoListo = opts.validarDestinoListo !== false
+  const mapa = loc?.mapa
+  const issues = []
+  const add = (severity, code, message) => issues.push({ severity, code, message })
+
+  if (!mapa || typeof mapa !== 'object') {
+    return { estado: 'error', issues: [{ severity: 'error', code: 'MAPA_SIN_MAPA', message: 'Error: falta mapa.' }] }
+  }
+
+  if (!String(mapa.imagen || '').trim()) add('error', 'MAPA_SIN_IMAGEN', 'Error: falta imagen.')
+  else add('ok', 'MAPA_IMAGEN_OK', 'OK: imagen asignada')
+
+  if (mapa.proyeccion !== 'dimetrico_2_1') {
+    add('error', 'MAPA_SIN_PROYECCION_TACTICA', 'Error: proyección táctica ausente o inválida.')
+  } else {
+    add('ok', 'MAPA_PROYECCION_OK', 'OK: proyección táctica')
+  }
+
+  const calibracionOk =
+    esEnteroPositivo(mapa.tile_w)
+    && esEnteroPositivo(mapa.tile_h)
+    && esEnteroPositivo(mapa.cols)
+    && esEnteroPositivo(mapa.rows)
+    && Array.isArray(mapa.origen_px)
+    && mapa.origen_px.length === 2
+    && mapa.origen_px.every(Number.isInteger)
+  if (!calibracionOk) {
+    add('error', 'MAPA_CALIBRACION_INCOMPLETA', 'Error: calibración incompleta.')
+  } else {
+    add('ok', 'MAPA_CALIBRACION_OK', `OK: calibración ${mapa.cols}x${mapa.rows}`)
+  }
+
+  const cols = mapa.cols
+  const rows = mapa.rows
+  const pisable = calibracionOk ? parsePisables(mapa.pisable, cols, rows) : { ok: false, filas: null }
+  if (!mapa.pisable) {
+    add('warning', 'MAPA_PISABLE_FALTANTE', 'Aviso: falta walkmask/pisable.')
+  } else if (!pisable.ok) {
+    add('error', 'MAPA_PISABLE_INVALIDO', 'Error: walkmask/pisable inválida.')
+  } else {
+    add('ok', 'MAPA_PISABLE_OK', `OK: walkmask ${cols}x${rows}`)
+  }
+
+  const spawn = mapa.spawn_entrada
+  const spawnCelda = spawn?.celda
+  if (!spawn || !esCelda(spawnCelda)) {
+    add('error', 'MAPA_SPAWN_FALTANTE', 'Error: falta spawn_entrada.')
+  } else if (calibracionOk && !celdaDentro(spawnCelda, cols, rows)) {
+    add('error', 'MAPA_SPAWN_FUERA', 'Error: spawn_entrada fuera del tablero.')
+  } else if (pisable.ok && pisable.filas?.[spawnCelda[1]]?.[spawnCelda[0]] === '.') {
+    add('warning', 'MAPA_SPAWN_BLOQUEADO', 'Aviso: spawn_entrada cae sobre celda bloqueada.')
+  } else {
+    add('ok', 'MAPA_SPAWN_OK', `OK: spawn entrada [${spawnCelda.join(', ')}]`)
+  }
+
+  const locIds = new Set(localizaciones.map(l => l?.id).filter(Boolean))
+  const locPorId = new Map(localizaciones.map(l => [l?.id, l]).filter(([id]) => id))
+  const conexiones = new Set(Array.isArray(loc?.conexiones) ? loc.conexiones : [])
+  const transiciones = Array.isArray(mapa.puntos_interes)
+    ? mapa.puntos_interes.filter(p => p?.tipo === 'transicion')
+    : []
+  const ids = new Set()
+  for (const [idx, punto] of transiciones.entries()) {
+    const label = punto?.id || `transición ${idx + 1}`
+    if (!String(punto?.id || '').trim()) add('error', 'MAPA_TRANSICION_ID_FALTANTE', 'Error: transición sin ID.')
+    else if (ids.has(punto.id)) add('error', 'MAPA_TRANSICION_ID_DUPLICADO', `Error: transición duplicada «${punto.id}».`)
+    else ids.add(punto.id)
+
+    if (!celdaDentro(punto?.celda, cols, rows)) {
+      add('error', 'MAPA_TRANSICION_CELDA_INVALIDA', `Error: ${label} tiene celda inválida.`)
+    } else if (pisable.ok && pisable.filas?.[punto.celda[1]]?.[punto.celda[0]] === '.') {
+      add('warning', 'MAPA_TRANSICION_CELDA_BLOQUEADA', `Aviso: ${label} cae sobre celda bloqueada.`)
+    }
+
+    if (!locIds.has(punto?.destino)) {
+      add('error', 'MAPA_TRANSICION_DESTINO_INVALIDO', `Error: ${label} apunta a destino inexistente.`)
+    } else {
+      if (!conexiones.has(punto.destino)) {
+        add('error', 'MAPA_TRANSICION_DESTINO_NO_CONECTADO', `Error: ${label} apunta a destino no conectado.`)
+      }
+      const destino = locPorId.get(punto.destino)
+      if (!destino?.mapa?.imagen) {
+        add('error', 'MAPA_TRANSICION_DESTINO_NO_LISTO', `Error: ${label} apunta a destino sin mapa táctico.`)
+      } else if (validarDestinoListo && !localizacionTieneMapaTacticoListo(destino, localizaciones)) {
+        add('warning', 'MAPA_TRANSICION_DESTINO_NO_LISTO', `Aviso: ${label} apunta a destino con mapa incompleto.`)
+      }
+    }
+  }
+  if (transiciones.length === 0) add('ok', 'MAPA_TRANSICIONES_OK', 'OK: sin transiciones declaradas')
+
+  const tieneErrores = issues.some(i => i.severity === 'error')
+  const tieneWarnings = issues.some(i => i.severity === 'warning')
+  return { estado: tieneErrores ? 'error' : tieneWarnings ? 'warning' : 'ok', issues }
+}
+
 /** Resumen compacto para la cabecera del visor. */
 export function resumenAventura(data) {
   const meta = data?.aventura
