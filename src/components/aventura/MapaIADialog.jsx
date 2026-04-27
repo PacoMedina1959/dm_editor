@@ -227,6 +227,7 @@ export default function MapaIADialog({
     const mapa = {
       imagen: estadoJob.ruta_relativa,
       tipo: proyeccion,
+      proyeccion: proyeccion === 'tactico' ? 'dimetrico_2_1' : proyeccion,
       generado_ia: {
         hash: estadoJob.hash,
         // En subidas manuales el prompt viene vacío y no aporta nada

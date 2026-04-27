@@ -84,7 +84,10 @@ export default function SeccionLocalizaciones({
     if (mapa == null) {
       delete loc.mapa
     } else {
-      loc.mapa = mapa
+      loc.mapa = {
+        ...(loc.mapa || {}),
+        ...mapa,
+      }
     }
     if (locPatch && typeof locPatch === 'object') {
       for (const [k, v] of Object.entries(locPatch)) {
