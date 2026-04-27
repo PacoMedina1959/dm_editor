@@ -200,6 +200,48 @@ export function validarAventura(data) {
     errores.push(`La escena inicial «${meta.escena_inicial}» no existe en la lista de escenas.`)
   }
 
+  const mapaMundo = meta?.mapa_mundo
+  if (mapaMundo != null) {
+    if (typeof mapaMundo !== 'object' || Array.isArray(mapaMundo)) {
+      errores.push('El bloque «aventura.mapa_mundo» debe ser un objeto.')
+    } else {
+      if (!String(mapaMundo.imagen || '').trim()) {
+        errores.push('Mapa mundo: falta «imagen».')
+      }
+      for (const campo of ['ancho', 'alto']) {
+        if (
+          mapaMundo[campo] != null &&
+          (!Number.isInteger(mapaMundo[campo]) || mapaMundo[campo] <= 0)
+        ) {
+          errores.push(`Mapa mundo: «${campo}» debe ser un entero positivo.`)
+        }
+      }
+      const posiciones = mapaMundo.posiciones_localizaciones
+      if (posiciones != null) {
+        if (typeof posiciones !== 'object' || Array.isArray(posiciones)) {
+          errores.push('Mapa mundo: «posiciones_localizaciones» debe ser un objeto.')
+        } else {
+          for (const [locId, pos] of Object.entries(posiciones)) {
+            if (!locIds.has(locId)) {
+              errores.push(`Mapa mundo: localización «${locId}» no existe.`)
+            }
+            if (
+              !pos ||
+              typeof pos !== 'object' ||
+              Array.isArray(pos) ||
+              !Number.isInteger(pos.x) ||
+              !Number.isInteger(pos.y) ||
+              pos.x < 0 ||
+              pos.y < 0
+            ) {
+              errores.push(`Mapa mundo: posición inválida para «${locId}».`)
+            }
+          }
+        }
+      }
+    }
+  }
+
   // Referencias cruzadas por escena
   for (const esc of escenas) {
     const tag = `Escena «${esc.id || '?'}»`

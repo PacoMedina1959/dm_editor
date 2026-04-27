@@ -211,6 +211,21 @@ export async function subirImagenMapa(slug, locId, file) {
 }
 
 /**
+ * Sube la imagen pergamino del mapa mundo de una aventura.
+ *
+ * @param {string} slug
+ * @param {File|Blob} file
+ * @returns {Promise<{ imagen: string, ancho: number, alto: number }>}
+ */
+export async function subirImagenMapaMundo(slug, file) {
+  const url = apiUrl(`/api/editor/aventuras/${encodeURIComponent(slug)}/mapa-mundo/imagen`)
+  const fd = new FormData()
+  fd.append('archivo', file, file.name || 'mapa-mundo')
+  const res = await fetch(url, { method: 'POST', body: fd })
+  return _json(res)
+}
+
+/**
  * Hace polling del job hasta que termina (ok/error) o hasta el timeout.
  * Llama a `onTick(estado)` en cada actualizacion para que la UI pinte
  * progreso en vivo.

@@ -15,6 +15,7 @@ import ImportarAventura from '../components/aventura/ImportarAventura.jsx'
 import SeccionMeta from '../components/aventura/SeccionMeta.jsx'
 import SeccionMundo from '../components/aventura/SeccionMundo.jsx'
 import SeccionLocalizaciones from '../components/aventura/SeccionLocalizaciones.jsx'
+import MapaMundoDialog from '../components/aventura/MapaMundoDialog.jsx'
 import SeccionNpcs from '../components/aventura/SeccionNpcs.jsx'
 import SeccionBestiario from '../components/aventura/SeccionBestiario.jsx'
 import SeccionHistoria from '../components/aventura/SeccionHistoria.jsx'
@@ -28,6 +29,7 @@ const SAMPLE_URL = `${import.meta.env.BASE_URL}samples/aventura-ejemplo.yaml`
 const SECCIONES = [
   { key: 'meta', label: 'Metadatos' },
   { key: 'mundo', label: 'Mundo' },
+  { key: 'mapa_mundo', label: 'Mapa mundo' },
   { key: 'localizaciones', label: 'Localizaciones' },
   { key: 'npcs', label: 'NPCs' },
   { key: 'bestiario', label: 'Bestiario' },
@@ -400,6 +402,14 @@ export default function AventuraPage() {
             <SeccionMundo
               mundo={data.mundo}
               onUpdate={(v) => updateSection('mundo', v)}
+            />
+          )}
+          {visibles.has('mapa_mundo') && (
+            <MapaMundoDialog
+              aventura={data.aventura}
+              localizaciones={data.localizaciones || []}
+              onUpdate={(v) => updateSection('aventura', v)}
+              serverSlug={serverSlug}
             />
           )}
           {visibles.has('localizaciones') && (

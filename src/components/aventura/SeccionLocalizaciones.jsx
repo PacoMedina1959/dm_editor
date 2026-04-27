@@ -2,6 +2,8 @@ import { useState } from 'react'
 import FilterInput from './FilterInput.jsx'
 import MapaIADialog from './MapaIADialog.jsx'
 import CalibradorGridDialog from './CalibradorGridDialog.jsx'
+import WalkmaskBrushDialog from './WalkmaskBrushDialog.jsx'
+import TransitionPointsDialog from './TransitionPointsDialog.jsx'
 import { urlMapaPublico } from '../../api/mapaIA.js'
 
 const EMPTY = {
@@ -19,6 +21,8 @@ export default function SeccionLocalizaciones({
   const [editIdx, setEditIdx] = useState(null)
   const [mapaIdx, setMapaIdx] = useState(null)
   const [calibradorIdx, setCalibradorIdx] = useState(null)
+  const [walkmaskIdx, setWalkmaskIdx] = useState(null)
+  const [transicionesIdx, setTransicionesIdx] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
 
@@ -150,6 +154,8 @@ export default function SeccionLocalizaciones({
                     onGenerarMapa={() => setMapaIdx(realIdx)}
                     onQuitarMapa={() => quitarMapa(realIdx)}
                     onCalibrarGrid={() => setCalibradorIdx(realIdx)}
+                    onPintarWalkmask={() => setWalkmaskIdx(realIdx)}
+                    onEditarTransiciones={() => setTransicionesIdx(realIdx)}
                     isFirst={realIdx === 0}
                     isLast={realIdx === items.length - 1}
                   />
@@ -182,6 +188,29 @@ export default function SeccionLocalizaciones({
           onAplicar={(mapa) => updateMapa(calibradorIdx, mapa)}
         />
       )}
+
+      {walkmaskIdx !== null && (
+        <WalkmaskBrushDialog
+          key={`walk-${walkmaskIdx}`}
+          open
+          slug={serverSlug}
+          loc={items[walkmaskIdx]}
+          onClose={() => setWalkmaskIdx(null)}
+          onAplicar={(mapa) => updateMapa(walkmaskIdx, mapa)}
+        />
+      )}
+
+      {transicionesIdx !== null && (
+        <TransitionPointsDialog
+          key={`trans-${transicionesIdx}`}
+          open
+          slug={serverSlug}
+          loc={items[transicionesIdx]}
+          localizaciones={items}
+          onClose={() => setTransicionesIdx(null)}
+          onAplicar={(mapa) => updateMapa(transicionesIdx, mapa)}
+        />
+      )}
     </section>
   )
 }
@@ -198,6 +227,8 @@ function LocRow({
   onGenerarMapa,
   onQuitarMapa,
   onCalibrarGrid,
+  onPintarWalkmask,
+  onEditarTransiciones,
   isFirst,
   isLast,
 }) {
@@ -226,6 +257,8 @@ function LocRow({
               onGenerar={onGenerarMapa}
               onQuitar={onQuitarMapa}
               onCalibrar={onCalibrarGrid}
+              onPintarWalkmask={onPintarWalkmask}
+              onEditarTransiciones={onEditarTransiciones}
             />
           )}
         </div>
@@ -264,7 +297,7 @@ function LocRow({
  *  - `serverSlug` valido y con mapa: thumbnail + "Regenerar" + "Quitar".
  *  - `dirty`: aviso de que el prompt se construye con el YAML del disco.
  */
-function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar }) {
+function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar, onPintarWalkmask, onEditarTransiciones }) {
   const tieneMapa = !!loc.mapa?.imagen
   const puede = !!serverSlug
   const urlThumb = tieneMapa && serverSlug
@@ -332,6 +365,28 @@ function MapaBloque({ loc, serverSlug, dirty, onGenerar, onQuitar, onCalibrar })
             title="Ajustar grid isométrico sobre la imagen"
           >
             📐 Calibrar grid
+          </button>
+        )}
+        {tieneMapa && onPintarWalkmask && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onPintarWalkmask}
+            disabled={!puede}
+            title="Pintar celdas pisables y bloqueadas"
+          >
+            🖌️ Pintar walkmask
+          </button>
+        )}
+        {tieneMapa && onEditarTransiciones && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onEditarTransiciones}
+            disabled={!puede}
+            title="Colocar salidas, puertas y escaleras tácticas"
+          >
+            🚪 Transiciones
           </button>
         )}
         {tieneMapa && (
