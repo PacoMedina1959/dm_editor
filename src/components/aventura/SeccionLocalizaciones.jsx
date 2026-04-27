@@ -5,6 +5,7 @@ import CalibradorGridDialog from './CalibradorGridDialog.jsx'
 import WalkmaskBrushDialog from './WalkmaskBrushDialog.jsx'
 import TransitionPointsDialog from './TransitionPointsDialog.jsx'
 import SpawnEntranceDialog from './SpawnEntranceDialog.jsx'
+import NpcSpawnsDialog from './NpcSpawnsDialog.jsx'
 import { urlMapaPublico } from '../../api/mapaIA.js'
 import { validarMapaRuntimeLocalizacion } from '../../domain/aventura.js'
 
@@ -15,6 +16,7 @@ const EMPTY = {
 
 export default function SeccionLocalizaciones({
   localizaciones,
+  npcs = [],
   onUpdate,
   onOpenIA,
   serverSlug,
@@ -26,6 +28,7 @@ export default function SeccionLocalizaciones({
   const [walkmaskIdx, setWalkmaskIdx] = useState(null)
   const [transicionesIdx, setTransicionesIdx] = useState(null)
   const [spawnIdx, setSpawnIdx] = useState(null)
+  const [npcSpawnsIdx, setNpcSpawnsIdx] = useState(null)
   const [mapaAvisos, setMapaAvisos] = useState({})
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
@@ -190,6 +193,7 @@ export default function SeccionLocalizaciones({
                     key={loc.id}
                     loc={loc}
                     localizaciones={items}
+                    npcs={npcs}
                     editable={editable}
                     serverSlug={serverSlug}
                     dirty={dirty}
@@ -203,6 +207,7 @@ export default function SeccionLocalizaciones({
                     onPintarWalkmask={() => setWalkmaskIdx(realIdx)}
                     onEditarTransiciones={() => setTransicionesIdx(realIdx)}
                     onEditarSpawn={() => setSpawnIdx(realIdx)}
+                    onEditarNpcSpawns={() => setNpcSpawnsIdx(realIdx)}
                     avisoMapa={mapaAvisos[loc.id]}
                     isFirst={realIdx === 0}
                     isLast={realIdx === items.length - 1}
@@ -270,6 +275,18 @@ export default function SeccionLocalizaciones({
           onAplicar={(mapa) => updateMapa(spawnIdx, mapa)}
         />
       )}
+
+      {npcSpawnsIdx !== null && (
+        <NpcSpawnsDialog
+          key={`npc-spawn-${npcSpawnsIdx}`}
+          open
+          slug={serverSlug}
+          loc={items[npcSpawnsIdx]}
+          npcs={npcs}
+          onClose={() => setNpcSpawnsIdx(null)}
+          onAplicar={(mapa) => updateMapa(npcSpawnsIdx, mapa)}
+        />
+      )}
     </section>
   )
 }
@@ -277,6 +294,7 @@ export default function SeccionLocalizaciones({
 function LocRow({
   loc,
   localizaciones,
+  npcs,
   editable,
   serverSlug,
   dirty,
@@ -290,6 +308,7 @@ function LocRow({
   onPintarWalkmask,
   onEditarTransiciones,
   onEditarSpawn,
+  onEditarNpcSpawns,
   avisoMapa,
   isFirst,
   isLast,
@@ -322,8 +341,10 @@ function LocRow({
               onPintarWalkmask={onPintarWalkmask}
               onEditarTransiciones={onEditarTransiciones}
               onEditarSpawn={onEditarSpawn}
+              onEditarNpcSpawns={onEditarNpcSpawns}
               avisoMapa={avisoMapa}
               localizaciones={localizaciones}
+              npcs={npcs}
             />
           )}
         </div>
@@ -372,15 +393,17 @@ function MapaBloque({
   onPintarWalkmask,
   onEditarTransiciones,
   onEditarSpawn,
+  onEditarNpcSpawns,
   avisoMapa,
   localizaciones = [],
+  npcs = [],
 }) {
   const tieneMapa = !!loc.mapa?.imagen
   const puede = !!serverSlug
   const urlThumb = tieneMapa && serverSlug
     ? urlMapaPublico(serverSlug, loc.mapa.imagen)
     : null
-  const salud = tieneMapa ? validarMapaRuntimeLocalizacion(loc, localizaciones) : null
+  const salud = tieneMapa ? validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs }) : null
   const estadoLabel = salud?.estado === 'ok'
     ? 'Mapa listo'
     : salud?.estado === 'warning'
@@ -501,6 +524,17 @@ function MapaBloque({
             title="Colocar la celda donde aparece el grupo al entrar"
           >
             📍 Spawn entrada
+          </button>
+        )}
+        {tieneMapa && onEditarNpcSpawns && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onEditarNpcSpawns}
+            disabled={!puede}
+            title="Colocar NPCs canónicos sobre el mapa táctico"
+          >
+            NPCs
           </button>
         )}
         {tieneMapa && (

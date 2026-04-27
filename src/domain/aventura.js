@@ -94,6 +94,7 @@ function localizacionTieneMapaTacticoListo(loc, localizaciones) {
  */
 export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = {}) {
   const validarDestinoListo = opts.validarDestinoListo !== false
+  const npcs = asArray(opts.npcs)
   const mapa = loc?.mapa
   const issues = []
   const add = (severity, code, message) => issues.push({ severity, code, message })
@@ -182,6 +183,41 @@ export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = 
     }
   }
   if (transiciones.length === 0) add('ok', 'MAPA_TRANSICIONES_OK', 'OK: sin transiciones declaradas')
+
+  const npcsPorId = new Map(npcs.map(n => [n?.id, n]).filter(([id]) => id))
+  const spawnsNpc = Array.isArray(mapa.spawns_npc) ? mapa.spawns_npc : []
+  const idsSpawnNpc = new Set()
+  for (const [idx, spawnNpc] of spawnsNpc.entries()) {
+    const label = spawnNpc?.npc_id || `spawn NPC ${idx + 1}`
+    if (!spawnNpc || typeof spawnNpc !== 'object') {
+      add('error', 'MAPA_SPAWN_NPC_INVALIDO', 'Error: spawn de NPC inválido.')
+      continue
+    }
+    if (!String(spawnNpc.npc_id || '').trim()) {
+      add('error', 'MAPA_SPAWN_NPC_ID_FALTANTE', 'Error: spawn de NPC sin npc_id.')
+    } else if (npcs.length && !npcsPorId.has(spawnNpc.npc_id)) {
+      add('error', 'MAPA_SPAWN_NPC_ID_INVALIDO', `Error: ${label} no existe en NPCs.`)
+    } else if (idsSpawnNpc.has(spawnNpc.npc_id)) {
+      add('error', 'MAPA_SPAWN_NPC_DUPLICADO', `Error: ${label} tiene spawn duplicado.`)
+    } else {
+      idsSpawnNpc.add(spawnNpc.npc_id)
+    }
+    const npc = npcsPorId.get(spawnNpc.npc_id)
+    if (npc?.ubicacion && loc?.id && npc.ubicacion !== loc.id) {
+      add('error', 'MAPA_SPAWN_NPC_UBICACION', `Error: ${label} pertenece a «${npc.ubicacion}».`)
+    }
+    if (!celdaDentro(spawnNpc.celda, cols, rows)) {
+      add('error', 'MAPA_SPAWN_NPC_CELDA_INVALIDA', `Error: ${label} tiene celda inválida.`)
+    } else if (pisable.ok && pisable.filas?.[spawnNpc.celda[1]]?.[spawnNpc.celda[0]] === '.') {
+      add('warning', 'MAPA_SPAWN_NPC_BLOQUEADO', `Aviso: ${label} cae sobre celda bloqueada.`)
+    }
+  }
+
+  const npcsDeLoc = npcs.filter(n => n?.ubicacion === loc?.id)
+  const comerciantesSinSpawn = npcsDeLoc.filter(n => Array.isArray(n?.vende) && n.vende.length && !idsSpawnNpc.has(n.id))
+  for (const npc of comerciantesSinSpawn) {
+    add('warning', 'MAPA_NPC_COMERCIANTE_SIN_SPAWN', `Aviso: ${npc.nombre || npc.id} tiene vende pero no tiene spawn en este mapa.`)
+  }
 
   const tieneErrores = issues.some(i => i.severity === 'error')
   const tieneWarnings = issues.some(i => i.severity === 'warning')
