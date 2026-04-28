@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { urlMapaPublico } from '../../api/mapaIA.js'
+import OrientacionNorteMapa from './OrientacionNorteMapa.jsx'
 
 const DEFAULTS = { tile_w: 64, tile_h: 32, cols: 10, rows: 10, origen_px: [0, 0] }
+const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3]
 
 function configMapa(loc) {
   const m = loc?.mapa || {}
@@ -54,6 +56,10 @@ function normalizarEnteroCelda(value) {
   return Object.is(n, -0) ? 0 : n
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value))
+}
+
 function normalizarCelda(celda) {
   if (!Array.isArray(celda) || celda.length !== 2) return celda
   return [normalizarEnteroCelda(celda[0]), normalizarEnteroCelda(celda[1])]
@@ -79,6 +85,7 @@ export default function TransitionPointsDialog({
   const { tile_w: tileW, tile_h: tileH, cols, rows } = mapa
   const [origenX, origenY] = mapa.origen_px
   const [imgDims, setImgDims] = useState({ w: 0, h: 0 })
+  const [zoom, setZoom] = useState(1)
   const [puntos, setPuntos] = useState(() => transicionesDe(loc))
   const [draft, setDraft] = useState(null)
   const canvasRef = useRef(null)
@@ -115,7 +122,12 @@ export default function TransitionPointsDialog({
           ctx.fillStyle = 'rgba(239, 68, 68, 0.24)'
           ctx.fill()
         }
-        ctx.strokeStyle = 'rgba(15, 23, 42, 0.72)'
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)'
+        ctx.lineWidth = grosor * 2
+        ctx.stroke()
+        ctx.strokeStyle = mask[y]?.[x] === '.'
+          ? 'rgba(248, 113, 113, 0.95)'
+          : 'rgba(253, 224, 71, 0.9)'
         ctx.lineWidth = grosor
         ctx.stroke()
       }
@@ -144,6 +156,12 @@ export default function TransitionPointsDialog({
   const handleImgLoad = () => {
     const img = imgRef.current
     if (img) setImgDims({ w: img.naturalWidth, h: img.naturalHeight })
+  }
+
+  const setZoomPaso = dir => {
+    const idx = ZOOMS.indexOf(zoom)
+    const actual = idx >= 0 ? idx : ZOOMS.indexOf(1)
+    setZoom(ZOOMS[clamp(actual + dir, 0, ZOOMS.length - 1)])
   }
 
   const celdaDesdeEvento = (ev) => {
@@ -218,29 +236,75 @@ export default function TransitionPointsDialog({
 
   return (
     <div className="av-modal-overlay" onClick={onClose}>
-      <div className="av-ia-dialog" style={{ maxWidth: 1180 }} onClick={e => e.stopPropagation()}>
+      <div
+        className="av-ia-dialog"
+        style={{ maxWidth: 1440, width: 'min(96vw, 1440px)' }}
+        onClick={e => e.stopPropagation()}
+      >
         <div className="av-modal-header">
           <h3>Transiciones tácticas — <span className="av-cell-id">{loc.id}</span></h3>
           <button type="button" className="av-modal-close" onClick={onClose}>✕</button>
         </div>
         <div className="av-ia-body" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
-          <div style={{ position: 'relative', background: '#0f172a', border: '1px solid #334155', borderRadius: 4, overflow: 'hidden', minHeight: 300 }}>
-            {urlImagen && (
-              <img ref={imgRef} src={urlImagen} alt={`Mapa ${loc.id}`} onLoad={handleImgLoad} style={{ display: 'block', width: '100%', height: 'auto' }} draggable={false} />
-            )}
-            <canvas
-              ref={canvasRef}
-              onClick={e => {
-                const celda = celdaDesdeEvento(e)
-                if (celda) crearDraft(celda)
+          <div
+            style={{
+              position: 'relative',
+              background: '#0f172a',
+              border: '1px solid #334155',
+              borderRadius: 4,
+              overflow: 'auto',
+              minHeight: 300,
+              maxHeight: '72vh',
+            }}
+          >
+            <OrientacionNorteMapa />
+            <div
+              style={{
+                position: 'relative',
+                width: imgDims.w ? imgDims.w * zoom : '100%',
+                minWidth: '100%',
               }}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'crosshair', touchAction: 'none' }}
-            />
+            >
+              {urlImagen && (
+                <img
+                  ref={imgRef}
+                  src={urlImagen}
+                  alt={`Mapa ${loc.id}`}
+                  onLoad={handleImgLoad}
+                  style={{ display: 'block', width: '100%', height: 'auto' }}
+                  draggable={false}
+                />
+              )}
+              <canvas
+                ref={canvasRef}
+                onClick={e => {
+                  const celda = celdaDesdeEvento(e)
+                  if (celda) crearDraft(celda)
+                }}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'crosshair', touchAction: 'none' }}
+              />
+            </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoomPaso(-1)}>
+                -
+              </button>
+              <span style={{ minWidth: 48, textAlign: 'center', fontSize: 12 }}>
+                {Math.round(zoom * 100)}%
+              </span>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoomPaso(1)}>
+                +
+              </button>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoom(1)}>
+                100%
+              </button>
+            </div>
             <strong>Transiciones</strong>
             <p style={{ margin: 0, fontSize: 12, color: '#94a3b8' }}>
-              Click sobre una celda pisable para crear una salida. Los destinos se limitan a conexiones con mapa.
+              Click sobre una celda pisable para crear una salida. Usa zoom y
+              scroll para colocarla con precisión en mapas grandes. Los destinos
+              se limitan a conexiones con mapa.
             </p>
             {puntos.length === 0 ? (
               <p className="av-empty">Sin transiciones.</p>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { urlMapaPublico } from '../../api/mapaIA.js'
+import OrientacionNorteMapa from './OrientacionNorteMapa.jsx'
 
 /**
  * Modal de calibrado visual del grid isométrico (proyección dimétrica 2:1,
@@ -27,6 +28,12 @@ const LIM = {
   tile_h: { min: 8, max: 128 },
   cols: { min: 1, max: 64 },
   rows: { min: 1, max: 64 },
+}
+
+const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3]
+
+function clamp(valor, min, max) {
+  return Math.max(min, Math.min(max, valor))
 }
 
 /**
@@ -78,8 +85,10 @@ export default function CalibradorGridDialog({
   const [preset21, setPreset21] = useState(() => calcularInicial(loc).preset)
 
   const [imgDims, setImgDims] = useState({ w: 0, h: 0 })
+  const [zoom, setZoom] = useState(1)
   const canvasRef = useRef(null)
   const imgRef = useRef(null)
+  const dragRef = useRef(null)
 
   const urlImagen = open && slug && loc?.mapa?.imagen
     ? urlMapaPublico(slug, loc.mapa.imagen)
@@ -151,18 +160,164 @@ export default function CalibradorGridDialog({
       grosorBase,
     )
 
-    // Origen destacado: anillo oscuro + punto amarillo, del mismo grosor.
-    const radioOrigen = grosorBase * 3
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)'
-    ctx.lineWidth = grosorBase
-    ctx.beginPath()
-    ctx.arc(ox, oy, radioOrigen, 0, Math.PI * 2)
-    ctx.stroke()
-    ctx.fillStyle = '#fbbf24'
-    ctx.beginPath()
-    ctx.arc(ox, oy, radioOrigen - grosorBase, 0, Math.PI * 2)
-    ctx.fill()
+    const origen = celdaAPx(mapa, 0, 0)
+    const ejeX = celdaAPx(mapa, 1, 0)
+    const ejeY = celdaAPx(mapa, 0, 1)
+
+    const pintarLineaControl = (a, b, color) => {
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)'
+      ctx.lineWidth = grosorBase * 4
+      ctx.beginPath()
+      ctx.moveTo(a.px, a.py)
+      ctx.lineTo(b.px, b.py)
+      ctx.stroke()
+      ctx.strokeStyle = color
+      ctx.lineWidth = grosorBase * 2
+      ctx.beginPath()
+      ctx.moveTo(a.px, a.py)
+      ctx.lineTo(b.px, b.py)
+      ctx.stroke()
+    }
+
+    const pintarHandle = ({ px, py }, fill, texto) => {
+      const radio = Math.max(grosorBase * 4, 9)
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.95)'
+      ctx.lineWidth = grosorBase * 2
+      ctx.beginPath()
+      ctx.arc(px, py, radio, 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.fillStyle = fill
+      ctx.beginPath()
+      ctx.arc(px, py, radio - grosorBase, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.font = `${Math.max(12, grosorBase * 5)}px ui-monospace, monospace`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = '#020617'
+      ctx.fillText(texto, px, py)
+    }
+
+    pintarLineaControl(origen, ejeX, 'rgba(56, 189, 248, 0.98)')
+    pintarLineaControl(origen, ejeY, 'rgba(52, 211, 153, 0.98)')
+    pintarHandle(origen, '#fbbf24', 'O')
+    pintarHandle(ejeX, '#38bdf8', 'X')
+    pintarHandle(ejeY, '#34d399', 'Y')
+
+    ctx.font = `${Math.max(12, grosorBase * 5)}px system-ui, sans-serif`
+    ctx.textBaseline = 'top'
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.86)'
+    ctx.fillRect(Math.max(0, ox + 12), Math.max(0, oy - 34), 182, 24)
+    ctx.fillStyle = '#f8fafc'
+    ctx.fillText('Arrastra O, X o Y', Math.max(4, ox + 18), Math.max(4, oy - 30))
   }, [tileW, tileH, cols, rows, ox, oy, imgDims])
+
+  const setZoomPaso = dir => {
+    const idx = ZOOMS.indexOf(zoom)
+    const actual = idx >= 0 ? idx : ZOOMS.indexOf(1)
+    setZoom(ZOOMS[clamp(actual + dir, 0, ZOOMS.length - 1)])
+  }
+
+  const puntoImagenDesdeEvento = ev => {
+    const canvas = canvasRef.current
+    if (!canvas) return null
+    const rect = canvas.getBoundingClientRect()
+    if (!rect.width || !rect.height) return null
+    return {
+      px: clamp((ev.clientX - rect.left) * (canvas.width / rect.width), 0, imgDims.w || canvas.width),
+      py: clamp((ev.clientY - rect.top) * (canvas.height / rect.height), 0, imgDims.h || canvas.height),
+    }
+  }
+
+  const detectarHandle = punto => {
+    const mapa = { tile_w: tileW, tile_h: tileH, cols, rows, origen_px: [ox, oy] }
+    const handles = [
+      ['origin', celdaAPx(mapa, 0, 0)],
+      ['axisX', celdaAPx(mapa, 1, 0)],
+      ['axisY', celdaAPx(mapa, 0, 1)],
+    ]
+    const radio = Math.max(22, Math.min(tileW, tileH) * 0.9)
+    for (const [tipo, handle] of handles) {
+      const dx = punto.px - handle.px
+      const dy = punto.py - handle.py
+      if (Math.hypot(dx, dy) <= radio) return tipo
+    }
+    return 'origin'
+  }
+
+  const ajustarEjeDesdePunto = punto => {
+    const nextW = clamp(Math.round(Math.abs(punto.px - ox) * 2), LIM.tile_w.min, LIM.tile_w.max)
+    const nextH = clamp(Math.round(Math.abs(punto.py - oy) * 2), LIM.tile_h.min, LIM.tile_h.max)
+    setTileW(nextW)
+    if (!preset21) setTileHManual(nextH)
+  }
+
+  const handlePointerDown = ev => {
+    const punto = puntoImagenDesdeEvento(ev)
+    if (!punto) return
+    ev.currentTarget.setPointerCapture?.(ev.pointerId)
+    dragRef.current = detectarHandle(punto)
+    if (dragRef.current === 'origin') {
+      setOx(Math.round(punto.px))
+      setOy(Math.round(punto.py))
+    } else {
+      ajustarEjeDesdePunto(punto)
+    }
+  }
+
+  const handlePointerMove = ev => {
+    if (!dragRef.current || ev.buttons !== 1) return
+    const punto = puntoImagenDesdeEvento(ev)
+    if (!punto) return
+    if (dragRef.current === 'origin') {
+      setOx(Math.round(punto.px))
+      setOy(Math.round(punto.py))
+    } else {
+      ajustarEjeDesdePunto(punto)
+    }
+  }
+
+  const handlePointerEnd = ev => {
+    dragRef.current = null
+    ev.currentTarget.releasePointerCapture?.(ev.pointerId)
+  }
+
+  const ajustarSueloVisible = () => {
+    if (!imgDims.w || !imgDims.h) return
+    const nextCols = imgDims.w >= 1536 ? 36 : 24
+    const nextRows = imgDims.w >= 1536 ? 26 : 18
+    const nextTileW = clamp(
+      Math.round((imgDims.w * 1.42) / (nextCols + nextRows)),
+      LIM.tile_w.min,
+      LIM.tile_w.max,
+    )
+    const nextTileH = clamp(Math.round(nextTileW / 2), LIM.tile_h.min, LIM.tile_h.max)
+    setCols(clamp(nextCols, LIM.cols.min, LIM.cols.max))
+    setRows(clamp(nextRows, LIM.rows.min, LIM.rows.max))
+    setTileW(nextTileW)
+    setTileHManual(nextTileH)
+    setPreset21(true)
+    setOx(Math.round(imgDims.w * 0.5 - ((nextCols - nextRows) * nextTileW) / 4))
+    setOy(Math.round(imgDims.h * 0.32))
+  }
+
+  const cubrirImagenCompleta = () => {
+    if (!imgDims.w || !imgDims.h) return
+    const nextCols = imgDims.w >= 1536 ? 48 : 32
+    const nextRows = imgDims.w >= 1536 ? 36 : 24
+    const nextTileW = clamp(
+      Math.round((imgDims.w * 1.9) / (nextCols + nextRows)),
+      LIM.tile_w.min,
+      LIM.tile_w.max,
+    )
+    const nextTileH = clamp(Math.round(nextTileW / 2), LIM.tile_h.min, LIM.tile_h.max)
+    setCols(clamp(nextCols, LIM.cols.min, LIM.cols.max))
+    setRows(clamp(nextRows, LIM.rows.min, LIM.rows.max))
+    setTileW(nextTileW)
+    setTileHManual(nextTileH)
+    setPreset21(true)
+    setOx(Math.round(imgDims.w * 0.5 - ((nextCols - nextRows) * nextTileW) / 4))
+    setOy(Math.round(imgDims.h * 0.12))
+  }
 
   if (!open || !loc) return null
 
@@ -184,7 +339,7 @@ export default function CalibradorGridDialog({
     <div className="av-modal-overlay" onClick={onClose}>
       <div
         className="av-ia-dialog"
-        style={{ maxWidth: 1100 }}
+        style={{ maxWidth: 1440, width: 'min(96vw, 1440px)' }}
         onClick={e => e.stopPropagation()}
       >
         <div className="av-modal-header">
@@ -204,33 +359,72 @@ export default function CalibradorGridDialog({
               background: '#0f172a',
               border: '1px solid #334155',
               borderRadius: 4,
-              overflow: 'hidden',
+              overflow: 'auto',
               minHeight: 300,
+              maxHeight: '72vh',
             }}
           >
-            {urlImagen && (
-              <img
-                ref={imgRef}
-                src={urlImagen}
-                alt={`Mapa ${loc.id}`}
-                onLoad={handleImgLoad}
-                style={{ display: 'block', width: '100%', height: 'auto' }}
-              />
-            )}
-            <canvas
-              ref={canvasRef}
+            <OrientacionNorteMapa />
+            <div
               style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
+                position: 'relative',
+                width: imgDims.w ? imgDims.w * zoom : '100%',
+                minWidth: '100%',
               }}
-            />
+            >
+              {urlImagen && (
+                <img
+                  ref={imgRef}
+                  src={urlImagen}
+                  alt={`Mapa ${loc.id}`}
+                  onLoad={handleImgLoad}
+                  style={{ display: 'block', width: '100%', height: 'auto' }}
+                  draggable={false}
+                />
+              )}
+              <canvas
+                ref={canvasRef}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerEnd}
+                onPointerCancel={handlePointerEnd}
+                onPointerLeave={handlePointerEnd}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  cursor: 'grab',
+                  touchAction: 'none',
+                }}
+              />
+            </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoomPaso(-1)}>
+                -
+              </button>
+              <span style={{ minWidth: 48, textAlign: 'center', fontSize: 12 }}>
+                {Math.round(zoom * 100)}%
+              </span>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoomPaso(1)}>
+                +
+              </button>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoom(1)}>
+                100%
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              <button type="button" className="btn-secondary av-btn-small" onClick={ajustarSueloVisible}>
+                Cubrir suelo visible
+              </button>
+              <button type="button" className="btn-secondary av-btn-small" onClick={cubrirImagenCompleta}>
+                Cubrir imagen completa
+              </button>
+            </div>
             <SliderField
               label="tile_w (ancho celda)"
               value={tileW}
@@ -298,9 +492,9 @@ export default function CalibradorGridDialog({
                 borderRadius: 4,
               }}
             >
-              El punto amarillo es <b>origen_px</b>: posición en píxeles de la
-              celda <code>(0,0)</code>. Muévelo para que el grid coincida con
-              el suelo dibujado por la IA.
+              Arrastra <b>O</b> para mover <code>origen_px</code>. Arrastra
+              <b> X</b> o <b>Y</b> para ajustar escala/ejes de la rejilla. Usa
+              zoom y scroll para trabajar con precisión en mapas grandes.
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import TransitionPointsDialog from './TransitionPointsDialog.jsx'
 import SpawnEntranceDialog from './SpawnEntranceDialog.jsx'
 import NpcSpawnsDialog from './NpcSpawnsDialog.jsx'
 import PresenciasTacticasDialog from './PresenciasTacticasDialog.jsx'
+import PiezasTacticasDialog from './PiezasTacticasDialog.jsx'
 import { urlMapaPublico } from '../../api/mapaIA.js'
 import { validarMapaRuntimeLocalizacion } from '../../domain/aventura.js'
 
@@ -19,6 +20,7 @@ export default function SeccionLocalizaciones({
   localizaciones,
   npcs = [],
   bestiario = [],
+  assetsTacticos = [],
   onUpdate,
   onOpenIA,
   serverSlug,
@@ -32,6 +34,7 @@ export default function SeccionLocalizaciones({
   const [spawnIdx, setSpawnIdx] = useState(null)
   const [npcSpawnsIdx, setNpcSpawnsIdx] = useState(null)
   const [presenciasIdx, setPresenciasIdx] = useState(null)
+  const [piezasIdx, setPiezasIdx] = useState(null)
   const [mapaAvisos, setMapaAvisos] = useState({})
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
@@ -214,6 +217,8 @@ export default function SeccionLocalizaciones({
                     onEditarSpawn={() => setSpawnIdx(realIdx)}
                     onEditarNpcSpawns={() => setNpcSpawnsIdx(realIdx)}
                     onEditarPresencias={() => setPresenciasIdx(realIdx)}
+                    onEditarPiezas={() => setPiezasIdx(realIdx)}
+                    assetsTacticos={assetsTacticos}
                     avisoMapa={mapaAvisos[loc.id]}
                     isFirst={realIdx === 0}
                     isLast={realIdx === items.length - 1}
@@ -305,6 +310,19 @@ export default function SeccionLocalizaciones({
           onAplicar={(mapa) => updateMapa(presenciasIdx, mapa)}
         />
       )}
+
+      {piezasIdx !== null && (
+        <PiezasTacticasDialog
+          key={`piezas-${piezasIdx}`}
+          open
+          slug={serverSlug}
+          loc={items[piezasIdx]}
+          localizaciones={items}
+          assetsTacticos={assetsTacticos}
+          onClose={() => setPiezasIdx(null)}
+          onAplicar={(mapa) => updateMapa(piezasIdx, mapa)}
+        />
+      )}
     </section>
   )
 }
@@ -329,12 +347,14 @@ function LocRow({
   onEditarSpawn,
   onEditarNpcSpawns,
   onEditarPresencias,
+  onEditarPiezas,
+  assetsTacticos,
   avisoMapa,
   isFirst,
   isLast,
 }) {
   const [expanded, setExpanded] = useState(false)
-  const tieneMapa = !!loc.mapa?.imagen
+  const tieneMapa = !!loc.mapa?.imagen || loc.mapa?.modo_render === 'piezas'
   return (
     <div className="av-crud-row">
       <div className="av-crud-row-main" onClick={() => setExpanded(!expanded)}>
@@ -363,6 +383,8 @@ function LocRow({
               onEditarSpawn={onEditarSpawn}
               onEditarNpcSpawns={onEditarNpcSpawns}
               onEditarPresencias={onEditarPresencias}
+              onEditarPiezas={onEditarPiezas}
+              assetsTacticos={assetsTacticos}
               avisoMapa={avisoMapa}
               localizaciones={localizaciones}
               npcs={npcs}
@@ -417,12 +439,14 @@ function MapaBloque({
   onEditarSpawn,
   onEditarNpcSpawns,
   onEditarPresencias,
+  onEditarPiezas,
+  assetsTacticos = [],
   avisoMapa,
   localizaciones = [],
   npcs = [],
   bestiario = [],
 }) {
-  const tieneMapa = !!loc.mapa?.imagen
+  const tieneMapa = !!loc.mapa?.imagen || loc.mapa?.modo_render === 'piezas'
   const puede = !!serverSlug
   const urlThumb = tieneMapa && serverSlug
     ? urlMapaPublico(serverSlug, loc.mapa.imagen)
@@ -570,6 +594,17 @@ function MapaBloque({
             title="Colocar criaturas y presencias tácticas pasivas sobre el mapa"
           >
             Presencias
+          </button>
+        )}
+        {tieneMapa && onEditarPiezas && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onEditarPiezas}
+            disabled={!puede || assetsTacticos.length === 0}
+            title={assetsTacticos.length ? 'Colocar objetos tácticos estructurados' : 'Define assets_tacticos en la campaña para usar piezas'}
+          >
+            Piezas
           </button>
         )}
         {tieneMapa && (

@@ -10,6 +10,7 @@ import yaml from 'js-yaml'
  * @property {object[]} [localizaciones]
  * @property {object[]} [npcs]
  * @property {object[]} [bestiario]
+ * @property {object[]} [assets_tacticos]
  * @property {object} [historia]
  * @property {object[]} [finales]
  * @property {object[]} [escenas]
@@ -46,6 +47,7 @@ export function parseAventuraYaml(text) {
     localizaciones: asArray(data.localizaciones),
     npcs: asArray(data.npcs),
     bestiario: asArray(data.bestiario),
+    assets_tacticos: asArray(data.assets_tacticos),
     historia: data.historia ?? null,
     finales: asArray(data.finales),
     escenas: asArray(data.escenas),
@@ -80,6 +82,11 @@ function celdaDentro(celda, cols, rows) {
   return esCelda(celda) && celda[0] >= 0 && celda[1] >= 0 && celda[0] < cols && celda[1] < rows
 }
 
+function esListaParesEnteros(v) {
+  return Array.isArray(v)
+    && v.every(p => Array.isArray(p) && p.length === 2 && p.every(Number.isInteger))
+}
+
 function localizacionTieneMapaTacticoListo(loc, localizaciones) {
   return validarMapaRuntimeLocalizacion(loc, localizaciones, { validarDestinoListo: false }).estado !== 'error'
 }
@@ -104,8 +111,20 @@ export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = 
     return { estado: 'error', issues: [{ severity: 'error', code: 'MAPA_SIN_MAPA', message: 'Error: falta mapa.' }] }
   }
 
-  if (!String(mapa.imagen || '').trim()) add('error', 'MAPA_SIN_IMAGEN', 'Error: falta imagen.')
-  else add('ok', 'MAPA_IMAGEN_OK', 'OK: imagen asignada')
+  const esPiezas = mapa.modo_render === 'piezas'
+  if (!String(mapa.imagen || '').trim()) {
+    if (esPiezas) {
+      add('ok', 'MAPA_RENDER_PIEZAS_OK', 'OK: mapa por piezas sin imagen de fondo.')
+    } else {
+      add('error', 'MAPA_SIN_IMAGEN', 'Error: falta imagen.')
+    }
+  } else {
+    add('ok', 'MAPA_IMAGEN_OK', 'OK: imagen asignada')
+  }
+
+  if (esPiezas && !String(mapa.imagen || '').trim() && !String(mapa.suelo_default || '').trim()) {
+    add('warning', 'MAPA_SUELO_DEFAULT_FALTANTE', 'Aviso fuerte: mapa por piezas sin imagen necesita suelo_default.')
+  }
 
   if (mapa.proyeccion !== 'dimetrico_2_1') {
     add('error', 'MAPA_SIN_PROYECCION_TACTICA', 'Error: proyección táctica ausente o inválida.')
@@ -397,6 +416,7 @@ export function validarAventura(data) {
   const locIds = checkIds(asArray(data.localizaciones), 'Localizaciones')
   const npcIds = checkIds(asArray(data.npcs), 'NPCs')
   const bestiaIds = checkIds(asArray(data.bestiario), 'Bestiario')
+  const assetTacticoIds = checkIds(asArray(data.assets_tacticos), 'Assets tácticos')
   const finalIds = checkIds(asArray(data.finales), 'Finales')
   const eventoIds = checkIds(asArray(data.eventos_definidos), 'Eventos definidos')
   const allCharIds = new Set([...npcIds, ...bestiaIds])
@@ -447,6 +467,26 @@ export function validarAventura(data) {
           }
         }
       }
+    }
+  }
+
+  const categoriasAssets = new Set(['suelos', 'paredes', 'puertas', 'escaleras', 'muebles', 'props', 'decoracion'])
+  for (const asset of asArray(data.assets_tacticos)) {
+    const tag = `Asset táctico «${asset?.id || '?'}»`
+    if (!categoriasAssets.has(asset?.categoria)) {
+      errores.push(`${tag}: categoría inválida.`)
+    }
+    if (!String(asset?.imagen || '').startsWith('assets/tacticos/')) {
+      errores.push(`${tag}: imagen debe estar bajo assets/tacticos/.`)
+    }
+    if (!esListaParesEnteros(asset?.ocupa)) {
+      errores.push(`${tag}: ocupa debe ser una lista de pares enteros.`)
+    }
+    if (
+      asset?.offset_px != null
+      && (!Array.isArray(asset.offset_px) || asset.offset_px.length !== 2 || !asset.offset_px.every(Number.isInteger))
+    ) {
+      errores.push(`${tag}: offset_px debe ser [x, y].`)
     }
   }
 
@@ -524,6 +564,21 @@ export function validarAventura(data) {
 
   if (!escenas.length) avisos.push('La aventura no tiene escenas.')
   if (!asArray(data.localizaciones).length) avisos.push('No hay localizaciones definidas.')
+  for (const loc of asArray(data.localizaciones)) {
+    const objetos = asArray(loc?.mapa?.objetos_tacticos)
+    for (const obj of objetos) {
+      if (obj?.asset_id && !assetTacticoIds.has(obj.asset_id)) {
+        errores.push(`Localización «${loc?.id || '?'}»: objeto táctico referencia asset inexistente «${obj.asset_id}».`)
+      }
+      if (obj?.tipo_interaccion === 'transicion') {
+        if (!obj.destino) {
+          errores.push(`Localización «${loc?.id || '?'}»: objeto táctico «${obj?.id || '?'}» es transición pero no tiene destino.`)
+        } else if (!locIds.has(obj.destino)) {
+          errores.push(`Localización «${loc?.id || '?'}»: objeto táctico «${obj?.id || '?'}» apunta a destino inexistente «${obj.destino}».`)
+        }
+      }
+    }
+  }
 
   return { errores, avisos }
 }

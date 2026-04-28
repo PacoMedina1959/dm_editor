@@ -39,19 +39,21 @@ import { apiUrl } from './client.js'
  * @typedef {Object} GenerarMapaParams
  * @property {('tactico'|'overworld')} [proyeccion]   Default 'tactico'.
  * @property {number}  [seed]     0 => derivado del prompt. Default 0.
- * @property {number}  [ancho]    Default 1024. Rango 128..2048.
- * @property {number}  [alto]     Default 1024. Rango 128..2048.
+ * @property {number}  [ancho]    Default 1024. Rango backend 128..2048.
+ *                                  El editor puede usar 2048x1024,
+ *                                  2048x2048 o 1024x2048 para exploracion.
+ * @property {number}  [alto]     Default 1024. Rango backend 128..2048.
  * @property {boolean} [force]    Saltar cache. Default false.
  * @property {('dia'|'amanecer'|'atardecer'|'noche'|'')} [hora]
  *   Franja horaria. '' o undefined => el backend usa ``localizacion.hora_del_dia``
  *   del YAML si existe; si no, no se añade directiva de tiempo. Solo afecta
  *   a escenas outdoor y a proyección overworld; en indoor se ignora.
  * @property {string} [extrasPrompt]
- *   Instrucciones extra del DM (F3.3). Se añaden al prompt como bloque
- *   ``DM notes`` antes del negativo. Máximo ~500 chars efectivos tras
- *   higiene en backend; aquí limitamos a 2000 chars por seguridad
- *   (el backend rechaza más). Vacío o undefined => no se envía y el
- *   hash de cache coincide con el de la variante sin extras.
+ *   Instrucciones extra del DM (F3.3). En modos de exploracion grandes,
+ *   MapaIADialog puede anteponer un preset tecnico interior o exterior y
+ *   enviar el conjunto por este mismo campo.
+ *   El backend higieniza y recorta el bloque efectivo. Vacío o undefined
+ *   => no se envía y el hash de cache coincide con la variante sin extras.
  */
 
 async function _json(res) {

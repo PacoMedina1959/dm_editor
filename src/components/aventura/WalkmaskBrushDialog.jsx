@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { urlMapaPublico } from '../../api/mapaIA.js'
+import OrientacionNorteMapa from './OrientacionNorteMapa.jsx'
 
 const DEFAULTS = { tile_w: 64, tile_h: 32, cols: 10, rows: 10, origen_px: [0, 0] }
+const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3]
+
+function clamp(valor, min, max) {
+  return Math.max(min, Math.min(max, valor))
+}
 
 function configMapa(loc) {
   const m = loc?.mapa || {}
@@ -50,6 +56,8 @@ export default function WalkmaskBrushDialog({ open, slug, loc, onClose, onAplica
   const [modo, setModo] = useState('.')
   const [mask, setMask] = useState(() => parseWalkmask(loc?.mapa?.pisable, cols, rows))
   const [imgDims, setImgDims] = useState({ w: 0, h: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [atenuarBloqueadas, setAtenuarBloqueadas] = useState(false)
   const canvasRef = useRef(null)
   const imgRef = useRef(null)
   const pintandoRef = useRef(false)
@@ -76,19 +84,24 @@ export default function WalkmaskBrushDialog({ open, slug, loc, onClose, onAplica
         ctx.lineTo(px, py + tileH / 2)
         ctx.lineTo(px - tileW / 2, py)
         ctx.closePath()
-        if (mask[y]?.[x] === '.') {
-          ctx.fillStyle = 'rgba(239, 68, 68, 0.38)'
+        const bloqueada = mask[y]?.[x] === '.'
+        if (bloqueada) {
+          ctx.fillStyle = atenuarBloqueadas
+            ? 'rgba(15, 23, 42, 0.68)'
+            : 'rgba(239, 68, 68, 0.42)'
           ctx.fill()
         }
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)'
         ctx.lineWidth = grosor * 2
         ctx.stroke()
-        ctx.strokeStyle = 'rgba(253, 224, 71, 0.9)'
+        ctx.strokeStyle = bloqueada
+          ? 'rgba(248, 113, 113, 0.95)'
+          : 'rgba(253, 224, 71, 0.9)'
         ctx.lineWidth = grosor
         ctx.stroke()
       }
     }
-  }, [cols, imgDims, mask, mapa, origenX, origenY, rows, tileH, tileW])
+  }, [atenuarBloqueadas, cols, imgDims, mask, mapa, origenX, origenY, rows, tileH, tileW])
 
   if (!open || !loc) return null
 
@@ -122,6 +135,18 @@ export default function WalkmaskBrushDialog({ open, slug, loc, onClose, onAplica
     })
   }
 
+  const setZoomPaso = dir => {
+    const idx = ZOOMS.indexOf(zoom)
+    const actual = idx >= 0 ? idx : ZOOMS.indexOf(1)
+    setZoom(ZOOMS[clamp(actual + dir, 0, ZOOMS.length - 1)])
+  }
+
+  const totalBloqueadas = mask.reduce(
+    (total, fila) => total + fila.filter(celda => celda === '.').length,
+    0,
+  )
+  const totalCeldas = cols * rows
+
   const aplicar = () => {
     onAplicar?.({ ...(loc.mapa || {}), pisable: serializarWalkmask(mask) })
     onClose?.()
@@ -129,26 +154,70 @@ export default function WalkmaskBrushDialog({ open, slug, loc, onClose, onAplica
 
   return (
     <div className="av-modal-overlay" onClick={onClose}>
-      <div className="av-ia-dialog" style={{ maxWidth: 1100 }} onClick={e => e.stopPropagation()}>
+      <div
+        className="av-ia-dialog"
+        style={{ maxWidth: 1440, width: 'min(96vw, 1440px)' }}
+        onClick={e => e.stopPropagation()}
+      >
         <div className="av-modal-header">
           <h3>Pintar walkmask — <span className="av-cell-id">{loc.id}</span></h3>
           <button type="button" className="av-modal-close" onClick={onClose}>✕</button>
         </div>
-        <div className="av-ia-body" style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: 16 }}>
-          <div style={{ position: 'relative', background: '#0f172a', border: '1px solid #334155', borderRadius: 4, overflow: 'hidden', minHeight: 300 }}>
-            {urlImagen && (
-              <img ref={imgRef} src={urlImagen} alt={`Mapa ${loc.id}`} onLoad={handleImgLoad} style={{ display: 'block', width: '100%', height: 'auto' }} draggable={false} />
-            )}
-            <canvas
-              ref={canvasRef}
-              onPointerDown={e => { pintandoRef.current = true; pintar(e) }}
-              onPointerMove={e => { if (pintandoRef.current && e.buttons === 1) pintar(e) }}
-              onPointerUp={() => { pintandoRef.current = false }}
-              onPointerLeave={() => { pintandoRef.current = false }}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'crosshair', touchAction: 'none' }}
-            />
+        <div className="av-ia-body" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16 }}>
+          <div
+            style={{
+              position: 'relative',
+              background: '#0f172a',
+              border: '1px solid #334155',
+              borderRadius: 4,
+              overflow: 'auto',
+              minHeight: 300,
+              maxHeight: '72vh',
+            }}
+          >
+            <OrientacionNorteMapa />
+            <div
+              style={{
+                position: 'relative',
+                width: imgDims.w ? imgDims.w * zoom : '100%',
+                minWidth: '100%',
+              }}
+            >
+              {urlImagen && (
+                <img
+                  ref={imgRef}
+                  src={urlImagen}
+                  alt={`Mapa ${loc.id}`}
+                  onLoad={handleImgLoad}
+                  style={{ display: 'block', width: '100%', height: 'auto' }}
+                  draggable={false}
+                />
+              )}
+              <canvas
+                ref={canvasRef}
+                onPointerDown={e => { pintandoRef.current = true; pintar(e) }}
+                onPointerMove={e => { if (pintandoRef.current && e.buttons === 1) pintar(e) }}
+                onPointerUp={() => { pintandoRef.current = false }}
+                onPointerLeave={() => { pintandoRef.current = false }}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'crosshair', touchAction: 'none' }}
+              />
+            </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoomPaso(-1)}>
+                -
+              </button>
+              <span style={{ minWidth: 48, textAlign: 'center', fontSize: 12 }}>
+                {Math.round(zoom * 100)}%
+              </span>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoomPaso(1)}>
+                +
+              </button>
+              <button type="button" className="btn-secondary av-btn-small" onClick={() => setZoom(1)}>
+                100%
+              </button>
+            </div>
             <strong>Herramienta</strong>
             <label className="av-field-inline">
               <input type="radio" checked={modo === '#'} onChange={() => setModo('#')} />
@@ -158,11 +227,24 @@ export default function WalkmaskBrushDialog({ open, slug, loc, onClose, onAplica
               <input type="radio" checked={modo === '.'} onChange={() => setModo('.')} />
               <span>Bloqueado (.)</span>
             </label>
+            <label className="av-field-inline">
+              <input
+                type="checkbox"
+                checked={atenuarBloqueadas}
+                onChange={e => setAtenuarBloqueadas(e.target.checked)}
+              />
+              <span>Atenuar bloqueadas</span>
+            </label>
             <button type="button" className="btn-secondary av-btn-small" onClick={() => setMask(parseWalkmask(null, cols, rows))}>
               Rellenar todo pisable
             </button>
+            <div style={{ fontSize: 11, color: '#cbd5e1' }}>
+              {totalBloqueadas} bloqueadas / {totalCeldas} celdas
+            </div>
             <div style={{ fontSize: 11, color: '#94a3b8', background: '#0f172a', border: '1px dashed #334155', padding: '6px 8px', borderRadius: 4 }}>
-              Click o arrastra sobre la rejilla. Rojo = bloqueado. Se guarda como string multiline <code>#</code>/<code>.</code>.
+              Click o arrastra sobre la rejilla. Rojo/oscuro = bloqueado. Usa
+              zoom y scroll para pintar con precisión en mapas grandes. Se
+              guarda como string multiline <code>#</code>/<code>.</code>.
             </div>
           </div>
         </div>

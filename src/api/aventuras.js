@@ -53,6 +53,17 @@ export async function borrarAventura(slug) {
   return _json(res)
 }
 
+/**
+ * Lista imágenes disponibles bajo `assets/tacticos/**` para registrar catálogo.
+ *
+ * @param {string} slug
+ * @returns {Promise<{ assets: Array<{ ruta: string, categoria_sugerida: string, id_sugerido: string }> }>}
+ */
+export async function listarAssetsTacticos(slug) {
+  const res = await fetch(apiUrl(`/api/editor/aventuras/${encodeURIComponent(slug)}/assets/tacticos`))
+  return _json(res)
+}
+
 /** @returns {Promise<{ ok: boolean, yaml_text: string, parsed: any }>} */
 export async function generarContenido(seccion, instrucciones, contextoAventura) {
   const res = await fetch(apiUrl('/api/editor/generar'), {

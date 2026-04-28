@@ -7,6 +7,58 @@ import {
   subirImagenMapa,
 } from '../../api/mapaIA.js'
 
+const MAX_EXTRAS = 500
+
+const EXPLORACION_INTERIOR_PRESET = [
+  'Large tactical interior exploration map, isometric 2.5D dimetric 2:1, open-top cutaway.',
+  'Connected rooms or zones with clear corridors/paths, readable playable floor, obstacles at edges.',
+  'Virtual tabletop map, not cinematic. No characters, monsters, labels, letters, UI or floating text.',
+].join(' ')
+
+const EXPLORACION_EXTERIOR_PRESET = [
+  'Large outdoor or urban exploration battle map, isometric 2.5D dimetric 2:1.',
+  'Connected streets, clearings or paths, readable playable ground, natural or urban barriers at edges.',
+  'Virtual tabletop map, not cinematic. No characters, monsters, labels, letters, UI or floating text.',
+].join(' ')
+
+const PRESETS_EXPLORACION = [EXPLORACION_INTERIOR_PRESET, EXPLORACION_EXTERIOR_PRESET]
+
+const TAMAGNOS_COMPACTOS = [
+  ['1024x1024', '1024 × 1024 — escena compacta cuadrada'],
+  ['1536x1024', '1536 × 1024 — escena compacta paisaje/exterior'],
+  ['1024x1536', '1024 × 1536 — escena compacta vertical'],
+]
+
+const TAMAGNOS_EXPLORACION = [
+  ['2048x1024', '2048 × 1024 — exploración ancha 2:1'],
+  ['2048x2048', '2048 × 2048 — exploración grande cuadrada'],
+  ['1024x2048', '1024 × 2048 — exploración vertical/rutas largas'],
+]
+
+function quitarPresetExploracion(extras) {
+  const texto = String(extras || '').trim()
+  for (const preset of PRESETS_EXPLORACION) {
+    if (texto.startsWith(preset)) {
+      return texto.slice(preset.length)
+        .replace(/^DM details:\s*/i, '')
+        .trim()
+    }
+  }
+  return texto
+}
+
+function componerExtrasPrompt(tipoMapa, extrasUsuario) {
+  const detalles = String(extrasUsuario || '').trim()
+  const preset = tipoMapa === 'exploracion_interior'
+    ? EXPLORACION_INTERIOR_PRESET
+    : tipoMapa === 'exploracion_exterior'
+      ? EXPLORACION_EXTERIOR_PRESET
+      : ''
+  if (!preset) return detalles
+  if (!detalles) return preset
+  return `${preset}\n\nDM details: ${detalles}`
+}
+
 /**
  * Modal para generar la imagen de fondo 2.5D de una localizacion usando IA.
  *
@@ -33,10 +85,10 @@ export default function MapaIADialog({
   onAplicar,
 }) {
   const [proyeccion, setProyeccion] = useState('tactico')
+  const [tipoMapa, setTipoMapa] = useState('compacto')
   const [seed, setSeed] = useState(0)
-  // Tamaños reales admitidos por gpt-image-1. Valor con formato "WxH";
-  // el backend acepta ancho y alto separados. Los tamaños que no encajen
-  // se remapean al más cercano, así que aquí solo exponemos los 3 válidos.
+  // Valor con formato "WxH"; el backend acepta ancho y alto separados
+  // y valida rango 128..2048 por eje.
   const [tamagno, setTamagno] = useState('1024x1024')
   const [force, setForce] = useState(false)
   // '' = auto (backend usa loc.hora_del_dia del YAML si existe).
@@ -50,8 +102,6 @@ export default function MapaIADialog({
   const [extrasPrompt, setExtrasPrompt] = useState('')
   // Valor "debouncado" para no spamear el preview mientras se escribe.
   const [extrasDebounced, setExtrasDebounced] = useState('')
-  const MAX_EXTRAS = 500
-
   const [estadoJob, setEstadoJob] = useState(null)
   const [error, setError] = useState(null)
   const [cargando, setCargando] = useState(false)
@@ -78,6 +128,8 @@ export default function MapaIADialog({
     setCargando(false)
     setSeed(0)
     setForce(false)
+    setTipoMapa('compacto')
+    setTamagno('1024x1024')
     setPromptPreview(null)
     setErrorPrompt(null)
     setCopiado(false)
@@ -86,10 +138,15 @@ export default function MapaIADialog({
     setHora(loc?.hora_del_dia || '')
     // Precargar los extras con lo último aplicado (si existe) para
     // que el DM pueda iterar desde su última variante.
-    const extrasPrev = loc?.mapa?.generado_ia?.extras_prompt || ''
+    const extrasPrev = quitarPresetExploracion(loc?.mapa?.generado_ia?.extras_prompt || '')
     setExtrasPrompt(extrasPrev)
     setExtrasDebounced(extrasPrev)
   }, [open, loc?.id, loc?.hora_del_dia, loc?.mapa?.generado_ia?.extras_prompt])
+
+  useEffect(() => {
+    if (!open) return
+    setTamagno(tipoMapa === 'compacto' ? '1024x1024' : '2048x1024')
+  }, [open, tipoMapa])
 
   // Debounce de ``extrasPrompt`` para recargar el preview del prompt sin
   // spamear la API mientras el DM escribe. 400 ms es un compromiso
@@ -111,7 +168,7 @@ export default function MapaIADialog({
     setCopiado(false)
     previsualizarPromptMapa(slug, loc.id, proyeccion, {
       hora,
-      extras: extrasDebounced,
+      extras: componerExtrasPrompt(tipoMapa, extrasDebounced),
     })
       .then(data => { if (!cancelado) setPromptPreview(data) })
       .catch(err => {
@@ -122,7 +179,7 @@ export default function MapaIADialog({
       })
       .finally(() => { if (!cancelado) setCargandoPrompt(false) })
     return () => { cancelado = true }
-  }, [open, slug, loc?.id, proyeccion, hora, extrasDebounced])
+  }, [open, slug, loc?.id, proyeccion, hora, extrasDebounced, tipoMapa])
 
   // Cancelar polling al cerrar
   useEffect(() => {
@@ -145,6 +202,7 @@ export default function MapaIADialog({
     canceladoRef.current = false
 
     const [ancho, alto] = (tamagno || '1024').split('x').map(n => parseInt(n, 10))
+    const extrasFinal = componerExtrasPrompt(tipoMapa, extrasPrompt)
     const params = {
       proyeccion,
       seed: Number.isFinite(seed) ? seed : 0,
@@ -152,7 +210,7 @@ export default function MapaIADialog({
       alto: Number.isFinite(alto) && alto > 0 ? alto : (Number.isFinite(ancho) ? ancho : 1024),
       force,
       hora,
-      extrasPrompt,
+      extrasPrompt: extrasFinal,
     }
 
     try {
@@ -222,7 +280,7 @@ export default function MapaIADialog({
 
   const handleAplicar = () => {
     if (!terminado || !estadoJob.ruta_relativa) return
-    const extrasLimpio = (extrasPrompt || '').trim()
+    const extrasLimpio = componerExtrasPrompt(tipoMapa, extrasPrompt).trim()
     const esManual = estadoJob.origen === 'manual' || estadoJob.modelo === 'manual'
     const mapa = {
       imagen: estadoJob.ruta_relativa,
@@ -308,6 +366,20 @@ export default function MapaIADialog({
           <div className="av-ia-controls">
             <div className="av-form-row2">
               <label className="av-ia-label">
+                Tipo de mapa
+                <select
+                  value={tipoMapa}
+                  onChange={e => setTipoMapa(e.target.value)}
+                  className="av-input"
+                  disabled={enMarcha}
+                >
+                  <option value="compacto">Escena compacta</option>
+                  <option value="exploracion_interior">Exploración interior / dungeon</option>
+                  <option value="exploracion_exterior">Exploración exterior / urbana</option>
+                </select>
+              </label>
+
+              <label className="av-ia-label">
                 Proyeccion
                 <select
                   value={proyeccion}
@@ -346,12 +418,18 @@ export default function MapaIADialog({
                   onChange={e => setTamagno(e.target.value)}
                   className="av-input"
                   disabled={enMarcha}
-                  title="gpt-image-1 solo admite 3 tamaños reales; otros se remapean al más cercano"
+                  title="Tamaños compatibles con el límite actual del backend: máximo 2048 px por eje."
                 >
-                  <option value="1024x1024">1024 × 1024 — cuadrado (interiores, tácticos)</option>
-                  <option value="1536x1024">1536 × 1024 — paisaje (plazas, exteriores, overworld)</option>
-                  <option value="1024x1536">1024 × 1536 — retrato (torres, pasillos)</option>
+                  {[...TAMAGNOS_COMPACTOS, ...(tipoMapa !== 'compacto' ? TAMAGNOS_EXPLORACION : [])]
+                    .map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
                 </select>
+                <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                  {tipoMapa !== 'compacto'
+                    ? 'Los tamaños grandes se limitan a 2048 px por eje; >2048 queda pospuesto.'
+                    : 'Escenas compactas: composición enfocada en una localización pequeña.'}
+                </span>
               </label>
               <div className="av-ia-label" style={{ alignSelf: 'end' }}>
                 {hora !== (loc?.hora_del_dia || '') && (() => {
@@ -489,7 +567,9 @@ export default function MapaIADialog({
                 <span>
                   Instrucciones extra del DM{' '}
                   <span style={{ fontWeight: 400, fontSize: 11, color: '#94a3b8' }}>
-                    (opcional, se añaden al prompt como &quot;DM notes&quot;)
+                    {tipoMapa !== 'compacto'
+                      ? '(opcional, se añaden tras el preset de exploración como "DM details")'
+                      : '(opcional, se añaden al prompt como "DM notes")'}
                   </span>
                 </span>
                 <span
@@ -502,6 +582,26 @@ export default function MapaIADialog({
                   {extrasPrompt.length} / {MAX_EXTRAS}
                 </span>
               </div>
+              {tipoMapa !== 'compacto' && (
+                <div
+                  style={{
+                    fontSize: 11,
+                    lineHeight: 1.45,
+                    color: '#cbd5e1',
+                    background: '#111827',
+                    border: '1px solid #334155',
+                    borderRadius: 4,
+                    padding: '8px 10px',
+                    marginBottom: 8,
+                  }}
+                >
+                  <b style={{ color: '#facc15' }}>Preset de exploración activo:</b>{' '}
+                  {tipoMapa === 'exploracion_interior'
+                    ? 'salas o zonas conectadas, pasillos claros, plano legible, suelo jugable, sin techo.'
+                    : 'calles, claros o caminos conectados, rutas legibles y barreras naturales o urbanas en los bordes.'}
+                  {' '}Sin criaturas, letras ni etiquetas. El texto libre se combina después como detalles del DM.
+                </div>
+              )}
               <textarea
                 className="av-input"
                 rows={3}
