@@ -6,6 +6,7 @@ import WalkmaskBrushDialog from './WalkmaskBrushDialog.jsx'
 import TransitionPointsDialog from './TransitionPointsDialog.jsx'
 import SpawnEntranceDialog from './SpawnEntranceDialog.jsx'
 import NpcSpawnsDialog from './NpcSpawnsDialog.jsx'
+import PresenciasTacticasDialog from './PresenciasTacticasDialog.jsx'
 import { urlMapaPublico } from '../../api/mapaIA.js'
 import { validarMapaRuntimeLocalizacion } from '../../domain/aventura.js'
 
@@ -17,6 +18,7 @@ const EMPTY = {
 export default function SeccionLocalizaciones({
   localizaciones,
   npcs = [],
+  bestiario = [],
   onUpdate,
   onOpenIA,
   serverSlug,
@@ -29,6 +31,7 @@ export default function SeccionLocalizaciones({
   const [transicionesIdx, setTransicionesIdx] = useState(null)
   const [spawnIdx, setSpawnIdx] = useState(null)
   const [npcSpawnsIdx, setNpcSpawnsIdx] = useState(null)
+  const [presenciasIdx, setPresenciasIdx] = useState(null)
   const [mapaAvisos, setMapaAvisos] = useState({})
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
@@ -101,6 +104,7 @@ export default function SeccionLocalizaciones({
       prev.spawn_entrada
       || prev.pisable
       || (Array.isArray(prev.puntos_interes) && prev.puntos_interes.length > 0)
+      || (Array.isArray(prev.presencias_tacticas) && prev.presencias_tacticas.length > 0)
     if (!tieneEstructura) return false
     return ['imagen', 'tile_w', 'tile_h', 'cols', 'rows', 'origen_px'].some((k) => (
       JSON.stringify(prev[k] ?? null) !== JSON.stringify(next[k] ?? null)
@@ -194,6 +198,7 @@ export default function SeccionLocalizaciones({
                     loc={loc}
                     localizaciones={items}
                     npcs={npcs}
+                    bestiario={bestiario}
                     editable={editable}
                     serverSlug={serverSlug}
                     dirty={dirty}
@@ -208,6 +213,7 @@ export default function SeccionLocalizaciones({
                     onEditarTransiciones={() => setTransicionesIdx(realIdx)}
                     onEditarSpawn={() => setSpawnIdx(realIdx)}
                     onEditarNpcSpawns={() => setNpcSpawnsIdx(realIdx)}
+                    onEditarPresencias={() => setPresenciasIdx(realIdx)}
                     avisoMapa={mapaAvisos[loc.id]}
                     isFirst={realIdx === 0}
                     isLast={realIdx === items.length - 1}
@@ -287,6 +293,18 @@ export default function SeccionLocalizaciones({
           onAplicar={(mapa) => updateMapa(npcSpawnsIdx, mapa)}
         />
       )}
+
+      {presenciasIdx !== null && (
+        <PresenciasTacticasDialog
+          key={`presencias-${presenciasIdx}`}
+          open
+          slug={serverSlug}
+          loc={items[presenciasIdx]}
+          bestiario={bestiario}
+          onClose={() => setPresenciasIdx(null)}
+          onAplicar={(mapa) => updateMapa(presenciasIdx, mapa)}
+        />
+      )}
     </section>
   )
 }
@@ -295,6 +313,7 @@ function LocRow({
   loc,
   localizaciones,
   npcs,
+  bestiario,
   editable,
   serverSlug,
   dirty,
@@ -309,6 +328,7 @@ function LocRow({
   onEditarTransiciones,
   onEditarSpawn,
   onEditarNpcSpawns,
+  onEditarPresencias,
   avisoMapa,
   isFirst,
   isLast,
@@ -342,9 +362,11 @@ function LocRow({
               onEditarTransiciones={onEditarTransiciones}
               onEditarSpawn={onEditarSpawn}
               onEditarNpcSpawns={onEditarNpcSpawns}
+              onEditarPresencias={onEditarPresencias}
               avisoMapa={avisoMapa}
               localizaciones={localizaciones}
               npcs={npcs}
+              bestiario={bestiario}
             />
           )}
         </div>
@@ -394,16 +416,18 @@ function MapaBloque({
   onEditarTransiciones,
   onEditarSpawn,
   onEditarNpcSpawns,
+  onEditarPresencias,
   avisoMapa,
   localizaciones = [],
   npcs = [],
+  bestiario = [],
 }) {
   const tieneMapa = !!loc.mapa?.imagen
   const puede = !!serverSlug
   const urlThumb = tieneMapa && serverSlug
     ? urlMapaPublico(serverSlug, loc.mapa.imagen)
     : null
-  const salud = tieneMapa ? validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs }) : null
+  const salud = tieneMapa ? validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario }) : null
   const estadoLabel = salud?.estado === 'ok'
     ? 'Mapa listo'
     : salud?.estado === 'warning'
@@ -535,6 +559,17 @@ function MapaBloque({
             title="Colocar NPCs canónicos sobre el mapa táctico"
           >
             NPCs
+          </button>
+        )}
+        {tieneMapa && onEditarPresencias && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onEditarPresencias}
+            disabled={!puede}
+            title="Colocar criaturas y presencias tácticas pasivas sobre el mapa"
+          >
+            Presencias
           </button>
         )}
         {tieneMapa && (

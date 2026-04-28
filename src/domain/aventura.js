@@ -89,12 +89,13 @@ function localizacionTieneMapaTacticoListo(loc, localizaciones) {
  *
  * @param {object} loc
  * @param {object[]} localizaciones
- * @param {{ validarDestinoListo?: boolean }} opts
+ * @param {{ validarDestinoListo?: boolean, npcs?: object[], bestiario?: object[] }} opts
  * @returns {{ estado: 'ok'|'warning'|'error', issues: Array<{ severity: 'ok'|'warning'|'error', code: string, message: string }> }}
  */
 export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = {}) {
   const validarDestinoListo = opts.validarDestinoListo !== false
   const npcs = asArray(opts.npcs)
+  const bestiario = asArray(opts.bestiario)
   const mapa = loc?.mapa
   const issues = []
   const add = (severity, code, message) => issues.push({ severity, code, message })
@@ -217,6 +218,48 @@ export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = 
   const comerciantesSinSpawn = npcsDeLoc.filter(n => Array.isArray(n?.vende) && n.vende.length && !idsSpawnNpc.has(n.id))
   for (const npc of comerciantesSinSpawn) {
     add('warning', 'MAPA_NPC_COMERCIANTE_SIN_SPAWN', `Aviso: ${npc.nombre || npc.id} tiene vende pero no tiene spawn en este mapa.`)
+  }
+
+  const bestiarioPorId = new Map(bestiario.map(b => [b?.id, b]).filter(([id]) => id))
+  const presencias = Array.isArray(mapa.presencias_tacticas) ? mapa.presencias_tacticas : []
+  const idsPresencias = new Set()
+  for (const [idx, presencia] of presencias.entries()) {
+    const label = presencia?.id || `presencia ${idx + 1}`
+    if (!presencia || typeof presencia !== 'object') {
+      add('error', 'MAPA_PRESENCIA_INVALIDA', 'Error: presencia táctica inválida.')
+      continue
+    }
+    if (!String(presencia.id || '').trim()) {
+      add('error', 'MAPA_PRESENCIA_ID_FALTANTE', 'Error: presencia táctica sin ID.')
+    } else if (idsPresencias.has(presencia.id)) {
+      add('error', 'MAPA_PRESENCIA_ID_DUPLICADO', `Error: presencia duplicada «${presencia.id}».`)
+    } else {
+      idsPresencias.add(presencia.id)
+    }
+    if (presencia.tipo !== 'bestiario') {
+      add('error', 'MAPA_PRESENCIA_TIPO_INVALIDO', `Error: ${label} debe ser de tipo bestiario.`)
+    }
+    if (!String(presencia.ref || '').trim()) {
+      add('error', 'MAPA_PRESENCIA_REF_FALTANTE', `Error: ${label} no tiene ref.`)
+    } else if (bestiario.length && !bestiarioPorId.has(presencia.ref)) {
+      add('error', 'MAPA_PRESENCIA_REF_INVALIDA', `Error: ${label} referencia bestiario inexistente.`)
+    }
+    const bestia = bestiarioPorId.get(presencia.ref)
+    if (bestia?.ubicacion && loc?.id && bestia.ubicacion !== loc.id) {
+      add('error', 'MAPA_PRESENCIA_UBICACION', `Error: ${label} pertenece a «${bestia.ubicacion}».`)
+    }
+    const cantidad = presencia.cantidad ?? 1
+    if (!Number.isInteger(cantidad) || cantidad <= 0 || cantidad > 99) {
+      add('error', 'MAPA_PRESENCIA_CANTIDAD_INVALIDA', `Error: ${label} tiene cantidad inválida.`)
+    }
+    if ('visible' in presencia && typeof presencia.visible !== 'boolean') {
+      add('error', 'MAPA_PRESENCIA_VISIBLE_INVALIDO', `Error: ${label} tiene visible inválido.`)
+    }
+    if (!celdaDentro(presencia.celda, cols, rows)) {
+      add('error', 'MAPA_PRESENCIA_CELDA_INVALIDA', `Error: ${label} tiene celda inválida.`)
+    } else if (pisable.ok && pisable.filas?.[presencia.celda[1]]?.[presencia.celda[0]] === '.') {
+      add('warning', 'MAPA_PRESENCIA_BLOQUEADA', `Aviso: ${label} cae sobre celda bloqueada.`)
+    }
   }
 
   const tieneErrores = issues.some(i => i.severity === 'error')

@@ -416,6 +416,7 @@ export default function AventuraPage() {
             <SeccionLocalizaciones
               localizaciones={data.localizaciones || []}
               npcs={data.npcs || []}
+              bestiario={data.bestiario || []}
               onUpdate={(v) => updateSection('localizaciones', v)}
               onOpenIA={() => openIA('localizaciones')}
               serverSlug={serverSlug}
