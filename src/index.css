@@ -978,6 +978,10 @@ select.av-input {
   color: #e8eaed;
   border-color: #58a6ff;
 }
+.av-btn-icon:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 .av-form-inline {
   margin-bottom: 0.6rem;
@@ -1454,6 +1458,16 @@ select.av-input {
   z-index: 1000;
   padding: 1rem;
 }
+.av-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
 .av-modal {
   background: #161b22;
   border: 1px solid #30363d;
@@ -1541,6 +1555,74 @@ select.av-input {
   display: flex;
   gap: 0.35rem;
   justify-content: flex-end;
+}
+
+/* ── fichas IA NPC / bestiario ── */
+.av-ficha-thumb {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #58a6ff;
+  background: #0d1117;
+  flex: 0 0 auto;
+}
+.av-ficha-ia-modal {
+  max-width: 860px;
+}
+.av-ficha-ia-body {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  overflow-y: auto;
+}
+.av-ficha-ia-preview {
+  aspect-ratio: 1;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  background: #0d1117;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.av-ficha-ia-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.av-ficha-ia-empty {
+  color: #8b949e;
+  font-size: 0.9rem;
+}
+.av-ficha-ia-form {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.av-ficha-ia-force {
+  align-self: end;
+  min-height: 35px;
+}
+.av-error {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #8a2b2b;
+  border-radius: 6px;
+  background: #3d1a1a;
+  color: #ffb4b4;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .av-ficha-ia-body {
+    grid-template-columns: 1fr;
+  }
+  .av-ficha-ia-preview {
+    max-width: 260px;
+  }
 }
 
 /* ── mensajes del servidor ── */

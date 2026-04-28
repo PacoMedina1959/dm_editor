@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import FilterInput from './FilterInput.jsx'
+import FichaIADialog from './FichaIADialog.jsx'
+import { urlMapaPublico } from '../../api/mapaIA.js'
 
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', ubicacion: '', actitud_inicial: 'neutral',
@@ -8,8 +10,9 @@ const EMPTY = {
 
 const ACTITUDES = ['amistosa', 'neutral', 'desconfiado', 'hostil']
 
-export default function SeccionNpcs({ npcs, onUpdate, onOpenIA }) {
+export default function SeccionNpcs({ npcs, onUpdate, onOpenIA, serverSlug }) {
   const [editIdx, setEditIdx] = useState(null)
+  const [fichaIdx, setFichaIdx] = useState(null)
   const editable = typeof onUpdate === 'function'
   const items = npcs ?? []
 
@@ -35,6 +38,11 @@ export default function SeccionNpcs({ npcs, onUpdate, onOpenIA }) {
     const clone = structuredClone(items[i]); clone.id += '_copia'
     const c = [...items]; c.splice(i + 1, 0, clone); onUpdate(c)
   }
+  const aplicarFicha = (i, sprite) => {
+    const c = [...items]
+    c[i] = { ...c[i], sprite: { ...(c[i].sprite || {}), ...sprite } }
+    onUpdate(c)
+  }
 
   if (!items.length && !editable) return null
 
@@ -59,7 +67,9 @@ export default function SeccionNpcs({ npcs, onUpdate, onOpenIA }) {
           ) : (
             <NpcRow
               key={npc.id} npc={npc} editable={editable}
+              serverSlug={serverSlug}
               onEdit={() => startEdit(i)} onDuplicate={() => duplicate(i)}
+              onFichaIA={() => setFichaIdx(i)}
               onMoveUp={() => move(i, -1)} onMoveDown={() => move(i, 1)}
               isFirst={i === 0} isLast={i === items.length - 1}
             />
@@ -68,6 +78,14 @@ export default function SeccionNpcs({ npcs, onUpdate, onOpenIA }) {
       </FilterInput>
 
       {!items.length && <p className="av-empty">Sin NPCs. Pulsa «+ Añadir» para crear uno.</p>}
+      <FichaIADialog
+        open={fichaIdx !== null}
+        slug={serverSlug}
+        tipo="npc"
+        item={fichaIdx !== null ? items[fichaIdx] : null}
+        onClose={() => setFichaIdx(null)}
+        onAplicar={(sprite) => aplicarFicha(fichaIdx, sprite)}
+      />
     </section>
   )
 }
@@ -81,11 +99,13 @@ function ActitudBadge({ actitud }) {
   return <span className="av-badge" style={{ background: colors[actitud.toLowerCase()] || '#555' }}>{actitud}</span>
 }
 
-function NpcRow({ npc, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFirst, isLast }) {
+function NpcRow({ npc, editable, serverSlug, onEdit, onDuplicate, onFichaIA, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
+  const fichaUrl = serverSlug && npc.sprite?.imagen ? urlMapaPublico(serverSlug, npc.sprite.imagen) : ''
   return (
     <div className="av-crud-row">
       <div className="av-crud-row-main" onClick={() => setExpanded(!expanded)}>
+        {fichaUrl && <img className="av-ficha-thumb" src={fichaUrl} alt="" />}
         <span className="av-cell-id">{npc.id}</span>
         <span className="av-crud-row-name">{npc.nombre}</span>
         <span className="av-tag">{npc.ubicacion || '—'}</span>
@@ -112,6 +132,7 @@ function NpcRow({ npc, editable, onEdit, onDuplicate, onMoveUp, onMoveDown, isFi
       )}
       {editable && (
         <div className="av-crud-actions">
+          <button type="button" className="av-btn-icon" onClick={onFichaIA} title={serverSlug ? 'Generar ficha IA' : 'Guarda en servidor para generar ficha IA'} disabled={!serverSlug}>IA</button>
           <button type="button" className="av-btn-icon" onClick={onEdit} title="Editar">✎</button>
           <button type="button" className="av-btn-icon" onClick={onDuplicate} title="Duplicar">⧉</button>
           {!isFirst && <button type="button" className="av-btn-icon" onClick={onMoveUp} title="Subir">▲</button>}

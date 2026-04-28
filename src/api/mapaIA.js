@@ -226,6 +226,31 @@ export async function subirImagenMapaMundo(slug, file) {
 }
 
 /**
+ * Genera una ficha/token IA para un NPC o entrada de bestiario.
+ *
+ * @param {string} slug
+ * @param {('npc'|'bestiario')} tipo
+ * @param {string} id
+ * @param {{promptExtra?: string, force?: boolean, seed?: number}} [params]
+ */
+export async function generarFichaIA(slug, tipo, id, params = {}) {
+  const url = apiUrl(`/api/editor/aventuras/${encodeURIComponent(slug)}/fichas/generar`)
+  const body = {
+    tipo,
+    id,
+    prompt_extra: params.promptExtra || '',
+    force: !!params.force,
+    seed: params.seed ?? 0,
+  }
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return _json(res)
+}
+
+/**
  * Hace polling del job hasta que termina (ok/error) o hasta el timeout.
  * Llama a `onTick(estado)` en cada actualizacion para que la UI pinte
  * progreso en vivo.

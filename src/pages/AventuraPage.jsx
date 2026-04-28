@@ -427,6 +427,7 @@ export default function AventuraPage() {
               npcs={data.npcs || []}
               onUpdate={(v) => updateSection('npcs', v)}
               onOpenIA={() => openIA('npcs')}
+              serverSlug={serverSlug}
             />
           )}
           {visibles.has('bestiario') && (
@@ -434,6 +435,7 @@ export default function AventuraPage() {
               bestiario={data.bestiario || []}
               onUpdate={(v) => updateSection('bestiario', v)}
               onOpenIA={() => openIA('bestiario')}
+              serverSlug={serverSlug}
             />
           )}
           {visibles.has('historia') && (
