@@ -3,6 +3,14 @@ import FilterInput from './FilterInput.jsx'
 import FichaIADialog from './FichaIADialog.jsx'
 import { urlMapaPublico } from '../../api/mapaIA.js'
 
+function leerVisualScale(sprite) {
+  const raw = Number(sprite?.visualScale ?? sprite?.visual_scale ?? sprite?.escala ?? 1)
+  if (!Number.isFinite(raw)) return null
+  const scale = Math.min(2.5, Math.max(0.6, raw))
+  if (Math.abs(scale - 1) < 0.001) return null
+  return scale
+}
+
 const EMPTY = {
   id: '', nombre: '', ubicacion: '', peligro: 'medio',
   evitable: false, grupo: '', aspecto: '', comportamiento: '', debilidad: '',
@@ -99,6 +107,7 @@ function PeligroBadge({ peligro }) {
 function BestiaRow({ bestia, editable, serverSlug, onEdit, onDuplicate, onFichaIA, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
   const fichaUrl = serverSlug && bestia.sprite?.imagen ? urlMapaPublico(serverSlug, bestia.sprite.imagen) : ''
+  const scale = leerVisualScale(bestia.sprite)
   return (
     <div className="av-crud-row">
       <div className="av-crud-row-main" onClick={() => setExpanded(!expanded)}>
@@ -107,6 +116,9 @@ function BestiaRow({ bestia, editable, serverSlug, onEdit, onDuplicate, onFichaI
         <span className="av-crud-row-name">{bestia.nombre}</span>
         <span className="av-tag">{bestia.ubicacion || '—'}</span>
         <PeligroBadge peligro={bestia.peligro} />
+        {scale != null && (
+          <span className={`av-tag ${scale >= 1.6 ? 'av-tag-boss' : ''}`}>x{scale.toFixed(1)}</span>
+        )}
         {bestia.evitable && <span className="av-tag">evitable</span>}
       </div>
       {expanded && (

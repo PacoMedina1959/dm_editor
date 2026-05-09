@@ -19,6 +19,7 @@ const EMPTY_ESCENA = {
   ubicaciones_activas: [], npcs_activos: [],
   info_visible: {}, info_oculta: [],
   eventos_opcionales: [], condiciones_avance: [], condiciones_final: [],
+  media: {},
 }
 
 const EMPTY_REGLA = { tipo: 'evento', evento: '', descripcion_humana: '' }
@@ -121,12 +122,16 @@ export default function SeccionEscenas({ escenas, onUpdate, data, onOpenIA }) {
 function EscenaRow({ escena, editable, onEdit, onDuplicate, onPreview, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
   const int_ = escena.intencion_dm_default
+  const introVideo = String(escena.media?.intro_video?.src || '').trim()
+  const outroVideo = String(escena.media?.outro_video?.src || '').trim()
   return (
     <div className="av-crud-row av-escena-row">
       <div className="av-crud-row-main" onClick={() => setExpanded(!expanded)}>
         <span className="av-cell-id">{escena.id}</span>
         <span className="av-crud-row-name">{escena.nombre}</span>
         {int_?.tension && <span className="av-badge av-badge-sm">{int_.tension}</span>}
+        {introVideo && <span className="av-tag">🎬 intro</span>}
+        {outroVideo && <span className="av-tag">🎞 outro</span>}
       </div>
       {expanded && <EscenaDetail escena={escena} />}
       {editable && (
@@ -144,6 +149,10 @@ function EscenaRow({ escena, editable, onEdit, onDuplicate, onPreview, onMoveUp,
 
 function EscenaDetail({ escena }) {
   const int_ = escena.intencion_dm_default
+  const intro = escena.media?.intro_video
+  const outro = escena.media?.outro_video
+  const introSrc = String(intro?.src || '').trim()
+  const outroSrc = String(outro?.src || '').trim()
   return (
     <div className="av-escena-detail" onClick={ev => ev.stopPropagation()}>
       {escena.objetivo && <p className="av-desc">{escena.objetivo}</p>}
@@ -182,6 +191,13 @@ function EscenaDetail({ escena }) {
           ))}
         </div>
       )}
+      {(introSrc || outroSrc) && (
+        <div className="av-desc">
+          <strong>Media:</strong>{' '}
+          {introSrc && <span className="av-tag">intro: {introSrc}</span>}
+          {outroSrc && <span className="av-tag">outro: {outroSrc}</span>}
+        </div>
+      )}
     </div>
   )
 }
@@ -198,6 +214,24 @@ function EscenaForm({ draft: initial, onSave, onCancel, onDelete }) {
     ...prev,
     intencion_dm_default: { ...prev.intencion_dm_default, [k]: v },
   }))
+  const media = d.media || {}
+  const intro = media.intro_video || {}
+  const outro = media.outro_video || {}
+
+  const updMediaVideo = (bloque, key, value) => {
+    setD(prev => {
+      const next = { ...prev }
+      const mediaObj = { ...(next.media || {}) }
+      const videoObj = { ...(mediaObj[bloque] || {}) }
+      if (value === '' || value == null) delete videoObj[key]
+      else videoObj[key] = value
+      if (Object.keys(videoObj).length > 0) mediaObj[bloque] = videoObj
+      else delete mediaObj[bloque]
+      if (Object.keys(mediaObj).length > 0) next.media = mediaObj
+      else delete next.media
+      return next
+    })
+  }
 
   const toggle = (s) => setOpenSections(prev => {
     const n = new Set(prev); n.has(s) ? n.delete(s) : n.add(s); return n
@@ -300,6 +334,107 @@ function EscenaForm({ draft: initial, onSave, onCancel, onDelete }) {
           campoDestino="final"
           labelDestino="Final"
         />
+      </FormAccordion>
+
+      {/* Media */}
+      <FormAccordion label="Media (intro / outro)" id="media" open={openSections} onToggle={toggle}>
+        <details className="av-inline-help">
+          <summary>Ayuda rápida · vídeos de intro/outro</summary>
+          <p>
+            Intro se muestra al entrar en escena y outro al salir (si están configurados).
+            Ejemplo: <code>assets/video/intro/llegada_taberna.mp4</code>
+          </p>
+          <p>
+            <code>poster</code> es opcional (imagen previa). <code>max_ms</code> corta el vídeo
+            por seguridad si dura demasiado y <code>skippable</code> permite saltar.
+          </p>
+          <p className="av-inline-help-note">
+            Reglas: vídeo <code>.mp4/.webm</code>, poster <code>.png/.jpg/.jpeg/.webp</code>,
+            rutas relativas de campaña (sin <code>..</code>).
+          </p>
+        </details>
+        <div className="av-form-row2">
+          <Field
+            label="Intro video · src"
+            value={intro.src ?? ''}
+            onChange={v => updMediaVideo('intro_video', 'src', v)}
+          />
+          <Field
+            label="Intro video · poster"
+            value={intro.poster ?? ''}
+            onChange={v => updMediaVideo('intro_video', 'poster', v)}
+          />
+        </div>
+        <div className="av-form-row3">
+          <label className="av-field">
+            <span className="av-field-label">Intro video · max ms</span>
+            <input
+              type="number"
+              min="1000"
+              max="180000"
+              step="500"
+              className="av-input"
+              value={intro.max_ms ?? ''}
+              onChange={e => {
+                const raw = e.target.value
+                if (raw === '') updMediaVideo('intro_video', 'max_ms', null)
+                else {
+                  const n = Number(raw)
+                  updMediaVideo('intro_video', 'max_ms', Number.isFinite(n) ? Math.max(1000, Math.min(180000, Math.round(n))) : null)
+                }
+              }}
+            />
+          </label>
+          <label className="av-field-inline">
+            <input
+              type="checkbox"
+              checked={intro.skippable !== false}
+              onChange={e => updMediaVideo('intro_video', 'skippable', e.target.checked)}
+            />
+            <span>Intro saltable</span>
+          </label>
+        </div>
+        <div className="av-form-row2">
+          <Field
+            label="Outro video · src"
+            value={outro.src ?? ''}
+            onChange={v => updMediaVideo('outro_video', 'src', v)}
+          />
+          <Field
+            label="Outro video · poster"
+            value={outro.poster ?? ''}
+            onChange={v => updMediaVideo('outro_video', 'poster', v)}
+          />
+        </div>
+        <div className="av-form-row3">
+          <label className="av-field">
+            <span className="av-field-label">Outro video · max ms</span>
+            <input
+              type="number"
+              min="1000"
+              max="180000"
+              step="500"
+              className="av-input"
+              value={outro.max_ms ?? ''}
+              onChange={e => {
+                const raw = e.target.value
+                if (raw === '') updMediaVideo('outro_video', 'max_ms', null)
+                else {
+                  const n = Number(raw)
+                  updMediaVideo('outro_video', 'max_ms', Number.isFinite(n) ? Math.max(1000, Math.min(180000, Math.round(n))) : null)
+                }
+              }}
+            />
+          </label>
+          <label className="av-field-inline">
+            <input
+              type="checkbox"
+              checked={outro.skippable !== false}
+              onChange={e => updMediaVideo('outro_video', 'skippable', e.target.checked)}
+            />
+            <span>Outro saltable</span>
+          </label>
+        </div>
       </FormAccordion>
 
       {/* Botones */}

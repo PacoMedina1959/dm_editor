@@ -1,15 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import FilterInput from './FilterInput.jsx'
 import MapaIADialog from './MapaIADialog.jsx'
-import CalibradorGridDialog from './CalibradorGridDialog.jsx'
-import WalkmaskBrushDialog from './WalkmaskBrushDialog.jsx'
-import TransitionPointsDialog from './TransitionPointsDialog.jsx'
-import SpawnEntranceDialog from './SpawnEntranceDialog.jsx'
-import NpcSpawnsDialog from './NpcSpawnsDialog.jsx'
-import PresenciasTacticasDialog from './PresenciasTacticasDialog.jsx'
-import PiezasTacticasDialog from './PiezasTacticasDialog.jsx'
+
 import { urlMapaPublico } from '../../api/mapaIA.js'
-import { validarMapaRuntimeLocalizacion } from '../../domain/aventura.js'
+import { validarMapaRuntimeLocalizacion, validarMapaRuntimeLocalizacionAsync } from '../../domain/aventura.js'
 
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', zona: '', conexiones: [],
@@ -28,13 +22,7 @@ export default function SeccionLocalizaciones({
 }) {
   const [editIdx, setEditIdx] = useState(null)
   const [mapaIdx, setMapaIdx] = useState(null)
-  const [calibradorIdx, setCalibradorIdx] = useState(null)
-  const [walkmaskIdx, setWalkmaskIdx] = useState(null)
-  const [transicionesIdx, setTransicionesIdx] = useState(null)
-  const [spawnIdx, setSpawnIdx] = useState(null)
-  const [npcSpawnsIdx, setNpcSpawnsIdx] = useState(null)
-  const [presenciasIdx, setPresenciasIdx] = useState(null)
-  const [piezasIdx, setPiezasIdx] = useState(null)
+
   const [mapaAvisos, setMapaAvisos] = useState({})
   const editable = typeof onUpdate === 'function'
   const items = localizaciones ?? []
@@ -115,6 +103,29 @@ export default function SeccionLocalizaciones({
   }
 
   /**
+   * Misma carpeta y base que la imagen raster → convención `Cripta_01.png` + `Cripta_01.tmj`.
+   * Solo se usa cuando aún no hay `tiled.json` en YAML (p. ej. tras quitar mapa y resubir PNG).
+   */
+  const inferirTiledJsonDesdeImagen = (imagen) => {
+    if (typeof imagen !== 'string') return null
+    const t = imagen.trim().replace(/^\//, '')
+    if (!t || t.includes('..')) return null
+    const m = t.match(/^(.*)\.(png|webp|jpe?g)$/i)
+    if (!m) return null
+    return `${m[1]}.tmj`
+  }
+
+  /** Rellena `tiled.json` por convención de nombre si falta y la imagen lo permite. */
+  const enlazarTiledRasterHermanoSiFalta = (mapa) => {
+    if (!mapa || typeof mapa !== 'object') return mapa
+    if (String(mapa.tiled?.json || '').trim()) return mapa
+    const inf = inferirTiledJsonDesdeImagen(mapa.imagen)
+    if (!inf) return mapa
+    const prevTiled = mapa.tiled && typeof mapa.tiled === 'object' ? mapa.tiled : {}
+    return { ...mapa, tiled: { ...prevTiled, json: inf } }
+  }
+
+  /**
    * Actualiza (o borra, con `mapa = null`) el sub-objeto `mapa` de una
    * localizacion. Es el callback que usa `MapaIADialog` al aplicar.
    *
@@ -134,6 +145,7 @@ export default function SeccionLocalizaciones({
         ...(loc.mapa || {}),
         ...mapa,
       })
+      loc.mapa = enlazarTiledRasterHermanoSiFalta(loc.mapa)
       if (cambioRiesgosoDeMapa(prevMapa, loc.mapa)) {
         setMapaAvisos(prev => ({
           ...prev,
@@ -211,13 +223,7 @@ export default function SeccionLocalizaciones({
                     onMoveDown={() => move(realIdx, 1)}
                     onGenerarMapa={() => setMapaIdx(realIdx)}
                     onQuitarMapa={() => quitarMapa(realIdx)}
-                    onCalibrarGrid={() => setCalibradorIdx(realIdx)}
-                    onPintarWalkmask={() => setWalkmaskIdx(realIdx)}
-                    onEditarTransiciones={() => setTransicionesIdx(realIdx)}
-                    onEditarSpawn={() => setSpawnIdx(realIdx)}
-                    onEditarNpcSpawns={() => setNpcSpawnsIdx(realIdx)}
-                    onEditarPresencias={() => setPresenciasIdx(realIdx)}
-                    onEditarPiezas={() => setPiezasIdx(realIdx)}
+
                     assetsTacticos={assetsTacticos}
                     avisoMapa={mapaAvisos[loc.id]}
                     isFirst={realIdx === 0}
@@ -242,87 +248,7 @@ export default function SeccionLocalizaciones({
         }}
       />
 
-      {calibradorIdx !== null && (
-        <CalibradorGridDialog
-          key={`cal-${calibradorIdx}`}
-          open
-          slug={serverSlug}
-          loc={items[calibradorIdx]}
-          onClose={() => setCalibradorIdx(null)}
-          onAplicar={(mapa) => updateMapa(calibradorIdx, mapa)}
-        />
-      )}
 
-      {walkmaskIdx !== null && (
-        <WalkmaskBrushDialog
-          key={`walk-${walkmaskIdx}`}
-          open
-          slug={serverSlug}
-          loc={items[walkmaskIdx]}
-          onClose={() => setWalkmaskIdx(null)}
-          onAplicar={(mapa) => updateMapa(walkmaskIdx, mapa)}
-        />
-      )}
-
-      {transicionesIdx !== null && (
-        <TransitionPointsDialog
-          key={`trans-${transicionesIdx}`}
-          open
-          slug={serverSlug}
-          loc={items[transicionesIdx]}
-          localizaciones={items}
-          onClose={() => setTransicionesIdx(null)}
-          onAplicar={(mapa) => updateMapa(transicionesIdx, mapa)}
-        />
-      )}
-
-      {spawnIdx !== null && (
-        <SpawnEntranceDialog
-          key={`spawn-${spawnIdx}`}
-          open
-          slug={serverSlug}
-          loc={items[spawnIdx]}
-          onClose={() => setSpawnIdx(null)}
-          onAplicar={(mapa) => updateMapa(spawnIdx, mapa)}
-        />
-      )}
-
-      {npcSpawnsIdx !== null && (
-        <NpcSpawnsDialog
-          key={`npc-spawn-${npcSpawnsIdx}`}
-          open
-          slug={serverSlug}
-          loc={items[npcSpawnsIdx]}
-          npcs={npcs}
-          onClose={() => setNpcSpawnsIdx(null)}
-          onAplicar={(mapa) => updateMapa(npcSpawnsIdx, mapa)}
-        />
-      )}
-
-      {presenciasIdx !== null && (
-        <PresenciasTacticasDialog
-          key={`presencias-${presenciasIdx}`}
-          open
-          slug={serverSlug}
-          loc={items[presenciasIdx]}
-          bestiario={bestiario}
-          onClose={() => setPresenciasIdx(null)}
-          onAplicar={(mapa) => updateMapa(presenciasIdx, mapa)}
-        />
-      )}
-
-      {piezasIdx !== null && (
-        <PiezasTacticasDialog
-          key={`piezas-${piezasIdx}`}
-          open
-          slug={serverSlug}
-          loc={items[piezasIdx]}
-          localizaciones={items}
-          assetsTacticos={assetsTacticos}
-          onClose={() => setPiezasIdx(null)}
-          onAplicar={(mapa) => updateMapa(piezasIdx, mapa)}
-        />
-      )}
     </section>
   )
 }
@@ -341,13 +267,7 @@ function LocRow({
   onMoveDown,
   onGenerarMapa,
   onQuitarMapa,
-  onCalibrarGrid,
-  onPintarWalkmask,
-  onEditarTransiciones,
-  onEditarSpawn,
-  onEditarNpcSpawns,
-  onEditarPresencias,
-  onEditarPiezas,
+
   assetsTacticos,
   avisoMapa,
   isFirst,
@@ -355,6 +275,8 @@ function LocRow({
 }) {
   const [expanded, setExpanded] = useState(false)
   const tieneMapa = !!loc.mapa?.imagen || loc.mapa?.modo_render === 'piezas'
+  const tieneAmbienteAudio = !!String(loc.ambiente?.audio?.src || '').trim()
+  const sfxCount = Array.isArray(loc.ambiente?.sfx) ? loc.ambiente.sfx.length : 0
   return (
     <div className="av-crud-row">
       <div className="av-crud-row-main" onClick={() => setExpanded(!expanded)}>
@@ -364,12 +286,21 @@ function LocRow({
           {(loc.conexiones || []).map(c => <span key={c} className="av-tag">{c}</span>)}
         </span>
         {tieneMapa && <span className="av-tag" title={`Mapa ${loc.mapa.tipo || ''}`}>🗺️</span>}
+        {tieneAmbienteAudio && <span className="av-tag" title="Audio de ambiente">🎵</span>}
+        {sfxCount > 0 && <span className="av-tag" title="Efectos de sonido">🔊 {sfxCount}</span>}
         {loc.oculta && <span className="av-tag">🔒</span>}
       </div>
       {expanded && (
         <div className="av-detail">
           {loc.descripcion && <p className="av-desc">{loc.descripcion}</p>}
           {loc.notas_dm && <p className="av-desc av-desc-dm">🎭 {loc.notas_dm}</p>}
+          {(tieneAmbienteAudio || sfxCount > 0) && (
+            <p className="av-desc">
+              <strong>Ambiente:</strong>{' '}
+              {tieneAmbienteAudio ? `audio (${loc.ambiente.audio.src})` : 'sin audio base'}
+              {sfxCount > 0 ? ` · ${sfxCount} sfx` : ''}
+            </p>
+          )}
           {editable && (
             <MapaBloque
               loc={loc}
@@ -377,13 +308,7 @@ function LocRow({
               dirty={dirty}
               onGenerar={onGenerarMapa}
               onQuitar={onQuitarMapa}
-              onCalibrar={onCalibrarGrid}
-              onPintarWalkmask={onPintarWalkmask}
-              onEditarTransiciones={onEditarTransiciones}
-              onEditarSpawn={onEditarSpawn}
-              onEditarNpcSpawns={onEditarNpcSpawns}
-              onEditarPresencias={onEditarPresencias}
-              onEditarPiezas={onEditarPiezas}
+
               assetsTacticos={assetsTacticos}
               avisoMapa={avisoMapa}
               localizaciones={localizaciones}
@@ -433,13 +358,7 @@ function MapaBloque({
   dirty,
   onGenerar,
   onQuitar,
-  onCalibrar,
-  onPintarWalkmask,
-  onEditarTransiciones,
-  onEditarSpawn,
-  onEditarNpcSpawns,
-  onEditarPresencias,
-  onEditarPiezas,
+
   assetsTacticos = [],
   avisoMapa,
   localizaciones = [],
@@ -451,7 +370,52 @@ function MapaBloque({
   const urlThumb = tieneMapa && serverSlug
     ? urlMapaPublico(serverSlug, loc.mapa.imagen)
     : null
-  const salud = tieneMapa ? validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario }) : null
+  const [salud, setSalud] = useState(() => (
+    tieneMapa
+      ? validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario })
+      : null
+  ))
+  useEffect(() => {
+    let cancelado = false
+    if (!tieneMapa) {
+      setSalud(null)
+      return undefined
+    }
+    if (!serverSlug) {
+      setSalud(validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario }))
+      return undefined
+    }
+    validarMapaRuntimeLocalizacionAsync(serverSlug, loc, localizaciones, { npcs, bestiario })
+      .then((r) => {
+        if (!cancelado) setSalud(r)
+      })
+      .catch(() => {
+        if (!cancelado) {
+          setSalud(validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario }))
+        }
+      })
+    return () => { cancelado = true }
+  }, [
+    tieneMapa,
+    serverSlug,
+    loc?.id,
+    loc?.mapa?.imagen,
+    loc?.mapa?.cols,
+    loc?.mapa?.rows,
+    loc?.mapa?.tile_w,
+    loc?.mapa?.tile_h,
+    loc?.mapa?.origen_px,
+    loc?.mapa?.pisable,
+    loc?.mapa?.tiled,
+    loc?.mapa?.spawn_entrada,
+    loc?.mapa?.puntos_interes,
+    loc?.mapa?.spawns_npc,
+    loc?.mapa?.presencias_tacticas,
+    loc?.conexiones,
+    localizaciones,
+    npcs,
+    bestiario,
+  ])
   const estadoLabel = salud?.estado === 'ok'
     ? 'Mapa listo'
     : salud?.estado === 'warning'
@@ -530,83 +494,7 @@ function MapaBloque({
         >
           {tieneMapa ? 'Regenerar con IA' : 'Generar mapa con IA'}
         </button>
-        {tieneMapa && onCalibrar && (
-          <button
-            type="button"
-            className="btn-secondary av-btn-small"
-            onClick={onCalibrar}
-            disabled={!puede}
-            title="Ajustar grid isométrico sobre la imagen"
-          >
-            📐 Calibrar grid
-          </button>
-        )}
-        {tieneMapa && onPintarWalkmask && (
-          <button
-            type="button"
-            className="btn-secondary av-btn-small"
-            onClick={onPintarWalkmask}
-            disabled={!puede}
-            title="Pintar celdas pisables y bloqueadas"
-          >
-            🖌️ Pintar walkmask
-          </button>
-        )}
-        {tieneMapa && onEditarTransiciones && (
-          <button
-            type="button"
-            className="btn-secondary av-btn-small"
-            onClick={onEditarTransiciones}
-            disabled={!puede}
-            title="Colocar salidas, puertas y escaleras tácticas"
-          >
-            🚪 Transiciones
-          </button>
-        )}
-        {tieneMapa && onEditarSpawn && (
-          <button
-            type="button"
-            className="btn-secondary av-btn-small"
-            onClick={onEditarSpawn}
-            disabled={!puede}
-            title="Colocar la celda donde aparece el grupo al entrar"
-          >
-            📍 Spawn entrada
-          </button>
-        )}
-        {tieneMapa && onEditarNpcSpawns && (
-          <button
-            type="button"
-            className="btn-secondary av-btn-small"
-            onClick={onEditarNpcSpawns}
-            disabled={!puede}
-            title="Colocar NPCs canónicos sobre el mapa táctico"
-          >
-            NPCs
-          </button>
-        )}
-        {tieneMapa && onEditarPresencias && (
-          <button
-            type="button"
-            className="btn-secondary av-btn-small"
-            onClick={onEditarPresencias}
-            disabled={!puede}
-            title="Colocar criaturas y presencias tácticas pasivas sobre el mapa"
-          >
-            Presencias
-          </button>
-        )}
-        {tieneMapa && onEditarPiezas && (
-          <button
-            type="button"
-            className="btn-secondary av-btn-small"
-            onClick={onEditarPiezas}
-            disabled={!puede || assetsTacticos.length === 0}
-            title={assetsTacticos.length ? 'Colocar objetos tácticos estructurados' : 'Define assets_tacticos en la campaña para usar piezas'}
-          >
-            Piezas
-          </button>
-        )}
+
         {tieneMapa && (
           <button
             type="button"
@@ -644,6 +532,40 @@ function LocForm({ draft: initial, onSave, onCancel, onDelete }) {
   const [d, setD] = useState(initial)
   const [confirmDel, setConfirmDel] = useState(false)
   const upd = (k, v) => setD(prev => ({ ...prev, [k]: v }))
+  const audio = d.ambiente?.audio || {}
+  const sfx = Array.isArray(d.ambiente?.sfx) ? d.ambiente.sfx : []
+
+  const setAudioField = (key, value) => {
+    setD(prev => {
+      const next = { ...prev }
+      const ambiente = { ...(next.ambiente || {}) }
+      const audioObj = { ...(ambiente.audio || {}) }
+      if (value === '' || value == null) delete audioObj[key]
+      else audioObj[key] = value
+      if (Object.keys(audioObj).length > 0) ambiente.audio = audioObj
+      else delete ambiente.audio
+      if (Object.keys(ambiente).length > 0) next.ambiente = ambiente
+      else delete next.ambiente
+      return next
+    })
+  }
+
+  const setSfxFromLines = (raw) => {
+    const entries = String(raw || '')
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(src => ({ src }))
+    setD(prev => {
+      const next = { ...prev }
+      const ambiente = { ...(next.ambiente || {}) }
+      if (entries.length > 0) ambiente.sfx = entries
+      else delete ambiente.sfx
+      if (Object.keys(ambiente).length > 0) next.ambiente = ambiente
+      else delete next.ambiente
+      return next
+    })
+  }
 
   return (
     <div className="av-form av-form-inline">
@@ -662,6 +584,81 @@ function LocForm({ draft: initial, onSave, onCancel, onDelete }) {
       />
       <FieldTextarea label="Descripción" value={d.descripcion ?? ''} onChange={v => upd('descripcion', v)} />
       <FieldTextarea label="Notas DM" value={d.notas_dm ?? ''} onChange={v => upd('notas_dm', v)} />
+      <details className="av-inline-help">
+        <summary>Ayuda rápida · ambiente de localización</summary>
+        <p>
+          Usa rutas relativas de campaña. Ejemplo audio base:
+          <code> assets/audio/ambiente/taberna_loop.ogg</code>
+        </p>
+        <p>
+          SFX: una ruta por línea (ejemplo <code>assets/audio/sfx/chimenea.wav</code>).
+          El runtime mezcla base + SFX y aplica <code>fade_ms</code> al cambiar de lugar.
+        </p>
+        <p className="av-inline-help-note">
+          Reglas: volumen entre 0 y 1; rutas sin <code>..</code>; formatos sugeridos
+          <code> .ogg/.mp3/.wav/.m4a</code>.
+        </p>
+      </details>
+      <div className="av-form-row2">
+        <Field
+          label="Ambiente · audio src"
+          value={audio.src ?? ''}
+          onChange={v => setAudioField('src', v)}
+        />
+        <label className="av-field-inline">
+          <input
+            type="checkbox"
+            checked={audio.loop !== false}
+            onChange={e => setAudioField('loop', e.target.checked)}
+          />
+          <span>Loop ambiente</span>
+        </label>
+      </div>
+      <div className="av-form-row2">
+        <label className="av-field">
+          <span className="av-field-label">Ambiente · volumen (0..1)</span>
+          <input
+            type="number"
+            min="0"
+            max="1"
+            step="0.05"
+            className="av-input"
+            value={audio.volumen ?? ''}
+            onChange={e => {
+              const raw = e.target.value
+              if (raw === '') setAudioField('volumen', null)
+              else {
+                const n = Number(raw)
+                setAudioField('volumen', Number.isFinite(n) ? Math.max(0, Math.min(1, n)) : null)
+              }
+            }}
+          />
+        </label>
+        <label className="av-field">
+          <span className="av-field-label">Ambiente · fade ms</span>
+          <input
+            type="number"
+            min="0"
+            max="10000"
+            step="100"
+            className="av-input"
+            value={audio.fade_ms ?? ''}
+            onChange={e => {
+              const raw = e.target.value
+              if (raw === '') setAudioField('fade_ms', null)
+              else {
+                const n = Number(raw)
+                setAudioField('fade_ms', Number.isFinite(n) ? Math.max(0, Math.min(10000, Math.round(n))) : null)
+              }
+            }}
+          />
+        </label>
+      </div>
+      <FieldTextarea
+        label="SFX por defecto (una ruta por línea)"
+        value={sfx.map(x => x?.src).filter(Boolean).join('\n')}
+        onChange={setSfxFromLines}
+      />
       <label className="av-field-inline">
         <input type="checkbox" checked={!!d.oculta} onChange={e => upd('oculta', e.target.checked)} />
         <span>Localización oculta</span>

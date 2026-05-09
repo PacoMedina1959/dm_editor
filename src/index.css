@@ -1100,6 +1100,40 @@ select.av-input {
   gap: 0.5rem;
 }
 
+.av-inline-help {
+  border: 1px dashed #30363d;
+  border-radius: 6px;
+  background: #11161d;
+  padding: 0.45rem 0.6rem;
+}
+
+.av-inline-help summary {
+  cursor: pointer;
+  color: #9ecbff;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.av-inline-help p {
+  margin: 0.4rem 0 0;
+  color: #c4ced8;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.av-inline-help code {
+  color: #ffd28f;
+  background: #1b232d;
+  border: 1px solid #2a3643;
+  border-radius: 4px;
+  padding: 0.02rem 0.3rem;
+  font-size: 0.74rem;
+}
+
+.av-inline-help-note {
+  color: #9fb0c2;
+}
+
 .av-badge-sm {
   font-size: 0.7rem;
   padding: 0.1rem 0.35rem;
@@ -1605,6 +1639,26 @@ select.av-input {
 .av-ficha-ia-force {
   align-self: end;
   min-height: 35px;
+}
+.av-ficha-ia-scale-row {
+  align-items: center;
+}
+.av-ficha-ia-presets {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.av-tag-boss {
+  background: #8b1f3a;
+  border: 1px solid #f97393;
+  color: #ffdbe6;
+  font-weight: 700;
+}
+.av-field-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: #8b949e;
 }
 .av-error {
   margin: 0;

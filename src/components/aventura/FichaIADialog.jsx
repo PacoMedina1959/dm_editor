@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { generarFichaIA, urlMapaPublico } from '../../api/mapaIA.js'
 
+function normalizarVisualScale(raw, fallback = 1) {
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return fallback
+  return Math.min(2.5, Math.max(0.6, n))
+}
+
 export default function FichaIADialog({
   open,
   slug,
@@ -15,15 +21,21 @@ export default function FichaIADialog({
   const [resultado, setResultado] = useState(null)
   const [error, setError] = useState(null)
   const [cargando, setCargando] = useState(false)
+  const [visualScale, setVisualScale] = useState(1)
 
   useEffect(() => {
     if (!open) return
+    const scaleInicial = normalizarVisualScale(
+      item?.sprite?.visualScale ?? item?.sprite?.visual_scale ?? item?.sprite?.escala ?? 1,
+      1,
+    )
     setPromptExtra('')
     setForce(false)
     setSeed(0)
     setResultado(null)
     setError(null)
     setCargando(false)
+    setVisualScale(scaleInicial)
   }, [open, item?.id])
 
   if (!open || !item) return null
@@ -53,8 +65,13 @@ export default function FichaIADialog({
   }
 
   const handleAplicar = () => {
-    if (!resultado?.sprite) return
-    onAplicar?.(resultado.sprite)
+    const baseSprite = resultado?.sprite || item?.sprite
+    if (!baseSprite?.imagen) return
+    const scale = normalizarVisualScale(visualScale, 1)
+    onAplicar?.({
+      ...baseSprite,
+      visualScale: scale,
+    })
     onClose?.()
   }
 
@@ -109,6 +126,41 @@ export default function FichaIADialog({
                 <span>Regenerar aunque ya tenga ficha</span>
               </label>
             </div>
+            <label className="av-field">
+              <span className="av-field-label">Escala visual sprite (jefe)</span>
+              <input
+                type="range"
+                min="0.6"
+                max="2.5"
+                step="0.1"
+                value={visualScale}
+                onChange={e => setVisualScale(normalizarVisualScale(e.target.value, 1))}
+              />
+              <div className="av-form-row2 av-ficha-ia-scale-row">
+                <input
+                  type="number"
+                  min="0.6"
+                  max="2.5"
+                  step="0.1"
+                  className="av-input"
+                  value={visualScale}
+                  onChange={e => setVisualScale(normalizarVisualScale(e.target.value, 1))}
+                />
+                <div className="av-ficha-ia-presets">
+                  {[1.0, 1.4, 1.8].map(p => (
+                    <button
+                      key={p}
+                      type="button"
+                      className="btn-secondary av-btn-small"
+                      onClick={() => setVisualScale(p)}
+                    >
+                      {p === 1 ? 'Normal' : (p === 1.8 ? 'Jefe' : 'Grande')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <span className="av-field-help">Rango permitido: 0.6 a 2.5 (1.0 = tamaño estándar).</span>
+            </label>
             {error && <p className="av-error">{error}</p>}
             {resultado?.ruta_relativa && (
               <p className="av-desc av-desc-muted">{resultado.ruta_relativa}</p>
@@ -120,7 +172,12 @@ export default function FichaIADialog({
           <button type="button" className="btn-secondary av-btn-small" onClick={handleGenerar} disabled={!slug || cargando}>
             {cargando ? 'Generando...' : 'Generar ficha IA'}
           </button>
-          <button type="button" className="btn-primary av-btn-small" onClick={handleAplicar} disabled={!resultado?.sprite}>
+          <button
+            type="button"
+            className="btn-primary av-btn-small"
+            onClick={handleAplicar}
+            disabled={!(resultado?.sprite || item?.sprite)}
+          >
             Aplicar ficha
           </button>
         </div>

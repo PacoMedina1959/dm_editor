@@ -91,7 +91,7 @@ localizaciones:
     descripcion: >
       Construcción antigua de piedra gris. Interior austero con bancos
       de madera y un altar sencillo. Cripta subterránea sellada.
-    conexiones: [plaza, cripta_antecamara]
+    conexiones: [plaza, cripta_01]
     notas_dm: "La trampilla tras el altar está sellada con la llave de Gorin."
 
   - id: cuartel
@@ -192,7 +192,7 @@ localizaciones:
     conexiones: [posada]
 
   # --- Cripta ---
-  - id: cripta_antecamara
+  - id: cripta_01
     nombre: "Cripta — Antecámara"
     nombre_en: "Crypt — Antechamber"
     zona: cripta
@@ -210,7 +210,7 @@ localizaciones:
     descripcion: >
       Nave central con nichos laterales donde descansan (o no) los soldados
       espectros. Seis sarcófagos de piedra abiertos. Un altar roto en el centro.
-    conexiones: [cripta_antecamara, cripta_camara]
+    conexiones: [cripta_01, cripta_camara]
 
   - id: cripta_camara
     nombre: "Cripta — Cámara de la Corona"
@@ -933,7 +933,7 @@ escenas:
             evento: entrar_cripta
             descripcion_humana: "El jugador abre la trampilla y desciende a la cripta"
           - tipo: ubicacion_visitada
-            lugar: cripta_antecamara
+            lugar: cripta_01
 
   # ──────────────────────────────────────────────────────────────
   # ESCENA 4: LA CRIPTA
@@ -955,7 +955,7 @@ escenas:
         - "La Corona brilla con una luz hipnótica"
         - "Si el jugador tiene la oración de Eamon, los espectros se paralizan"
 
-    ubicaciones_activas: [cripta_antecamara, cripta_sala, cripta_camara]
+    ubicaciones_activas: [cripta_01, cripta_sala, cripta_camara]
     npcs_activos: []
 
     info_visible:

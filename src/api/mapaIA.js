@@ -54,6 +54,9 @@ import { apiUrl } from './client.js'
  *   enviar el conjunto por este mismo campo.
  *   El backend higieniza y recorta el bloque efectivo. Vacío o undefined
  *   => no se envía y el hash de cache coincide con la variante sin extras.
+ * @property {string} [promptOverride]
+ *   Prompt final editado manualmente por el DM. Si se informa, el backend
+ *   lo usa tal cual en lugar del prompt compuesto por el stylist.
  */
 
 async function _json(res) {
@@ -97,6 +100,9 @@ export async function generarMapaIA(slug, locId, params = {}) {
   // "sin extras" y evitamos regeneraciones innecesarias.
   if (params.extrasPrompt && params.extrasPrompt.trim()) {
     body.extras_prompt = params.extrasPrompt
+  }
+  if (params.promptOverride && params.promptOverride.trim()) {
+    body.prompt_override = params.promptOverride
   }
   const res = await fetch(url, {
     method: 'POST',

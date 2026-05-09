@@ -8,6 +8,7 @@ import {
 } from '../../api/mapaIA.js'
 
 const MAX_EXTRAS = 500
+const MAX_PROMPT_OVERRIDE = 6000
 
 const EXPLORACION_INTERIOR_PRESET = [
   'Large tactical interior exploration map, isometric 2.5D dimetric 2:1, open-top cutaway.',
@@ -108,6 +109,8 @@ export default function MapaIADialog({
 
   // Preview del prompt (lectura barata, sin llamar a IA).
   const [promptPreview, setPromptPreview] = useState(null)
+  const [promptOverride, setPromptOverride] = useState('')
+  const [promptEditado, setPromptEditado] = useState(false)
   const [cargandoPrompt, setCargandoPrompt] = useState(false)
   const [errorPrompt, setErrorPrompt] = useState(null)
   const [copiado, setCopiado] = useState(false)
@@ -131,6 +134,8 @@ export default function MapaIADialog({
     setTipoMapa('compacto')
     setTamagno('1024x1024')
     setPromptPreview(null)
+    setPromptOverride('')
+    setPromptEditado(false)
     setErrorPrompt(null)
     setCopiado(false)
     // El default de ``hora`` es el valor del YAML ('' => "auto").
@@ -181,6 +186,12 @@ export default function MapaIADialog({
     return () => { cancelado = true }
   }, [open, slug, loc?.id, proyeccion, hora, extrasDebounced, tipoMapa])
 
+  useEffect(() => {
+    if (!promptEditado && promptPreview?.prompt) {
+      setPromptOverride(promptPreview.prompt)
+    }
+  }, [promptEditado, promptPreview?.prompt])
+
   // Cancelar polling al cerrar
   useEffect(() => {
     return () => { canceladoRef.current = true }
@@ -203,6 +214,7 @@ export default function MapaIADialog({
 
     const [ancho, alto] = (tamagno || '1024').split('x').map(n => parseInt(n, 10))
     const extrasFinal = componerExtrasPrompt(tipoMapa, extrasPrompt)
+    const promptFinal = promptEditado ? promptOverride.trim() : ''
     const params = {
       proyeccion,
       seed: Number.isFinite(seed) ? seed : 0,
@@ -211,6 +223,7 @@ export default function MapaIADialog({
       force,
       hora,
       extrasPrompt: extrasFinal,
+      promptOverride: promptFinal,
     }
 
     try {
@@ -325,7 +338,7 @@ export default function MapaIADialog({
   }
 
   const handleCopiarPrompt = async () => {
-    const texto = promptPreview?.prompt
+    const texto = promptOverride || promptPreview?.prompt
     if (!texto) return
     try {
       if (navigator.clipboard?.writeText) {
@@ -346,6 +359,11 @@ export default function MapaIADialog({
     } catch {
       setCopiado(false)
     }
+  }
+
+  const handleRestaurarPrompt = () => {
+    setPromptOverride(promptPreview?.prompt || '')
+    setPromptEditado(false)
   }
 
   return (
@@ -642,20 +660,45 @@ export default function MapaIADialog({
                         color: '#94a3b8',
                       }}
                     >
-                      ({promptPreview.modelo} · stylist {promptPreview.version_stylist} · {promptPreview.caracteres} chars)
+                      ({promptPreview.modelo} · stylist {promptPreview.version_stylist} · {promptOverride.length || promptPreview.caracteres} chars)
+                    </span>
+                  )}
+                  {promptEditado && (
+                    <span
+                      style={{
+                        marginLeft: 8,
+                        fontWeight: 600,
+                        fontSize: 11,
+                        color: '#facc15',
+                      }}
+                    >
+                      editado manualmente
                     </span>
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ fontSize: 12, padding: '2px 10px' }}
-                  onClick={handleCopiarPrompt}
-                  disabled={!promptPreview?.prompt}
-                  title="Copiar al portapapeles para probarlo en ChatGPT u otro proveedor sin gastar créditos"
-                >
-                  {copiado ? 'Copiado ✓' : 'Copiar prompt'}
-                </button>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  {promptEditado && (
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      style={{ fontSize: 12, padding: '2px 10px' }}
+                      onClick={handleRestaurarPrompt}
+                      disabled={!promptPreview?.prompt || enMarcha}
+                    >
+                      Restaurar compuesto
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{ fontSize: 12, padding: '2px 10px' }}
+                    onClick={handleCopiarPrompt}
+                    disabled={!promptOverride && !promptPreview?.prompt}
+                    title="Copiar al portapapeles para probarlo en ChatGPT u otro proveedor sin gastar créditos"
+                  >
+                    {copiado ? 'Copiado ✓' : 'Copiar prompt'}
+                  </button>
+                </div>
               </div>
 
               {cargandoPrompt && (
@@ -670,10 +713,10 @@ export default function MapaIADialog({
               )}
               {promptPreview?.prompt && !cargandoPrompt && (
                 <textarea
-                  readOnly
-                  value={promptPreview.prompt}
+                  value={promptOverride}
                   rows={8}
                   className="av-input"
+                  disabled={enMarcha}
                   style={{
                     width: '100%',
                     fontFamily:
@@ -683,9 +726,21 @@ export default function MapaIADialog({
                     background: '#0f172a',
                     color: '#e2e8f0',
                     resize: 'vertical',
+                    borderColor: promptEditado ? '#facc15' : undefined,
                   }}
-                  onFocus={e => e.target.select()}
+                  onChange={e => {
+                    setPromptOverride(e.target.value.slice(0, MAX_PROMPT_OVERRIDE))
+                    setPromptEditado(true)
+                  }}
+                  onFocus={e => {
+                    if (!promptEditado) e.target.select()
+                  }}
                 />
+              )}
+              {promptPreview?.prompt && !cargandoPrompt && (
+                <div style={{ marginTop: 4, fontSize: 11, color: '#94a3b8' }}>
+                  Puedes editar este prompt final. Si lo modificas, se enviará tal cual al proveedor.
+                </div>
               )}
             </div>
           </div>

@@ -3,6 +3,14 @@ import FilterInput from './FilterInput.jsx'
 import FichaIADialog from './FichaIADialog.jsx'
 import { urlMapaPublico } from '../../api/mapaIA.js'
 
+function leerVisualScale(sprite) {
+  const raw = Number(sprite?.visualScale ?? sprite?.visual_scale ?? sprite?.escala ?? 1)
+  if (!Number.isFinite(raw)) return null
+  const scale = Math.min(2.5, Math.max(0.6, raw))
+  if (Math.abs(scale - 1) < 0.001) return null
+  return scale
+}
+
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', ubicacion: '', actitud_inicial: 'neutral',
   genero: '', descripcion: '', motivacion: '', frase: '', secretos: [], vende: [],
@@ -102,6 +110,7 @@ function ActitudBadge({ actitud }) {
 function NpcRow({ npc, editable, serverSlug, onEdit, onDuplicate, onFichaIA, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [expanded, setExpanded] = useState(false)
   const fichaUrl = serverSlug && npc.sprite?.imagen ? urlMapaPublico(serverSlug, npc.sprite.imagen) : ''
+  const scale = leerVisualScale(npc.sprite)
   return (
     <div className="av-crud-row">
       <div className="av-crud-row-main" onClick={() => setExpanded(!expanded)}>
@@ -110,6 +119,9 @@ function NpcRow({ npc, editable, serverSlug, onEdit, onDuplicate, onFichaIA, onM
         <span className="av-crud-row-name">{npc.nombre}</span>
         <span className="av-tag">{npc.ubicacion || '—'}</span>
         <ActitudBadge actitud={npc.actitud_inicial} />
+        {scale != null && (
+          <span className={`av-tag ${scale >= 1.6 ? 'av-tag-boss' : ''}`}>x{scale.toFixed(1)}</span>
+        )}
       </div>
       {expanded && (
         <div className="av-detail">

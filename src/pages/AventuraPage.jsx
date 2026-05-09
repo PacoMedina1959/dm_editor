@@ -23,7 +23,7 @@ import SeccionFinales from '../components/aventura/SeccionFinales.jsx'
 import SeccionEscenas from '../components/aventura/SeccionEscenas.jsx'
 import SeccionEventos from '../components/aventura/SeccionEventos.jsx'
 import MapaEscenas from '../components/aventura/MapaEscenas.jsx'
-import CatalogoPiezasTacticasDialog from '../components/aventura/CatalogoPiezasTacticasDialog.jsx'
+
 
 const SAMPLE_URL = `${import.meta.env.BASE_URL}samples/aventura-ejemplo.yaml`
 
@@ -88,7 +88,7 @@ export default function AventuraPage() {
   const [iaOpen, setIaOpen] = useState(false)
   const [iaSeccion, setIaSeccion] = useState('')
   const [importOpen, setImportOpen] = useState(false)
-  const [catalogoPiezasOpen, setCatalogoPiezasOpen] = useState(false)
+
   const autosaveTimer = useRef(null)
   const quickSaveRef = useRef(null)
 
@@ -306,9 +306,7 @@ export default function AventuraPage() {
             <button type="button" className="btn-secondary" onClick={ejecutarValidacion}>
               Validar
             </button>
-            <button type="button" className="btn-secondary" onClick={() => setCatalogoPiezasOpen(true)}>
-              Piezas tácticas
-            </button>
+
             <button type="button" className="btn-primary" onClick={exportarYaml}>
               Exportar YAML{dirty ? ' *' : ''}
             </button>
@@ -349,15 +347,7 @@ export default function AventuraPage() {
         </div>
       )}
 
-      {data && (
-        <CatalogoPiezasTacticasDialog
-          open={catalogoPiezasOpen}
-          slug={serverSlug}
-          assetsTacticos={data.assets_tacticos || []}
-          onClose={() => setCatalogoPiezasOpen(false)}
-          onAplicar={(v) => updateSection('assets_tacticos', v)}
-        />
-      )}
+
 
       {loadError && (
         <div className="alert alert-error" role="alert">
@@ -366,7 +356,7 @@ export default function AventuraPage() {
         </div>
       )}
 
-      {validacion && (validacion.errores.length > 0 || validacion.avisos.length > 0) && (
+      {validacion && (
         <div className="av-validacion">
           {validacion.errores.length > 0 && (
             <div className="av-validacion-bloque av-validacion-errores">
@@ -381,7 +371,7 @@ export default function AventuraPage() {
             </div>
           )}
           {validacion.errores.length === 0 && (
-            <p className="av-validacion-ok">✓ Sin errores. La aventura se puede exportar.</p>
+            <p className="av-validacion-ok">✓ Sin errores. La aventura se puede exportar y guardar.</p>
           )}
         </div>
       )}
