@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | **ID** | F15 |
-| **Estado** | `en ejecución — Entrega A cerrada; B-D pendientes` |
+| **Estado** | `en ejecución — Entregas A-B cerradas; C-D pendientes` |
 | **Prioridad** | alta (antes de UI visual `objeto_canonico` en mapa) |
 | **Commit base** | `9b74f2c` |
 | **Commit cierre** | `<rellenar al cerrar>` |
@@ -133,11 +133,11 @@ echo "Samples actualizados desde $MOTOR"
 
 **Criterios de aceptación B**
 
-- [ ] YAML con error conocido del motor (p. ej. `objeto_canonico` con `item_id` inválido) → guardar/exportar **bloqueados**, issues visibles.
-- [ ] YAML del ejemplo sincronizado (tras A) → guardar en `ejemplo` **permite** si motor OK.
-- [ ] Backend apagado → guardar/export **bloqueados** aunque validación local OK; mensaje útil.
-- [ ] Sin `serverSlug`, `item_id` solo en catálogo local → validación canónica falla (global); con slug y catálogo local cargado → pasa si el id existe en la vista combinada.
-- [ ] `npm run build` OK.
+- [x] YAML con error conocido del motor (p. ej. `objeto_canonico` con `item_id` inválido) → guardar/exportar **bloqueados**, issues visibles.
+- [x] YAML del ejemplo sincronizado (tras A) → guardar en `ejemplo` **permite** si motor OK.
+- [x] Backend apagado → guardar/export **bloqueados** aunque validación local OK; mensaje útil.
+- [x] Sin `serverSlug`, `item_id` solo en catálogo local → validación canónica falla (global); con slug y catálogo local cargado → pasa si el id existe en la vista combinada.
+- [x] `npm run build` OK.
 
 ---
 

@@ -8,10 +8,13 @@ import {
   validarAventura,
 } from '../domain/aventura.js'
 import useUndoRedo from '../hooks/useUndoRedo.js'
-import { guardarAventura } from '../api/aventuras.js'
+import { cargarCatalogoObjetos, guardarAventura } from '../api/aventuras.js'
+import { postValidarCampana } from '../api/validarCampana.js'
 import DialogoServidor from '../components/aventura/DialogoServidor.jsx'
 import AsistenteIA from '../components/aventura/AsistenteIA.jsx'
 import ImportarAventura from '../components/aventura/ImportarAventura.jsx'
+import IssueList from '../components/IssueList.jsx'
+import ResumenValidacion from '../components/ResumenValidacion.jsx'
 import SeccionMeta from '../components/aventura/SeccionMeta.jsx'
 import SeccionMundo from '../components/aventura/SeccionMundo.jsx'
 import SeccionLocalizaciones from '../components/aventura/SeccionLocalizaciones.jsx'
@@ -59,7 +62,7 @@ function loadFromLocalStorage() {
 }
 
 function clearLocalStorage() {
-  try { localStorage.removeItem(LS_KEY) } catch {}
+  try { localStorage.removeItem(LS_KEY) } catch { /* localStorage puede no estar disponible */ }
 }
 
 function formatAge(ts) {
@@ -80,6 +83,8 @@ export default function AventuraPage() {
   const [sourceLabel, setSourceLabel] = useState('')
   const [dirty, setDirty] = useState(false)
   const [validacion, setValidacion] = useState(null)
+  const [validacionCanonica, setValidacionCanonica] = useState(null)
+  const [validandoCanon, setValidandoCanon] = useState(false)
   const [visibles, setVisibles] = useState(new Set(SECCIONES.map(s => s.key)))
   const [recoveryOffer, setRecoveryOffer] = useState(() => loadFromLocalStorage())
   const [serverOpen, setServerOpen] = useState(false)
@@ -122,6 +127,8 @@ export default function AventuraPage() {
     resetState(result.data)
     setSourceLabel(label)
     setDirty(false)
+    setValidacion(null)
+    setValidacionCanonica(null)
     setRecoveryOffer(null)
   }
 
@@ -153,6 +160,8 @@ export default function AventuraPage() {
     setSourceLabel('Nueva aventura')
     setLoadError(null)
     setDirty(false)
+    setValidacion(null)
+    setValidacionCanonica(null)
   }
 
   const onPickFile = async (e) => {
@@ -173,15 +182,49 @@ export default function AventuraPage() {
     return result
   }
 
-  const exportarYaml = () => {
-    if (!data) return
+  const catalogoLocalText = async (slug) => {
+    if (!slug) return ''
+    const dataCatalogo = await cargarCatalogoObjetos(slug)
+    return JSON.stringify(dataCatalogo?.catalogo || {}, null, 2)
+  }
+
+  const validarCanonicaAntesDePersistir = async (yamlText, slug = '') => {
+    const catalogoText = await catalogoLocalText(slug)
+    const resultado = await postValidarCampana(yamlText, catalogoText)
+    setValidacionCanonica(resultado)
+    return resultado
+  }
+
+  const exportarYaml = async () => {
+    if (!data || validandoCanon) return
     const result = ejecutarValidacion()
-    if (result?.errores?.length) return
-    const nombre = (data.aventura?.nombre || 'aventura')
-      .toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
-    descargarArchivo(aventuraToYaml(data), `${nombre}.yaml`)
-    setDirty(false)
-    clearLocalStorage()
+    const yamlText = aventuraToYaml(data)
+
+    setServerMsg(null)
+    setValidandoCanon(true)
+    try {
+      const resultado = await validarCanonicaAntesDePersistir(yamlText, serverSlug)
+      if (!resultado.ok || (resultado.error_count || 0) > 0) {
+        setServerMsg({ ok: false, text: 'Exportación bloqueada: el motor ha encontrado errores.' })
+        return
+      }
+      if (result?.errores?.length) {
+        setServerMsg({ ok: false, text: 'Exportación bloqueada: la validación rápida local tiene errores.' })
+        return
+      }
+      const nombre = (data.aventura?.nombre || 'aventura')
+        .toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+      descargarArchivo(yamlText, `${nombre}.yaml`)
+      setDirty(false)
+      clearLocalStorage()
+    } catch (e) {
+      setServerMsg({
+        ok: false,
+        text: `Exportación bloqueada: validación canónica no disponible. ${e instanceof Error ? e.message : String(e)}`,
+      })
+    } finally {
+      setValidandoCanon(false)
+    }
   }
 
   const handleServerLoad = (yamlText, label, slug) => {
@@ -203,9 +246,8 @@ export default function AventuraPage() {
     name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_-]/g, '').slice(0, 64) || 'aventura'
 
   const handleServerSave = async () => {
-    if (!data) return
+    if (!data || validandoCanon) return
     const result = ejecutarValidacion()
-    if (result?.errores?.length) return
 
     let slug = serverSlug
     if (!slug) {
@@ -215,16 +257,32 @@ export default function AventuraPage() {
       slug = toSlug(input)
     }
 
+    const yamlText = aventuraToYaml(data)
     setServerMsg(null)
+    setValidandoCanon(true)
     try {
-      await guardarAventura(slug, aventuraToYaml(data))
+      const resultado = await validarCanonicaAntesDePersistir(yamlText, slug)
+      if (!resultado.ok || (resultado.error_count || 0) > 0) {
+        setServerMsg({ ok: false, text: 'Guardado bloqueado: el motor ha encontrado errores.' })
+        return
+      }
+      if (result?.errores?.length) {
+        setServerMsg({ ok: false, text: 'Guardado bloqueado: la validación rápida local tiene errores.' })
+        return
+      }
+      await guardarAventura(slug, yamlText)
       setServerSlug(slug)
       setDirty(false)
       clearLocalStorage()
       setServerMsg({ ok: true, text: `Guardado en servidor como «${slug}»` })
       setTimeout(() => setServerMsg(null), 4000)
     } catch (e) {
-      setServerMsg({ ok: false, text: e.message })
+      setServerMsg({
+        ok: false,
+        text: `Guardado bloqueado o no completado. ${e instanceof Error ? e.message : String(e)}`,
+      })
+    } finally {
+      setValidandoCanon(false)
     }
   }
 
@@ -241,6 +299,7 @@ export default function AventuraPage() {
       return { ...prev, [key]: value }
     })
     setDirty(true)
+    setValidacionCanonica(null)
   }, [pushState])
 
   const toggleSeccion = (key) => {
@@ -304,14 +363,14 @@ export default function AventuraPage() {
               <button type="button" className="av-btn-undo" onClick={redo} disabled={!canRedo} title="Rehacer (Ctrl+Shift+Z)">↪</button>
             </span>
             <button type="button" className="btn-secondary" onClick={ejecutarValidacion}>
-              Validar
+              Validar rápido
             </button>
 
-            <button type="button" className="btn-primary" onClick={exportarYaml}>
-              Exportar YAML{dirty ? ' *' : ''}
+            <button type="button" className="btn-primary" onClick={exportarYaml} disabled={validandoCanon}>
+              {validandoCanon ? 'Validando...' : `Exportar YAML${dirty ? ' *' : ''}`}
             </button>
-            <button type="button" className="btn-primary" onClick={handleServerSave}>
-              Guardar en servidor{dirty ? ' *' : ''}
+            <button type="button" className="btn-primary" onClick={handleServerSave} disabled={validandoCanon}>
+              {validandoCanon ? 'Validando...' : `Guardar en servidor${dirty ? ' *' : ''}`}
             </button>
             <button type="button" className="av-btn-ia" onClick={() => openIA('')} title="Generar contenido con IA">
               IA
@@ -358,6 +417,9 @@ export default function AventuraPage() {
 
       {validacion && (
         <div className="av-validacion">
+          <p className="av-validacion-hint">
+            Validación rápida local. Guardar y exportar siempre ejecutan además la validación canónica del motor.
+          </p>
           {validacion.errores.length > 0 && (
             <div className="av-validacion-bloque av-validacion-errores">
               <strong>Errores ({validacion.errores.length})</strong>
@@ -373,6 +435,13 @@ export default function AventuraPage() {
           {validacion.errores.length === 0 && (
             <p className="av-validacion-ok">✓ Sin errores. La aventura se puede exportar y guardar.</p>
           )}
+        </div>
+      )}
+
+      {validacionCanonica && (
+        <div className="av-validacion-canonica">
+          <ResumenValidacion resultado={validacionCanonica} />
+          <IssueList issues={Array.isArray(validacionCanonica.issues) ? validacionCanonica.issues : []} />
         </div>
       )}
 

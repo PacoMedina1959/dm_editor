@@ -35,9 +35,9 @@
 | **yaml** (load file) | Opens an **`aventura.yaml`** from disk (browser only; not on the server until you save). |
 | **New** | Creates an **empty adventure** from the template (`plantillaAventura`). |
 | **Import AI** | Modal with **Text**, **URL**, and **PDF** tabs: backend extracts text and the LLM returns YAML over **several steps**; you can **edit the result** before replacing the current project. |
-| **Validate** | Runs the editor’s **built-in validation**. **Errors** usually block **export**; **warnings** inform but may not block. |
-| **Export YAML** | Downloads the current document (a `*` marker when there are unsaved changes). |
-| **Save to server** | After validation, asks for a **slug** and writes `backend/data/campañas/<slug>/aventura.yaml` via `PUT /api/editor/aventuras/{slug}`. |
+| **Quick validate** | Runs the editor’s **built-in validation**. It is a pre-check, but it does not replace the engine’s canonical validation. |
+| **Export YAML** | First validates against `POST /api/editor/validar-campana`; if the engine returns errors or does not respond, the download is blocked. |
+| **Save to server** | After engine validation, asks for a **slug** and writes `backend/data/campañas/<slug>/aventura.yaml` via `PUT /api/editor/aventuras/{slug}`. |
 | **AI** (purple button) | Opens the **assistant**: pick **target section** and **instructions**; the model returns a YAML snippet to **merge** (e.g. append list items). Section headers often have a **“✨ AI”** shortcut. |
 
 ---

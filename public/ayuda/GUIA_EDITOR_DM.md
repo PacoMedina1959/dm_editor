@@ -35,9 +35,9 @@
 | **yaml** (cargar fichero) | Abre un **`aventura.yaml`** desde tu disco (solo en el navegador; no sube al servidor hasta que guardes). |
 | **Nuevo** | Crea una **aventura vacía** desde plantilla (`plantillaAventura`). |
 | **Importar IA** | Modal con pestañas **Texto**, **URL** y **PDF**: el backend extrae texto y el LLM devuelve YAML en **varias pasadas**; puedes **editar el resultado** antes de sustituir el proyecto actual. |
-| **Validar** | Ejecuta la **validación integrada** del editor. Los **errores** suelen bloquear **exportar**; los **avisos** informan pero no siempre bloquean. |
-| **Exportar YAML** | Descarga el documento actual como fichero (marcador `*` si hay cambios sin exportar). |
-| **Guardar en servidor** | Tras validar, pide **slug** y escribe `backend/data/campañas/<slug>/aventura.yaml` vía `PUT /api/editor/aventuras/{slug}`. |
+| **Validar rápido** | Ejecuta la **validación integrada** del editor. Sirve como pre-check, pero no sustituye la validación canónica del motor. |
+| **Exportar YAML** | Valida primero contra `POST /api/editor/validar-campana`; si el motor devuelve errores o no responde, bloquea la descarga. |
+| **Guardar en servidor** | Tras validar contra el motor, pide **slug** y escribe `backend/data/campañas/<slug>/aventura.yaml` vía `PUT /api/editor/aventuras/{slug}`. |
 | **IA** (botón morado) | Abre el **asistente**: eliges **sección destino** e **instrucciones**; el modelo devuelve fragmento YAML coherente para **fusionar** (p. ej. añadir entradas a listas). En cabeceras de sección suele haber un atajo **«✨ IA»**. |
 
 ---
