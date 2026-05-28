@@ -6,6 +6,14 @@ Aplicación de **autoría** para campañas compatibles con [**DM Virtual**](http
 
 En la pantalla **Validar YAML**, el botón **«Cargar ejemplo canónico»** rellena el texto con una copia de `dm_virtual/backend/data/campañas/ejemplo/aventura.yaml` (fichero en `public/samples/`). Si el ejemplo del motor cambia mucho, conviene volver a copiar ese YAML al editor.
 
+Para resincronizar los samples empaquetados con el motor:
+
+```bash
+tools/sync_samples_from_dm_virtual.sh
+```
+
+Por defecto busca el motor en `../dm_virtual`. Si está en otra ruta, usa `DM_VIRTUAL_ROOT=/ruta/a/dm_virtual tools/sync_samples_from_dm_virtual.sh`.
+
 ## Ayuda del editor
 
 Ruta **`/ayuda`**: misma idea que en el frontend del motor — Markdown renderizado, índice lateral (TOC), selector **ES/EN** (preferencia en `localStorage` bajo `dm_editor_ui_lang`). El contenido se carga desde `public/ayuda/GUIA_EDITOR_DM.md` y `GUIA_EDITOR_DM_EN.md` (copia de `dm_virtual/frontend/public/ayuda/`; resincroniza si cambias la guía allí).

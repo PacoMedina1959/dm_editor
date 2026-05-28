@@ -3,7 +3,7 @@
 | Campo | Valor |
 | --- | --- |
 | **ID** | F15 |
-| **Estado** | `validada` |
+| **Estado** | `en ejecución — Entrega A cerrada; B-D pendientes` |
 | **Prioridad** | alta (antes de UI visual `objeto_canonico` en mapa) |
 | **Commit base** | `9b74f2c` |
 | **Commit cierre** | `<rellenar al cerrar>` |
@@ -93,11 +93,11 @@ echo "Samples actualizados desde $MOTOR"
 
 **Criterios de aceptación A**
 
-- [ ] `diff` entre sample YAML y canon motor vacío (o documentado si se excluye algo a propósito).
-- [ ] `diff` entre sample catálogo y `catalogo_objetos.json` vacío.
-- [ ] `/validar` → “Cargar ejemplo canónico” valida sin errores inesperados de F4.h/F13/F14 (con backend en marcha).
-- [ ] `tools/sync_samples_from_dm_virtual.sh` existe, es **ejecutable** (`chmod +x`), y README (o §5) documenta su uso y la variable opcional `DM_VIRTUAL_ROOT`.
-- [ ] Tras ejecutar el script, los `diff` anteriores siguen vacíos.
+- [x] `diff` entre sample YAML y canon motor vacío (o documentado si se excluye algo a propósito).
+- [x] `diff` entre sample catálogo y `catalogo_objetos.json` vacío.
+- [x] `/validar` → “Cargar ejemplo canónico” valida sin errores inesperados de F4.h/F13/F14 (con backend en marcha).
+- [x] `tools/sync_samples_from_dm_virtual.sh` existe, es **ejecutable** (`chmod +x`), y README (o §5) documenta su uso y la variable opcional `DM_VIRTUAL_ROOT`.
+- [x] Tras ejecutar el script, los `diff` anteriores siguen vacíos.
 
 ---
 

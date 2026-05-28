@@ -7,9 +7,34 @@
     "subtipo": "curacion",
     "efectos": {},
     "stats": { "curacion": 5 },
-    "precio": 100,
+    "precio": 12,
     "usable_en_combate": true,
     "descripcion": "Restaura salud"
+  },
+  "servicio_curacion_menor": {
+    "id": "servicio_curacion_menor",
+    "nombre": "Servicio de Curación menor",
+    "nombre_en": "Minor healing service",
+    "categoria": "servicio",
+    "subtipo": "curacion",
+    "efectos": {},
+    "stats": { "curacion": 5 },
+    "precio": 10,
+    "usable_en_combate": false,
+    "consumible": false,
+    "descripcion": "Padre Eamon aplica una curación menor inmediata."
+  },
+  "vendajes": {
+    "id": "vendajes",
+    "nombre": "Vendajes",
+    "nombre_en": "Bandages",
+    "categoria": "consumible",
+    "subtipo": "curacion",
+    "efectos": {},
+    "stats": { "curacion": 3 },
+    "precio": 4,
+    "usable_en_combate": true,
+    "descripcion": "Tiras limpias para cerrar heridas leves y recuperar algo de salud"
   },
   "espada_corta": {
     "id": "espada_corta",
@@ -18,7 +43,11 @@
     "categoria": "arma",
     "subtipo": "espada",
     "efectos": {},
-    "stats": { "danio": 15 },
+    "sfx": {
+      "src": "assets/sonidos/espada_maza.mp3",
+      "volumen": 0.75
+    },
+    "stats": { "danio": 15, "danio_formula": "1d8+2" },
     "precio": 50,
     "usable_en_combate": false,
     "descripcion": "Hoja sencilla"
@@ -54,10 +83,46 @@
     "categoria": "arma",
     "subtipo": "contundente",
     "efectos": {},
-    "stats": { "danio": 2 },
+    "sfx": {
+      "src": "assets/sonidos/espada_maza.mp3",
+      "volumen": 0.75
+    },
+    "stats": { "danio": 2, "danio_formula": "1d6+1" },
     "precio": 12,
     "usable_en_combate": false,
     "descripcion": "Palo contundente sencillo"
+  },
+  "daga": {
+    "id": "daga",
+    "nombre": "Daga",
+    "nombre_en": "Dagger",
+    "categoria": "arma",
+    "subtipo": "corta",
+    "efectos": {},
+    "sfx": {
+      "src": "assets/sonidos/espada_maza.mp3",
+      "volumen": 0.72
+    },
+    "stats": { "danio": 2, "danio_formula": "1d4+2" },
+    "precio": 14,
+    "usable_en_combate": false,
+    "descripcion": "Hoja corta y rápida para ataques precisos."
+  },
+  "cuchillo_caza": {
+    "id": "cuchillo_caza",
+    "nombre": "Cuchillo de caza",
+    "nombre_en": "Hunting knife",
+    "categoria": "arma",
+    "subtipo": "cuchillo",
+    "efectos": {},
+    "sfx": {
+      "src": "assets/sonidos/espada_maza.mp3",
+      "volumen": 0.72
+    },
+    "stats": { "danio": 2, "danio_formula": "1d4+2", "alcance": 1 },
+    "precio": 16,
+    "usable_en_combate": false,
+    "descripcion": "Hoja robusta para monte y supervivencia."
   },
   "cerveza": {
     "id": "cerveza",
@@ -105,6 +170,42 @@
     "usable_en_combate": false,
     "descripcion": "Plato caliente; alimenta y reconforta"
   },
+  "guiso_pescado": {
+    "id": "guiso_pescado",
+    "nombre": "Guiso de pescado",
+    "nombre_en": "Fish stew",
+    "categoria": "consumible",
+    "subtipo": "comida",
+    "efectos": {},
+    "stats": { "curacion": 4 },
+    "precio": 3,
+    "usable_en_combate": false,
+    "descripcion": "Plato caliente de pescado; alimenta y reconforta"
+  },
+  "pan_negro": {
+    "id": "pan_negro",
+    "nombre": "Pan negro",
+    "nombre_en": "Black bread",
+    "categoria": "consumible",
+    "subtipo": "comida",
+    "efectos": {},
+    "stats": { "curacion": 2 },
+    "precio": 1,
+    "usable_en_combate": false,
+    "descripcion": "Pan rústico de centeno"
+  },
+  "ron": {
+    "id": "ron",
+    "nombre": "Ron",
+    "nombre_en": "Rum",
+    "categoria": "consumible",
+    "subtipo": "bebida",
+    "efectos": {},
+    "stats": {},
+    "precio": 2,
+    "usable_en_combate": false,
+    "descripcion": "Bebida fuerte de caña"
+  },
   "racion_viaje": {
     "id": "racion_viaje",
     "nombre": "Ración de viaje",
@@ -150,6 +251,84 @@
     "usable_en_combate": false,
     "descripcion": "Ilumina; se gasta con el tiempo"
   },
+  "llave_magica_cripta": {
+    "id": "llave_magica_cripta",
+    "nombre": "Llave mágica de la cripta",
+    "nombre_en": "Magic crypt key",
+    "categoria": "objeto_clave",
+    "subtipo": "llave",
+    "efectos": {},
+    "stats": { "uso": "abre_cripta" },
+    "precio": 0,
+    "usable_en_combate": false,
+    "consumible": false,
+    "canonico": true,
+    "vendible": false,
+    "descripcion": "Una antigua llave de hierro oscuro, fría al tacto, grabada con runas que brillan débilmente al acercarse a la cripta."
+  },
+  "corona_perdida": {
+    "id": "corona_perdida",
+    "nombre": "La Corona Perdida",
+    "nombre_en": "The Lost Crown",
+    "categoria": "artefacto",
+    "subtipo": "objeto_magico",
+    "efectos": {},
+    "stats": {
+      "corrupcion_inicial": 0,
+      "corrupcion_por_uso": 1,
+      "duracion_invocacion_turnos": 3
+    },
+    "poderes": [
+      {
+        "id": "convocar_juramentados",
+        "nombre": "Convocar a los Juramentados",
+        "nombre_en": "Summon the Oathbound",
+        "efecto": "Invoca 3 Espectros Juramentados aliados temporales durante 3 turnos o hasta el final del combate.",
+        "cantidad": 3,
+        "ref_bestiario": "espectro_juramentado",
+        "faccion": "aliado_temporal",
+        "duracion_turnos": 3,
+        "limite": "1 vez por escena o combate",
+        "coste": { "corrupcion_corona": 1 }
+      }
+    ],
+    "corrupcion": {
+      "variable": "corrupcion_corona",
+      "inicial": 0,
+      "escala": [
+        { "nivel": 0, "descripcion": "Sin efecto visible." },
+        { "nivel": 1, "descripcion": "Susurros leves." },
+        { "nivel": 2, "descripcion": "Sueños extraños y sensación de ser observado." },
+        { "nivel": 3, "descripcion": "La Corona empieza a tentar al portador." },
+        { "nivel": 4, "descripcion": "Los espectros tratan al portador como señor oscuro." },
+        { "nivel": 5, "descripcion": "Riesgo de final oscuro, posesión o pérdida de control." }
+      ]
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "consumible": false,
+    "canonico": true,
+    "vendible": false,
+    "descartable": false,
+    "destruible": "solo_condiciones_narrativas",
+    "descripcion": "Artefacto real maldito. La gema oscura late como un corazón bajo tierra; puede convocar a tres Espectros Juramentados, pero cada uso aumenta la corrupción de la Corona."
+  },
+  "jabalina": {
+    "id": "jabalina",
+    "nombre": "Jabalina",
+    "nombre_en": "Javelin",
+    "categoria": "arma",
+    "subtipo": "lanza",
+    "efectos": {},
+    "sfx": {
+      "src": "assets/sonidos/jabalina.mp3",
+      "volumen": 0.72
+    },
+    "stats": { "danio": 3, "danio_formula": "1d6+2", "alcance": 5 },
+    "precio": 22,
+    "usable_en_combate": false,
+    "descripcion": "Lanza ligera de asta corta, útil para abrir combate a distancia."
+  },
   "cuerda": {
     "id": "cuerda",
     "nombre": "Cuerda (10 m)",
@@ -185,8 +364,12 @@
     "categoria": "hechizo",
     "subtipo": "fuego",
     "efectos": {},
+    "sfx": {
+      "src": "assets/sonidos/trueno.mp3",
+      "volumen": 0.75
+    },
     "stats": {
-      "danio": 6,
+      "danio": 8,
       "area": 1,
       "alcance": 5,
       "coste": 2,
@@ -203,6 +386,10 @@
     "categoria": "hechizo",
     "subtipo": "electricidad",
     "efectos": {},
+    "sfx": {
+      "src": "assets/sonidos/rayo.mp3",
+      "volumen": 0.75
+    },
     "stats": {
       "danio": 5,
       "area": 0,
@@ -228,6 +415,45 @@
     "precio": 0,
     "usable_en_combate": true,
     "descripcion": "Barrera arcana que amortigua los golpes recibidos durante unos turnos."
+  },
+  "eco_tonante": {
+    "id": "eco_tonante",
+    "nombre": "Eco tonante",
+    "nombre_en": "Thunder echo",
+    "categoria": "hechizo",
+    "subtipo": "trueno",
+    "efectos": {},
+    "stats": {
+      "danio": 5,
+      "area": 0,
+      "alcance": 6,
+      "coste": 1
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "descripcion": "Descarga sónica breve que golpea a un único objetivo y desorienta."
+  },
+  "circulo_sagrado": {
+    "id": "circulo_sagrado",
+    "nombre": "Círculo sagrado",
+    "nombre_en": "Sacred circle",
+    "categoria": "hechizo",
+    "subtipo": "sagrado",
+    "efectos": {},
+    "sfx": {
+      "src": "assets/sonidos/trueno.mp3",
+      "volumen": 0.75
+    },
+    "stats": {
+      "danio": 4,
+      "area": 1,
+      "alcance": 5,
+      "coste": 2,
+      "objetivo_max": 3
+    },
+    "precio": 0,
+    "usable_en_combate": true,
+    "descripcion": "Una onda de luz protectora castiga a varios enemigos cercanos sin dañar a los aliados."
   },
   "curacion_menor": {
     "id": "curacion_menor",

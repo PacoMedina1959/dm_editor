@@ -1,255 +1,1795 @@
-# ============================================================================
-# LA CORONA PERDIDA — Aventura completa
-# ============================================================================
-# Formato: v1
-# Este archivo define la estructura narrativa de la aventura.
-# Los archivos .md existentes (mundo, npcs, etc.) siguen siendo la fuente
-# de lore detallado. Este YAML organiza QUÉ se revela, CUÁNDO y POR QUÉ.
-# ============================================================================
-
 aventura:
-  nombre: "La Corona Perdida"
+  nombre: La Corona Perdida
   version: 2
-  autor: "Paco"
-  idioma_principal: "es"
-  # Textos EN opcionales: localizaciones (nombre_en), PNJs (nombre_en, descripcion_en, secretos_en).
+  autor: Paco
+  idioma_principal: es
   escena_inicial: 1_llegada
   descripcion: >
-    Un forastero llega a Valdecanto, un pueblo minero donde la tensión crece
-    tras la desaparición del herrero. Bajo la iglesia, una cripta guarda un
-    secreto que puede cambiar el destino del reino... o destruirlo.
-  duracion_estimada: "3-5 sesiones"
-  dificultad: "media"
-
-# ============================================================================
-# MUNDO — Contexto general (siempre visible)
-# ============================================================================
+    Un forastero llega a Valdecanto, un pueblo minero donde la tensión crece tras la desaparición
+    del herrero. Bajo la iglesia, una cripta guarda un secreto que puede cambiar el destino del
+    reino... o destruirlo.
+  duracion_estimada: 3-5 sesiones
+  dificultad: media
+  mapa_mundo:
+    imagen: mapas/mundo/mapa_mundo.png
+    ancho: 1586
+    alto: 992
+    posiciones_localizaciones:
+      plaza:
+        x: 615
+        "y": 511
+      taberna:
+        x: 548
+        "y": 438
+      bodega:
+        x: 548
+        "y": 438
+      herreria:
+        x: 330
+        "y": 480
+      iglesia:
+        x: 665
+        "y": 590
+      cuartel:
+        x: 710
+        "y": 392
+      afueras_sur:
+        x: 585
+        "y": 805
+      casa_hilda:
+        x: 525
+        "y": 568
+      bosque_claro:
+        x: 1195
+        "y": 585
+      hondonada:
+        x: 1110
+        "y": 650
+      guarida_oso:
+        x: 1225
+        "y": 755
+      camino_mercader:
+        x: 1000
+        "y": 466
+      puente_cuervo:
+        x: 1038
+        "y": 735
+      posada:
+        x: 950
+        "y": 595
+      corte_baron:
+        x: 1375
+        "y": 180
+      cripta_01:
+        x: 176
+        "y": 635
+      cripta_02:
+        x: 176
+        "y": 635
+      cripta_sala:
+        x: 176
+        "y": 635
+      cripta_camara:
+        x: 176
+        "y": 635
+      mina_entrada:
+        x: 1055
+        "y": 345
+      mina_veta:
+        x: 1055
+        "y": 345
 mundo:
-  nombre: "Valdecanto"
-  region: "Valle de las Montañas de Hierro"
-  epoca: "medieval fantástica"
+  nombre: Valdecanto
+  region: Valle de las Montañas de Hierro
+  epoca: medieval fantástica
   descripcion: >
-    Pequeño pueblo de piedra enclavado en un valle entre montañas.
-    Unos 200 habitantes. Economía basada en la minería de hierro
-    y la agricultura de subsistencia.
+    Pequeño pueblo de piedra enclavado en un valle entre montañas. Unos 200 habitantes. Economía
+    basada en la minería de hierro y la agricultura de subsistencia.
   ambiente: >
-    El pueblo está tenso. La desaparición del herrero ha generado rumores.
-    Los guardias patrullan más de lo habitual. El barón ha enviado
-    mensajeros exigiendo respuestas.
-
-# ============================================================================
-# LOCALIZACIONES
-# ============================================================================
+    El pueblo está tenso. La desaparición del herrero ha generado rumores. Los guardias patrullan
+    más de lo habitual. El barón ha enviado mensajeros exigiendo respuestas.
 localizaciones:
-  # --- Pueblo ---
   - id: plaza
-    nombre: "Plaza del Mercado"
-    nombre_en: "Market Square"
+    nombre: Plaza del Mercado
+    nombre_en: Market Square
     zona: pueblo
+    navegacion_mundo: true
     descripcion: >
-      Centro del pueblo. Puestos de frutas, pan y herramientas.
-      Una fuente de piedra con un grifo en forma de cabeza de jabalí.
-      Siempre hay gente por la mañana; por la tarde se vacía.
-    conexiones: [taberna, herreria, iglesia, cuartel, afueras_sur]
+      Centro del pueblo. Puestos de frutas, pan y herramientas. Una fuente de piedra con un grifo en
+      forma de cabeza de jabalí. Siempre hay gente por la mañana; por la tarde se vacía.
+    conexiones:
+      - taberna
+      - herreria
+      - iglesia
+      - cuartel
+      - afueras_sur
+    hora_del_dia: atardecer
+    mapa:
+      imagen: mapas/plaza/plaza__2f1403f6.png
+      imagenes_por_franja:
+        tarde: mapas/plaza/plaza__2f1403f6.png
+        noche: mapas/plaza/plaza_anocher.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 2f1403f68ed7bdef
+        prompt: >-
+          A medieval town square. Scene elements: cobblestone paving, surrounding timber-framed and
+          stone buildings, market stalls, central fountain or well, bright daylight. Outdoor scene:
+          open sky visible above, no roof or ceiling enclosing the area. Natural barriers such as
+          trees, rocks, bushes and fences pushed to the perimeter, no written signs or text labels
+          on the terrain. Time of day: late afternoon dusk, warm golden-hour sunlight from a low sun
+          in the west, long shadows stretching eastward, orange and amber sky fading to violet, warm
+          rim light on vertical surfaces. isometric 2.5D video game level, dimetric 2:1 projection,
+          top-down angled view at 30 degrees, strict isometric grid with parallel edges and no
+          perspective vanishing point, large flat playable floor area centered in the frame covering
+          at least 60 percent of the image, props and obstacles pushed against the perimeter, center
+          of the floor intentionally left empty for token placement. high fantasy digital painting,
+          bright natural daylight, crisp shadows on the ground, vibrant color palette with rich
+          greens and warm earth tones, detailed stone and wood textures, clear sky with soft clouds,
+          high detail, painterly style, ArtStation quality. medieval fantástica setting, Valle de
+          las Montañas de Hierro. Scene context (for understanding only; do not render any of these
+          words as text or labels in the image): Centro del pueblo. Puestos de frutas, pan y
+          herramientas. Una fuente de piedra con un grifo en forma de cabeza de jabalí. Siempre hay
+          gente por la mañana; por la tarde se vacía. DM notes: Large outdoor or urban exploration
+          battle map, isometric 2.5D dimetric 2:1. Connected streets, clearings or paths, readable
+          playable ground, natural or urban barriers at edges. Virtual tabletop map, not cinematic.
+          No characters, monsters, labels, letters, UI or floating text. DM details: cobblestone
+          town square, central fountain or well, market stalls and crates at the edges, clear
+          streets and alleys connected to the square,...
+        seed: 268526117
+        modelo: gemini-gemini-2.5-flash-image
+        extras_prompt: >-
+          Large outdoor or urban exploration battle map, isometric 2.5D dimetric 2:1. Connected
+          streets, clearings or paths, readable playable ground, natural or urban barriers at edges.
+          Virtual tabletop map, not cinematic. No characters, monsters, labels, letters, UI or
+          floating text.
 
+
+          DM details: cobblestone town square, central fountain or well, market stalls and crates at
+          the edges, clear streets and alleys connected to the square, wide playable open center,
+          warm evening lantern light
+        ancho: 1184
+        alto: 864
+      tile_w: 61
+      tile_h: 31
+      cols: 32
+      rows: 26
+      origen_px:
+        - 534
+        - 72
+      pisable: |-
+        ................................
+        ................................
+        ................................
+        ................................
+        ................................
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ....########################....
+        ................................
+      spawn_entrada:
+        celda:
+          - 13
+          - 11
+      puntos_interes:
+        - id: ir_taberna
+          tipo: transicion
+          celda:
+            - 6
+            - 8
+          destino: taberna
+          etiqueta_ui: Ir a taberna
+          icono: puerta
+          oculto: false
+        - id: ir_taberna_2
+          tipo: transicion
+          celda:
+            - 15
+            - 24
+          destino: iglesia
+          etiqueta_ui: Ir a iglesia
+          icono: portal
+          oculto: false
+        - id: ir_taberna_3
+          tipo: transicion
+          celda:
+            - 25
+            - 5
+          destino: cuartel
+          etiqueta_ui: Ir a cuartel
+          icono: portal
+          oculto: false
+        - id: ir_taberna_4
+          tipo: transicion
+          celda:
+            - 21
+            - 10
+          destino: afueras_sur
+          etiqueta_ui: Afueras
+          icono: portal
+          oculto: false
+        - id: ir_taberna_5
+          tipo: transicion
+          celda:
+            - 26
+            - 14
+          destino: herreria
+          etiqueta_ui: Ir a taberna
+          icono: portal
+          oculto: false
+    notas_dm: >
+      Anclas de sesión rápida: entrada principal desde el sur (mercado), salida norte al cuartel,
+      salida oeste a la taberna y salida este a la herrería. Focos visuales: fuente central, puestos
+      laterales y guardias de patrulla. Gancho interactivo sugerido: un mercader acusa a otro de
+      vender hierro robado de la herrería.
   - id: taberna
-    nombre: "Taberna El Jabalí Rojo"
-    nombre_en: "The Red Boar Tavern"
+    nombre: Taberna El Jabalí Rojo
+    nombre_en: The Red Boar Tavern
     zona: pueblo
+    navegacion_mundo: false
     descripcion: >
-      Edificio de dos plantas con fachada de madera oscura. Cerveza de
-      fabricación local, estofado de caza y pan de centeno. Es el centro
-      social del pueblo. La dueña es Marta.
-    conexiones: [plaza, bodega]
-    notas_dm: "Punto de inicio habitual. Aquí empieza todo."
-
+      Edificio de dos plantas con fachada de madera oscura. Cerveza de fabricación local, estofado
+      de caza y pan de centeno. Es el centro social del pueblo. La dueña es Marta.
+    conexiones:
+      - plaza
+      - bodega
+    notas_dm: >
+      Punto de inicio habitual. Entradas/salidas narrativas: puerta a plaza y escalera a bodega.
+      Focos visuales: barra, hogar de piedra, mesas centrales y rincón de dados. Gancho interactivo:
+      deuda vieja entre parroquianos escala en bronca si nadie media.
+    mapa:
+      imagen: mapas/taberna/taberna__manual__881a918f.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 881a918f8653cc62
+        origen: manual
+        ancho: 2816
+        alto: 1536
+      tile_w: 56
+      tile_h: 33
+      cols: 12
+      rows: 12
+      origen_px:
+        - 503
+        - 490
+      pisable: |-
+        ############
+        ##..###..###
+        ##..###..###
+        ##..###..###
+        ############
+        ############
+        ############
+        #...###..###
+        #..####..###
+        #...###..###
+        #.#####..###
+        ############
+      spawn_entrada:
+        celda:
+          - 6
+          - 5
+      spawns_npc:
+        - npc_id: marta
+          celda:
+            - 0
+            - 2
+          etiqueta_ui: Marta la Tabernera
+        - npc_id: roque_borracho
+          celda:
+            - 7
+            - 7
+          etiqueta_ui: Roque (borracho)
+        - npc_id: ines_borracha
+          celda:
+            - 3
+            - 8
+          etiqueta_ui: Inés (borracha)
+      puntos_interes:
+        - id: ir_plaza_2
+          tipo: transicion
+          celda:
+            - 11
+            - 5
+          destino: bodega
+          etiqueta_ui: Ir a bodega
+          icono: escalera_baja
+          oculto: false
+        - id: ir_plaza
+          tipo: transicion
+          celda:
+            - 5
+            - 11
+          destino: plaza
+          etiqueta_ui: Ir a plaza
+          icono: salida
+          oculto: false
+      tiled:
+        json: mapas/taberna/taberna__manual__881a918f.tmj
+    ambiente:
+      audio:
+        src: mapas/posada/taverna_01.mp3
+        volumen: 0.35
+        fade_ms: 1500
   - id: bodega
-    nombre: "Bodega de la Taberna"
-    nombre_en: "Tavern Cellar"
+    nombre: Bodega de la Taberna
+    nombre_en: Tavern Cellar
     zona: pueblo
+    navegacion_mundo: false
     descripcion: >
-      Sótano húmedo con barriles de cerveza y cajas de provisiones.
-      Olor a lúpulo y madera mojada. Rincón oscuro al fondo.
-    conexiones: [taberna]
+      Sótano húmedo con barriles de cerveza y cajas de provisiones. Olor a lúpulo y madera mojada.
+      Rincón oscuro al fondo.
+    conexiones:
+      - taberna
     oculta: true
-    notas_dm: "Gorin se esconde aquí. Solo accesible si Marta confía."
-
+    notas_dm: >
+      Gorin se esconde aquí. Solo accesible si Marta confía. Focos visuales: barriles apilados, zona
+      de sombra al fondo y escalera estrecha de retorno. Gancho interactivo: un ruido detrás de
+      cajas hace pensar que alguien espía la conversación.
+    mapa:
+      imagen: mapas/bodega/bodega__manual__0a053d0c.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 0a053d0c57c4f39b
+        origen: manual
+        ancho: 1672
+        alto: 941
+      tile_w: 69
+      tile_h: 35
+      cols: 10
+      rows: 9
+      origen_px:
+        - 486
+        - 388
+      pisable: |-
+        #########.
+        #########.
+        ##########
+        #########.
+        #########.
+        ##########
+        ########..
+        ...#####..
+        ....###...
+      spawn_entrada:
+        celda:
+          - 4
+          - 4
+      puntos_interes:
+        - id: ir_taberna
+          tipo: transicion
+          celda:
+            - 0
+            - 5
+          destino: taberna
+          etiqueta_ui: Ir a taberna
+          icono: escalera_sube
+          oculto: false
+      spawns_npc:
+        - npc_id: gorin
+          celda:
+            - 4
+            - 3
+          etiqueta_ui: Gorin el Herrero
+      tiled:
+        json: mapas/bodega/bodega__manual__0a053d0c.tmj
   - id: herreria
-    nombre: "Herrería (cerrada)"
-    nombre_en: "Smithy (closed)"
+    nombre: Herrería (cerrada)
+    nombre_en: Smithy (closed)
     zona: pueblo
+    navegacion_mundo: false
     descripcion: >
-      Junto al río. Lleva cerrada tres días. La puerta está atrancada
-      desde dentro. La gente murmura que el herrero Gorin desapareció
-      de la noche a la mañana.
-    conexiones: [plaza]
-
+      Junto al río. Lleva cerrada tres días. La puerta está atrancada desde dentro. La gente murmura
+      que el herrero Gorin desapareció de la noche a la mañana.
+    conexiones:
+      - plaza
+    mapa:
+      imagen: mapas/herreria/herreria__7cbf525a.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 7cbf525a7fa6a676
+        prompt: >-
+          A medieval blacksmith workshop called 'Smithy (closed)'. Scene elements: glowing forge and
+          anvil, hanging tools and weapons, water barrel, metal shavings on the floor, wooden
+          workbench. Indoor scene: enclosed by walls and ceiling, no open sky visible. isometric
+          2.5D video game level, dimetric 2:1 projection, top-down angled view at 30 degrees, full
+          scene illustration with empty floor space for token placement. dark fantasy digital
+          painting, in the visual style of Diablo 2 and Baldur's Gate 2, dramatic rim lighting,
+          volumetric fog, detailed stone and wood textures, muted cool color palette with warm
+          accent highlights, high detail, cinematic composition, ArtStation quality. medieval
+          fantástica setting, Valle de las Montañas de Hierro. Scene details: Junto al río. Lleva
+          cerrada tres días. La puerta está atrancada desde dentro. La gente murmura que el herrero
+          Gorin desapareció de la noche a la mañana. DM notes: cutaway open-top view showing
+          interior from above, no ceiling or roof obstructing the floor, low perimeter walls only,
+          large flat playable floor covering at least 60 percent of the frame, furniture and props
+          pushed against the outer walls, center of the floor intentionally empty for token
+          placement, strict isometric grid with parallel edges, no perspective vanishing point
+          Negative: no characters, no people, no humans, no creatures, no animals, no text, no
+          letters, no captions, no watermark, no logo, no UI elements, no HUD, no frame borders, no
+          signatures.
+        seed: 1536365874
+        modelo: gemini-gemini-2.5-flash-image
+        extras_prompt: >-
+          cutaway open-top view showing interior from above, no ceiling or roof obstructing the
+          floor, low perimeter walls only, large flat playable floor covering at least 60 percent of
+          the frame, furniture and props pushed against the outer walls, center of the floor
+          intentionally empty for token placement, strict isometric grid with parallel edges, no
+          perspective vanishing point
+        ancho: 1024
+        alto: 1024
+      tile_w: 62
+      tile_h: 41
+      cols: 9
+      rows: 9
+      origen_px:
+        - 528
+        - 439
+      pisable: |-
+        #######..
+        #######..
+        ########.
+        #########
+        #########
+        #########
+        #########
+        #########
+        ..#######
+      spawn_entrada:
+        celda:
+          - 4
+          - 4
+      puntos_interes:
+        - id: ir_plaza
+          tipo: transicion
+          celda:
+            - 8
+            - 3
+          destino: plaza
+          etiqueta_ui: Ir a plaza
+          icono: puerta
+          oculto: false
   - id: iglesia
-    nombre: "Iglesia de la Luz Eterna"
-    nombre_en: "Church of the Eternal Light"
+    nombre: Iglesia de la Luz Eterna
+    nombre_en: Church of the Eternal Light
     zona: pueblo
+    navegacion_mundo: false
     descripcion: >
-      Construcción antigua de piedra gris. Interior austero con bancos
-      de madera y un altar sencillo. Cripta subterránea sellada.
-    conexiones: [plaza, cripta_01]
-    notas_dm: "La trampilla tras el altar está sellada con la llave de Gorin."
-
+      Construcción antigua de piedra gris. Interior austero con bancos de madera y un altar
+      sencillo. Cripta subterránea sellada.
+    conexiones:
+      - plaza
+      - cripta_01
+    notas_dm: >
+      La trampilla tras el altar está sellada. Solo puede abrirse con la Llave mágica de la cripta
+      (`llave_magica_cripta`) o por decisión explícita del DM; no existe una llave genérica
+      equivalente.
+    mapa:
+      imagen: mapas/iglesia/iglesia__manual__46f8c352.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 46f8c352234231c7
+        origen: manual
+        ancho: 1672
+        alto: 941
+      tile_w: 64
+      tile_h: 35
+      cols: 10
+      rows: 10
+      origen_px:
+        - 587
+        - 371
+      pisable: |
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+      spawn_entrada:
+        celda:
+          - 4
+          - 5
+      puntos_interes:
+        - id: ir_plaza
+          tipo: transicion
+          celda:
+            - 3
+            - 9
+          destino: plaza
+          etiqueta_ui: Ir a plaza
+          icono: salida
+          oculto: false
+      spawns_npc:
+        - npc_id: eamon
+          celda:
+            - 3
+            - 0
+          etiqueta_ui: Padre Eamon
+      objetos_tacticos:
+        - id: escalera_bajando_01_9_4
+          asset_id: escalera_bajando_01
+          celda:
+            - 9
+            - 4
+          rotacion: norte
+          estado: bajar
+          destino: cripta_01
+          tipo_interaccion: transicion
+          etiqueta_ui: Ir a cripta_01
+      tiled:
+        json: mapas/iglesia/iglesia__manual__46f8c352.tmj
   - id: cuartel
-    nombre: "Cuartel de la Guardia"
-    nombre_en: "Guard Barracks"
+    nombre: Cuartel de la Guardia
+    nombre_en: Guard Barracks
     zona: pueblo
+    navegacion_mundo: false
     descripcion: >
-      Edificio junto a la puerta norte. Bandera del barón en el mástil.
-      Guardias armados entran y salen con frecuencia.
-    conexiones: [plaza]
-
-  # --- Alrededores ---
+      Edificio junto a la puerta norte. Bandera del barón en el mástil. Guardias armados entran y
+      salen con frecuencia.
+    conexiones:
+      - plaza
+    mapa:
+      imagen: mapas/cuartel/cuartel__7433cfcb.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 7433cfcba2f412cd
+        prompt: >-
+          A medieval guard barracks called 'Guard Barracks'. Scene elements: rows of wooden bunks,
+          weapon racks with swords and spears, armor stands, stone walls, wooden ceiling beams.
+          Indoor scene: enclosed by walls and ceiling, no open sky visible. isometric 2.5D video
+          game level, dimetric 2:1 projection, top-down angled view at 30 degrees, full scene
+          illustration with empty floor space for token placement. dark fantasy digital painting, in
+          the visual style of Diablo 2 and Baldur's Gate 2, dramatic rim lighting, volumetric fog,
+          detailed stone and wood textures, muted cool color palette with warm accent highlights,
+          high detail, cinematic composition, ArtStation quality. medieval fantástica setting, Valle
+          de las Montañas de Hierro. Scene details: Edificio junto a la puerta norte. Bandera del
+          barón en el mástil. Guardias armados entran y salen con frecuencia. DM notes: cutaway
+          open-top view showing interior from above, no ceiling or roof obstructing the floor, low
+          perimeter walls only, large flat playable floor covering at least 60 percent of the frame,
+          furniture and props pushed against the outer walls, center of the floor intentionally
+          empty for token placement, strict isometric grid with parallel edges, no perspective
+          vanishing point Negative: no characters, no people, no humans, no creatures, no animals,
+          no text, no letters, no captions, no watermark, no logo, no UI elements, no HUD, no frame
+          borders, no signatures.
+        seed: 2859543818
+        modelo: gemini-gemini-2.5-flash-image
+        extras_prompt: >-
+          cutaway open-top view showing interior from above, no ceiling or roof obstructing the
+          floor, low perimeter walls only, large flat playable floor covering at least 60 percent of
+          the frame, furniture and props pushed against the outer walls, center of the floor
+          intentionally empty for token placement, strict isometric grid with parallel edges, no
+          perspective vanishing point
+        ancho: 1184
+        alto: 864
+      tile_w: 63
+      tile_h: 34
+      cols: 12
+      rows: 10
+      origen_px:
+        - 555
+        - 278
+      pisable: |
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+      spawn_entrada:
+        celda:
+          - 6
+          - 5
+      puntos_interes:
+        - id: ir_plaza
+          tipo: transicion
+          celda:
+            - 11
+            - 3
+          destino: plaza
+          etiqueta_ui: Ir a plaza
+          icono: salida
+          oculto: false
+      spawns_npc:
+        - npc_id: aldric
+          celda:
+            - 6
+            - 4
+          etiqueta_ui: Capitán Aldric
   - id: afueras_sur
-    nombre: "Afueras de Valdecanto (sur)"
-    nombre_en: "Valdecanto outskirts (south)"
+    nombre: Afueras de Valdecanto (sur)
+    nombre_en: Valdecanto outskirts (south)
     zona: alrededores
+    navegacion_mundo: true
     descripcion: >
-      Camino de tierra que sale del pueblo hacia el sur. A la izquierda,
-      la casa de la Vieja Hilda junto al linde del bosque. A la derecha,
-      campos de cultivo y el camino del mercader.
-    conexiones: [plaza, casa_hilda, bosque_claro, camino_mercader]
-
+      Camino de tierra que sale del pueblo hacia el sur. A la izquierda, la casa de la Vieja Hilda
+      junto al linde del bosque. A la derecha, campos de cultivo y el camino del mercader.
+    conexiones:
+      - plaza
+      - casa_hilda
+      - bosque_claro
+      - camino_mercader
+    mapa:
+      imagen: mapas/afueras_sur/afueras_sur__88d2235b.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 88d2235b382ee4fb
+        prompt: >-
+          A fantasy location. isometric 2.5D video game level, dimetric 2:1 projection, top-down
+          angled view at 30 degrees, strict isometric grid with parallel edges and no perspective
+          vanishing point, large flat playable floor area centered in the frame covering at least 60
+          percent of the image, props and obstacles pushed against the perimeter, center of the
+          floor intentionally left empty for token placement. fantasy digital painting, balanced
+          natural lighting, detailed textures, high detail, painterly style, ArtStation quality.
+          medieval fantástica setting, Valle de las Montañas de Hierro. Scene context (for
+          understanding only; do not render any of these words as text or labels in the image):
+          Camino de tierra que sale del pueblo hacia el sur. A la izquierda, la casa de la Vieja
+          Hilda junto al linde del bosque. A la derecha, campos de cultivo y el camino del mercader.
+          DM notes: top-down three-quarter view showing terrain from above, flat walkable ground
+          covering at least 60 percent of the frame, natural barriers such as trees, rocks, bushes
+          and fences pushed to the perimeter, center of the area intentionally left empty for token
+          placement, strict isometric grid with parallel edges, no perspective vanishing point, no
+          text labels or captions on the terrain, no written signs Negative: no characters, no
+          people, no humans, no creatures, no animals, no text, no letters, no captions, no
+          watermark, no logo, no UI elements, no HUD, no frame borders, no signatures, no place
+          names, no location titles, no scene headings, no floating text, no callouts.
+        seed: 3461747389
+        modelo: gemini-gemini-2.5-flash-image
+        extras_prompt: >-
+          top-down three-quarter view showing terrain from above, flat walkable ground covering at
+          least 60 percent of the frame, natural barriers such as trees, rocks, bushes and fences
+          pushed to the perimeter, center of the area intentionally left empty for token placement,
+          strict isometric grid with parallel edges, no perspective vanishing point, no text labels
+          or captions on the terrain, no written signs
+        ancho: 1024
+        alto: 1024
+      tile_w: 98
+      tile_h: 49
+      cols: 10
+      rows: 11
+      origen_px:
+        - 550
+        - 318
+      pisable: |-
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ########..
+        ##########
+        ##########
+        ##########
+        #########.
+        ...####.#.
+      spawn_entrada:
+        celda:
+          - 5
+          - 5
+      puntos_interes:
+        - id: ir_plaza
+          tipo: transicion
+          celda:
+            - 0
+            - 3
+          destino: casa_hilda
+          etiqueta_ui: casa vieja Hilda
+          icono: portal
+          oculto: false
+        - id: ir_plaza_2
+          tipo: transicion
+          celda:
+            - 3
+            - 0
+          destino: plaza
+          etiqueta_ui: Ir a plaza
+          icono: portal
+          oculto: false
+        - id: ir_plaza_3
+          tipo: transicion
+          celda:
+            - 4
+            - 10
+          destino: camino_mercader
+          etiqueta_ui: Camino Mercader
+          icono: portal
+          oculto: false
+        - id: ir_plaza_4
+          tipo: transicion
+          celda:
+            - 0
+            - 8
+          destino: bosque_claro
+          etiqueta_ui: Bosque  Bruma
+          icono: portal
+          oculto: false
   - id: casa_hilda
-    nombre: "Casa de la Vieja Hilda"
-    nombre_en: "Old Hilda's Cottage"
+    nombre: Casa de la Vieja Hilda
+    nombre_en: Old Hilda's Cottage
     zona: alrededores
+    navegacion_mundo: false
     descripcion: >
-      Cabaña de piedra y madera cubierta de enredaderas. Humo verdoso
-      sale de la chimenea. Olor a hierbas y tierra mojada. Un jardín
-      salvaje con plantas que no crecen en ningún otro sitio.
-    conexiones: [afueras_sur, bosque_claro]
-
+      Cabaña de piedra y madera cubierta de enredaderas. Humo verdoso sale de la chimenea. Olor a
+      hierbas y tierra mojada. Un jardín salvaje con plantas que no crecen en ningún otro sitio.
+    conexiones:
+      - afueras_sur
+      - bosque_claro
+    mapa:
+      imagen: mapas/casa_hilda/casa_hilda__0b40382e.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 0b40382e75a37be6
+        prompt: >-
+          A fantasy location. isometric 2.5D video game level, dimetric 2:1 projection, top-down
+          angled view at 30 degrees, strict isometric grid with parallel edges and no perspective
+          vanishing point, large flat playable floor area centered in the frame covering at least 60
+          percent of the image, props and obstacles pushed against the perimeter, center of the
+          floor intentionally left empty for token placement. fantasy digital painting, balanced
+          natural lighting, detailed textures, high detail, painterly style, ArtStation quality.
+          medieval fantástica setting, Valle de las Montañas de Hierro. Scene context (for
+          understanding only; do not render any of these words as text or labels in the image):
+          Cabaña de piedra y madera cubierta de enredaderas. Humo verdoso sale de la chimenea. Olor
+          a hierbas y tierra mojada. Un jardín salvaje con plantas que no crecen en ningún otro
+          sitio. Negative: no characters, no people, no humans, no creatures, no animals, no text,
+          no letters, no captions, no watermark, no logo, no UI elements, no HUD, no frame borders,
+          no signatures, no place names, no location titles, no scene headings, no floating text, no
+          callouts.
+        seed: 2186354811
+        modelo: gemini-gemini-2.5-flash-image
+        ancho: 1184
+        alto: 864
+      tile_w: 82
+      tile_h: 41
+      cols: 12
+      rows: 9
+      origen_px:
+        - 468
+        - 411
+      pisable: |-
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+      spawn_entrada:
+        celda:
+          - 6
+          - 4
+      puntos_interes:
+        - id: ir_afueras_sur
+          tipo: transicion
+          celda:
+            - 0
+            - 2
+          destino: afueras_sur
+          etiqueta_ui: Ir a afueras_sur
+          icono: portal
+          oculto: false
+        - id: ir_afueras_sur_2
+          tipo: transicion
+          celda:
+            - 9
+            - 8
+          destino: bosque_claro
+          etiqueta_ui: Bosque de Bruma
+          icono: salida
+          oculto: false
+      spawns_npc:
+        - npc_id: hilda
+          celda:
+            - 3
+            - 0
+          etiqueta_ui: Vieja Hilda
   - id: bosque_claro
-    nombre: "Bosque de Bruma — Primer Claro"
-    nombre_en: "Mistwood — First Clearing"
+    nombre: Bosque de Bruma — Primer Claro
+    nombre_en: Mistwood — First Clearing
     zona: bosque
+    navegacion_mundo: true
     descripcion: >
-      Zona segura. Tocones de árboles talados, un arroyo y restos de
-      fogatas antiguas. Los cazadores del pueblo dejan aquí sus trampas.
-    conexiones: [afueras_sur, casa_hilda, hondonada, guarida_oso]
-
+      Zona segura. Tocones de árboles talados, un arroyo y restos de fogatas antiguas. Los cazadores
+      del pueblo dejan aquí sus trampas.
+    conexiones:
+      - afueras_sur
+      - casa_hilda
+      - hondonada
+      - guarida_oso
+    mapa:
+      imagen: mapas/bosque_claro/bosque_claro__6b4423e1.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 6b4423e17c0fc694
+        prompt: >-
+          A deep forest clearing. Scene elements: tall trees ringing the clearing, moss-covered
+          ground, wildflowers, shafts of light piercing the canopy, fallen logs. Outdoor scene: open
+          sky visible above, no roof or ceiling enclosing the area. Natural barriers such as trees,
+          rocks, bushes and fences pushed to the perimeter, no written signs or text labels on the
+          terrain. isometric 2.5D video game level, dimetric 2:1 projection, top-down angled view at
+          30 degrees, strict isometric grid with parallel edges and no perspective vanishing point,
+          large flat playable floor area centered in the frame covering at least 60 percent of the
+          image, props and obstacles pushed against the perimeter, center of the floor intentionally
+          left empty for token placement. high fantasy digital painting, bright natural daylight,
+          crisp shadows on the ground, vibrant color palette with rich greens and warm earth tones,
+          detailed stone and wood textures, clear sky with soft clouds, high detail, painterly
+          style, ArtStation quality. medieval fantástica setting, Valle de las Montañas de Hierro.
+          Scene context (for understanding only; do not render any of these words as text or labels
+          in the image): Zona segura. Tocones de árboles talados, un arroyo y restos de fogatas
+          antiguas. Los cazadores del pueblo dejan aquí sus trampas. Negative: no characters, no
+          people, no humans, no creatures, no animals, no text, no letters, no captions, no
+          watermark, no logo, no UI elements, no HUD, no frame borders, no signatures, no place
+          names, no location titles, no scene headings, no floating text, no callouts.
+        seed: 32598
+        modelo: gemini-gemini-2.5-flash-image
+        ancho: 1184
+        alto: 864
+      tile_w: 88
+      tile_h: 44
+      cols: 10
+      rows: 12
+      origen_px:
+        - 638
+        - 258
+      pisable: |-
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+      spawn_entrada:
+        celda:
+          - 5
+          - 6
+      puntos_interes:
+        - id: ir_afueras_sur
+          tipo: transicion
+          celda:
+            - 0
+            - 4
+          destino: guarida_oso
+          etiqueta_ui: Ir a afueras_sur
+          icono: portal
+          oculto: false
+        - id: ir_afueras_sur_3
+          tipo: transicion
+          celda:
+            - 2
+            - 9
+          destino: hondonada
+          etiqueta_ui: Hondonada susurro
+          icono: portal
+          oculto: false
+        - id: ir_afueras_sur_2
+          tipo: transicion
+          celda:
+            - 2
+            - 0
+          destino: casa_hilda
+          etiqueta_ui: Casa Hilda
+          icono: portal
+          oculto: false
+        - id: ir_afueras_sur_4
+          tipo: transicion
+          celda:
+            - 3
+            - 6
+          destino: afueras_sur
+          etiqueta_ui: Ir a afueras_sur
+          icono: salida
+          oculto: false
   - id: hondonada
-    nombre: "Hondonada del Susurro"
-    nombre_en: "Whisper Hollow"
+    nombre: Hondonada del Susurro
+    nombre_en: Whisper Hollow
     zona: bosque
+    navegacion_mundo: true
     descripcion: >
-      En lo profundo del bosque. Un círculo de piedras cubiertas de musgo
-      rodea un pozo seco. Por la noche se oyen voces — ecos de la cripta
-      que se filtran por grietas subterráneas.
-    conexiones: [bosque_claro]
-    notas_dm: "Pista alternativa hacia la cripta. No da acceso directo."
-
+      En lo profundo del bosque. Un círculo de piedras cubiertas de musgo rodea un pozo seco. Por la
+      noche se oyen voces — ecos de la cripta que se filtran por grietas subterráneas.
+    conexiones:
+      - bosque_claro
+    notas_dm: Pista alternativa hacia la cripta. No da acceso directo.
+    mapa:
+      imagen: mapas/hondonada/hondonada__9cec50da.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 9cec50da26218042
+        prompt: >-
+          A deep forest clearing. Scene elements: tall trees ringing the clearing, moss-covered
+          ground, wildflowers, shafts of light piercing the canopy, fallen logs. Outdoor scene: open
+          sky visible above, no roof or ceiling enclosing the area. Natural barriers such as trees,
+          rocks, bushes and fences pushed to the perimeter, no written signs or text labels on the
+          terrain. isometric 2.5D video game level, dimetric 2:1 projection, top-down angled view at
+          30 degrees, strict isometric grid with parallel edges and no perspective vanishing point,
+          large flat playable floor area centered in the frame covering at least 60 percent of the
+          image, props and obstacles pushed against the perimeter, center of the floor intentionally
+          left empty for token placement. high fantasy digital painting, bright natural daylight,
+          crisp shadows on the ground, vibrant color palette with rich greens and warm earth tones,
+          detailed stone and wood textures, clear sky with soft clouds, high detail, painterly
+          style, ArtStation quality. medieval fantástica setting, Valle de las Montañas de Hierro.
+          Scene context (for understanding only; do not render any of these words as text or labels
+          in the image): En lo profundo del bosque. Un círculo de piedras cubiertas de musgo rodea
+          un pozo seco. Por la noche se oyen voces — ecos de la cripta que se filtran por grietas
+          subterráneas. Negative: no characters, no people, no humans, no creatures, no animals, no
+          text, no letters, no captions, no watermark, no logo, no UI elements, no HUD, no frame
+          borders, no signatures, no place names, no location titles, no scene headings, no floating
+          text, no callouts.
+        seed: 350760
+        modelo: gemini-gemini-2.5-flash-image
+        ancho: 1184
+        alto: 864
+      tile_w: 63
+      tile_h: 21
+      cols: 12
+      rows: 11
+      origen_px:
+        - 595
+        - 322
+      pisable: |
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+      spawn_entrada:
+        celda:
+          - 6
+          - 5
+      puntos_interes:
+        - id: ir_bosque_claro
+          tipo: transicion
+          celda:
+            - 0
+            - 0
+          destino: bosque_claro
+          etiqueta_ui: Ir a bosque_claro
+          icono: portal
+          oculto: false
   - id: guarida_oso
-    nombre: "Guarida del Oso Pálido"
-    nombre_en: "Pale Bear Den"
+    nombre: Guarida del Oso Pálido
+    nombre_en: Pale Bear Den
     zona: bosque
+    navegacion_mundo: true
     descripcion: >
-      Cueva natural a medio día de camino. Un oso albino y enorme la
-      reclama como territorio. Los huesos junto a la entrada sugieren
-      que no es vegetariano.
-    conexiones: [bosque_claro]
-
+      Cueva natural a medio día de camino. Un oso albino y enorme la reclama como territorio. Los
+      huesos junto a la entrada sugieren que no es vegetariano.
+    conexiones:
+      - bosque_claro
+    mapa:
+      imagen: mapas/guarida_oso/guarida_oso__4eaa55b3.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 4eaa55b31b5ae177
+        prompt: >-
+          A deep forest clearing. Scene elements: tall trees ringing the clearing, moss-covered
+          ground, wildflowers, shafts of light piercing the canopy, fallen logs. Outdoor scene: open
+          sky visible above, no roof or ceiling enclosing the area. Natural barriers such as trees,
+          rocks, bushes and fences pushed to the perimeter, no written signs or text labels on the
+          terrain. isometric 2.5D video game level, dimetric 2:1 projection, top-down angled view at
+          30 degrees, strict isometric grid with parallel edges and no perspective vanishing point,
+          large flat playable floor area centered in the frame covering at least 60 percent of the
+          image, props and obstacles pushed against the perimeter, center of the floor intentionally
+          left empty for token placement. high fantasy digital painting, bright natural daylight,
+          crisp shadows on the ground, vibrant color palette with rich greens and warm earth tones,
+          detailed stone and wood textures, clear sky with soft clouds, high detail, painterly
+          style, ArtStation quality. medieval fantástica setting, Valle de las Montañas de Hierro.
+          Scene context (for understanding only; do not render any of these words as text or labels
+          in the image): Cueva natural a medio día de camino. Un oso albino y enorme la reclama como
+          territorio. Los huesos junto a la entrada sugieren que no es vegetariano. Negative: no
+          characters, no people, no humans, no creatures, no animals, no text, no letters, no
+          captions, no watermark, no logo, no UI elements, no HUD, no frame borders, no signatures,
+          no place names, no location titles, no scene headings, no floating text, no callouts.
+        seed: 285004
+        modelo: gemini-gemini-2.5-flash-image
+        ancho: 1184
+        alto: 864
+      tile_w: 70
+      tile_h: 35
+      cols: 12
+      rows: 12
+      origen_px:
+        - 603
+        - 365
+      pisable: |
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+      spawn_entrada:
+        celda:
+          - 6
+          - 6
+      puntos_interes:
+        - id: ir_bosque_claro
+          tipo: transicion
+          celda:
+            - 0
+            - 0
+          destino: bosque_claro
+          etiqueta_ui: Ir a bosque_claro
+          icono: portal
+          oculto: false
+      presencias_tacticas:
+        - id: oso_palido_01
+          tipo: bestiario
+          ref: oso_palido
+          celda:
+            - 6
+            - 6
+          cantidad: 1
+          visible: true
+          etiqueta_ui: Oso Pálido
   - id: camino_mercader
-    nombre: "Camino del Mercader"
-    nombre_en: "Merchant Road"
+    nombre: Camino del Mercader
+    nombre_en: Merchant Road
     zona: exterior
-    descripcion: >
-      Ruta comercial que conecta Valdecanto con la capital del barón.
-      Tres días a caballo.
-    conexiones: [afueras_sur, puente_cuervo, posada]
-
+    navegacion_mundo: true
+    descripcion: |
+      Ruta comercial que conecta Valdecanto con la capital del barón. Tres días a caballo.
+    conexiones:
+      - afueras_sur
+      - puente_cuervo
+      - posada
+    mapa:
+      imagen: mapas/camino_mercader/camino_mercader__718229bb.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 718229bb73552957
+        prompt: >-
+          A dirt road crossing. Scene elements: countryside crossroads, wooden signpost, hedgerows
+          along the path, rolling hills in the distance, open sky. Outdoor scene: open sky visible
+          above, no roof or ceiling enclosing the area. Natural barriers such as trees, rocks,
+          bushes and fences pushed to the perimeter, no written signs or text labels on the terrain.
+          Time of day: midday, bright overhead sunlight, short crisp shadows directly beneath
+          objects, clear blue sky, saturated natural colors. isometric 2.5D video game level,
+          dimetric 2:1 projection, top-down angled view at 30 degrees, strict isometric grid with
+          parallel edges and no perspective vanishing point, large flat playable floor area centered
+          in the frame covering at least 60 percent of the image, props and obstacles pushed against
+          the perimeter, center of the floor intentionally left empty for token placement. high
+          fantasy digital painting, bright natural daylight, crisp shadows on the ground, vibrant
+          color palette with rich greens and warm earth tones, detailed stone and wood textures,
+          clear sky with soft clouds, high detail, painterly style, ArtStation quality. medieval
+          fantástica setting, Valle de las Montañas de Hierro. Scene context (for understanding
+          only; do not render any of these words as text or labels in the image): Ruta comercial que
+          conecta Valdecanto con la capital del barón. Tres días a caballo. Negative: no characters,
+          no people, no humans, no creatures, no animals, no text, no letters, no captions, no
+          watermark, no logo, no UI elements, no HUD, no frame borders, no signatures, no place
+          names, no location titles, no scene headings, no floating text, no callouts.
+        seed: 3935290560
+        modelo: gemini-gemini-2.5-flash-image
+        ancho: 1184
+        alto: 864
+      tile_w: 75
+      tile_h: 34
+      cols: 14
+      rows: 12
+      origen_px:
+        - 568
+        - 345
+      pisable: |
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+      spawn_entrada:
+        celda:
+          - 7
+          - 6
+      puntos_interes:
+        - id: ir_afueras_sur
+          tipo: transicion
+          celda:
+            - 0
+            - 2
+          destino: puente_cuervo
+          etiqueta_ui: Puenta del Cuervo
+          icono: portal
+          oculto: false
+        - id: ir_afueras_sur_2
+          tipo: transicion
+          celda:
+            - 7
+            - 11
+          destino: afueras_sur
+          etiqueta_ui: Ir a afueras_sur
+          icono: portal
+          oculto: false
+        - id: ir_afueras_sur_3
+          tipo: transicion
+          celda:
+            - 4
+            - 1
+          destino: posada
+          etiqueta_ui: Ir a afueras_sur
+          icono: salida
+          oculto: false
+    hora_del_dia: dia
   - id: puente_cuervo
-    nombre: "Puente del Cuervo"
-    nombre_en: "Crow Bridge"
+    nombre: Puente del Cuervo
+    nombre_en: Crow Bridge
     zona: exterior
+    navegacion_mundo: true
     descripcion: >
-      Puente de piedra sobre un barranco. Un peaje controlado por bandidos
-      disfrazados de recaudadores del barón.
-    conexiones: [camino_mercader]
-
+      Puente de piedra sobre un barranco. Un peaje controlado por bandidos disfrazados de
+      recaudadores del barón.
+    conexiones:
+      - camino_mercader
+    mapa:
+      imagen: mapas/puente_cuervo/puente_cuervo__19c49660.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 19c49660da8fbf01
+        prompt: >-
+          A fantasy location. isometric 2.5D video game level, dimetric 2:1 projection, top-down
+          angled view at 30 degrees, strict isometric grid with parallel edges and no perspective
+          vanishing point, large flat playable floor area centered in the frame covering at least 60
+          percent of the image, props and obstacles pushed against the perimeter, center of the
+          floor intentionally left empty for token placement. fantasy digital painting, balanced
+          natural lighting, detailed textures, high detail, painterly style, ArtStation quality.
+          medieval fantástica setting, Valle de las Montañas de Hierro. Scene context (for
+          understanding only; do not render any of these words as text or labels in the image):
+          Puente de piedra sobre un barranco. Un peaje controlado por bandidos disfrazados de
+          recaudadores del barón. Negative: no characters, no people, no humans, no creatures, no
+          animals, no text, no letters, no captions, no watermark, no logo, no UI elements, no HUD,
+          no frame borders, no signatures, no place names, no location titles, no scene headings, no
+          floating text, no callouts.
+        seed: 463155
+        modelo: gemini-gemini-2.5-flash-image
+        ancho: 1184
+        alto: 864
+      tile_w: 54
+      tile_h: 27
+      cols: 13
+      rows: 10
+      origen_px:
+        - 611
+        - 319
+      pisable: |
+        #############
+        #############
+        #############
+        #############
+        #############
+        #############
+        #############
+        #############
+        #############
+        #############
+      spawn_entrada:
+        celda:
+          - 4
+          - 1
+      puntos_interes:
+        - id: ir_camino_mercader
+          tipo: transicion
+          celda:
+            - 4
+            - 1
+          destino: camino_mercader
+          etiqueta_ui: Ir a camino_mercader
+          icono: portal
+          oculto: false
+      spawns_npc:
+        - npc_id: syla
+          celda:
+            - 8
+            - 2
+          etiqueta_ui: Syla la Bandida
+      presencias_tacticas:
+        - id: bandidos_puente_01
+          tipo: bestiario
+          ref: bandidos
+          celda:
+            - 6
+            - 5
+          cantidad: 4
+          visible: true
+          etiqueta_ui: Bandidos del Puente
+    hora_del_dia: atardecer
   - id: posada
-    nombre: "Posada del Último Trago"
-    nombre_en: "The Last Drop Inn"
+    nombre: Posada del Último Trago
+    nombre_en: The Last Drop Inn
     zona: exterior
+    navegacion_mundo: true
     descripcion: >
-      A medio camino entre Valdecanto y la capital. Refugio de viajeros,
-      mercaderes y algún que otro fugitivo.
-    conexiones: [camino_mercader, corte_baron]
-
+      A medio camino entre Valdecanto y la capital. Refugio de viajeros, mercaderes y algún que otro
+      fugitivo.
+    conexiones:
+      - camino_mercader
+      - corte_baron
+    mapa:
+      imagen: mapas/posada/posada__manual__d5a223ed.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: d5a223edde652448
+        origen: manual
+        ancho: 1408
+        alto: 768
+      tile_w: 79
+      tile_h: 40
+      cols: 10
+      rows: 11
+      origen_px:
+        - 735
+        - 176
+      pisable: |
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+      spawn_entrada:
+        celda:
+          - 5
+          - 5
+      puntos_interes:
+        - id: ir_camino_mercader
+          tipo: transicion
+          celda:
+            - 8
+            - 4
+          destino: camino_mercader
+          etiqueta_ui: Ir a camino_mercader
+          icono: salida
+          oculto: false
+        - id: ir_camino_mercader_2
+          tipo: transicion
+          celda:
+            - 8
+            - 2
+          destino: corte_baron
+          etiqueta_ui: Corte del barón
+          icono: salida
+          oculto: false
+      spawns_npc:
+        - npc_id: bertram
+          celda:
+            - 2
+            - 3
+          etiqueta_ui: Bertram el Posadero
   - id: corte_baron
-    nombre: "Corte del barón (capital regional)"
-    nombre_en: "Baron's court (regional capital)"
+    nombre: Corte del barón (capital regional)
+    nombre_en: Baron's court (regional capital)
     zona: exterior
+    navegacion_mundo: true
     descripcion: >
-      Ciudad fortificada a varios días de camino desde Valdecanto. El barón
-      Renard gobierna la región; Aldric y los guardias del pueblo son su
-      instrumento directo en la zona minera.
-    conexiones: [posada]
-
-  # --- Cripta ---
+      Ciudad fortificada a varios días de camino desde Valdecanto. El barón Renard gobierna la
+      región; Aldric y los guardias del pueblo son su instrumento directo en la zona minera.
+    conexiones:
+      - posada
+    mapa:
+      imagen: mapas/corte_baron/corte_baron__manual__ea3a9f05.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: ea3a9f05e70ea65a
+        origen: manual
+        ancho: 2816
+        alto: 1536
+      tile_w: 125
+      tile_h: 63
+      cols: 12
+      rows: 13
+      origen_px:
+        - 1433
+        - 418
+      pisable: |
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+        ############
+      spawn_entrada:
+        celda:
+          - 6
+          - 2
+      puntos_interes:
+        - id: ir_posada
+          tipo: transicion
+          celda:
+            - 5
+            - 0
+          destino: posada
+          etiqueta_ui: Ir a posada
+          icono: salida
+          oculto: false
+      spawns_npc:
+        - npc_id: baron_renard
+          celda:
+            - 3
+            - 9
+          etiqueta_ui: Barón Renard
   - id: cripta_01
-    nombre: "Cripta — Antecámara"
-    nombre_en: "Crypt — Antechamber"
+    nombre: Cripta — Antecámara
+    nombre_en: Crypt — Antechamber
     zona: cripta
+    navegacion_mundo: false
     descripcion: >
-      Escaleras de piedra descendentes. Paredes con relieves erosionados
-      que muestran la coronación de Aldaron III. El aire es frío y húmedo.
-      Antorchas apagadas en soportes oxidados.
-    conexiones: [iglesia, cripta_sala]
-    requiere: "llave de la cripta"
-
-  - id: cripta_sala
-    nombre: "Cripta — Sala de los Juramentados"
-    nombre_en: "Crypt — Hall of the Sworn"
+      Escaleras de piedra descendentes. Paredes con relieves erosionados que muestran la coronación
+      de Aldaron III. El aire es frío y húmedo. Antorchas apagadas en soportes oxidados.
+    conexiones:
+      - iglesia
+      - cripta_02
+    requiere: llave_magica_cripta
+    hora_del_dia: noche
+    notas_dm: >
+      Ancla de escena: descenso frío con eco ritual, salida de emergencia hacia iglesia y decisión
+      de seguir al nivel 2. Gancho interactivo: relieves de coronación que reaccionan con luz tenue
+      al acercar la Llave mágica de la cripta (`llave_magica_cripta`). Walkmask desde Tiled
+      `mapas/cripta_01/Cripta_01.tmj`: capa `pisable` 32×32, tile 128×64, offset de capa −26 px en X
+      y +6 en Y respecto al mapa isométrico (el snapshot envía `cuadricula_offset_px` y el cliente
+      lo suma a `origen_px`). Spawn y salidas están en celdas con tile en el TMJ: entrada [20,3], a
+      iglesia [20,1], a cripta_02 [20,31]. Si la cuadrícula “anda” igual que la capa en Tiled pero
+      no calza el PNG, ajustar sólo `origen_px`. Si ves el doble de desplazamiento, prueba
+      `tiled.aplicar_offset_capa_pisable: false` (significa que el origen ya incorporaba ese
+      offset).
+    mapa:
+      imagen: mapas/cripta_01/cripta_01__manual__53fee2a2.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 53fee2a21dae2547
+        origen: manual
+        ancho: 1672
+        alto: 941
+      tiled:
+        json: mapas/cripta_01/cripta_01__manual__53fee2a2.tmj
+    ambiente:
+      audio:
+        src: mapas/cripta_camara/musica_cripta_02c.mp3
+        volumen: 0.35
+        fade_ms: 1500
+  - id: cripta_02
+    nombre: Cripta — Antecámara (mapa 02, prueba)
+    nombre_en: Crypt — Antechamber (map 02, test)
     zona: cripta
+    navegacion_mundo: false
     descripcion: >
-      Nave central con nichos laterales donde descansan (o no) los soldados
-      espectros. Seis sarcófagos de piedra abiertos. Un altar roto en el centro.
-    conexiones: [cripta_01, cripta_camara]
-
+      Variante táctica de la antecámara para pruebas (PNG «02»): salas amplias, pasarelas y zona del
+      árbol spectral.
+    notas_dm: >
+      Solo desarrollo. Walkmask desde Tiled `mapas/cripta_01/Cripta_02.tmj` (28×14, tile 118×64).
+      Entrada desde la antecámara 01. Afinar «origen_px» y puntos si el token no calza con el PNG.
+    conexiones:
+      - cripta_camara
+      - cripta_01
+    hora_del_dia: noche
+    mapa:
+      imagen: mapas/cripta_02/cripta_02__manual__44e32411.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 44e32411020729ef
+        origen: manual
+        ancho: 1672
+        alto: 941
+      tiled:
+        json: mapas/cripta_02/cripta_02__manual__44e32411.tmj
+    ambiente:
+      audio:
+        src: mapas/cripta_camara/musica_cripta_02c.mp3
+        volumen: 0.35
+        fade_ms: 1500
   - id: cripta_camara
-    nombre: "Cripta — Cámara de la Corona"
-    nombre_en: "Crypt — Crown Chamber"
+    nombre: Cripta — Cámara de la Corona
+    nombre_en: Crypt — Crown Chamber
     zona: cripta
+    navegacion_mundo: false
     descripcion: >
-      Al fondo, tras una puerta de hierro con inscripciones en lengua antigua.
-      La Corona Perdida descansa sobre un pedestal de obsidiana.
-    conexiones: [cripta_sala]
-    notas_dm: "El espectro de Morath guarda esta sala."
-
-  # --- Mina ---
+      Al fondo, tras una puerta de hierro con inscripciones en lengua antigua. La Corona Perdida
+      descansa sobre un pedestal de obsidiana.
+    conexiones:
+      - cripta_02
+      - cripta_sala
+    notas_dm: El espectro de Morath guarda esta sala.
+    mapa:
+      imagen: mapas/cripta_camara/cripta_camara__manual__8a8ee29f.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 8a8ee29f8e838f1e
+        origen: manual
+        ancho: 1672
+        alto: 941
+      tile_w: 125
+      tile_h: 63
+      cols: 11
+      rows: 13
+      origen_px:
+        - 1452
+        - 377
+      pisable: |
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+        ###########
+      spawn_entrada:
+        celda:
+          - 5
+          - 6
+      puntos_interes:
+        - id: ir_cripta_sala
+          tipo: transicion
+          celda:
+            - 4
+            - 12
+          destino: cripta_02
+          etiqueta_ui: Ir a cripta_sala
+          icono: escalera_sube
+          oculto: false
+      presencias_tacticas:
+        - id: espectro_morath_01
+          tipo: bestiario
+          ref: espectro_morath
+          celda:
+            - 5
+            - 7
+          cantidad: 1
+          visible: true
+          etiqueta_ui: Espectro de Morath
+      tiled:
+        json: mapas/cripta_camara/cripta_camara__manual__f5901cef.tmj
+    ambiente:
+      audio:
+        loop: true
+        src: mapas/cripta_camara/musica_cripta_02c.mp3
+        volumen: 0.35
+        fade_ms: 1500
+  - id: cripta_sala
+    nombre: Cripta — Sala de los Juramentados
+    nombre_en: Crypt — Hall of the Sworn
+    zona: cripta
+    navegacion_mundo: false
+    descripcion: >
+      Nave central con nichos laterales donde descansan (o no) los soldados espectros. Seis
+      sarcófagos de piedra abiertos. Un altar roto en el centro.
+    conexiones:
+      - cripta_01
+      - cripta_camara
+    mapa:
+      imagen: mapas/cripta_sala/cripta_sala__manual__ea2b9ff9.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: ea2b9ff90950c59e
+        origen: manual
+        ancho: 1672
+        alto: 941
+      tile_w: 44
+      tile_h: 22
+      cols: 48
+      rows: 36
+      origen_px:
+        - 661
+        - 0
+      pisable: |-
+        #################
+        #################
+        #################
+        #################
+        ###############..
+        ##############..#
+        ################.
+        #################
+        ####....#########
+        ####....#########
+        ####....#########
+        #################
+        #################
+        #################
+        ################.
+        ################.
+        #################
+        #################
+        #################
+        #################
+        #################
+      spawn_entrada:
+        celda:
+          - 7
+          - 31
+      puntos_interes:
+        - id: ir_cripta_01
+          tipo: transicion
+          celda:
+            - 8
+            - 20
+          destino: cripta_01
+          etiqueta_ui: Ir a cripta_01
+          icono: escalera_sube
+          oculto: false
+        - id: ir_cripta_01_2
+          tipo: transicion
+          celda:
+            - 16
+            - 10
+          destino: cripta_camara
+          etiqueta_ui: Ir a cripta_corona
+          icono: escalera_baja
+          oculto: false
+        - id: corona_pedestal
+          tipo: objeto_canonico
+          celda:
+            - 24
+            - 15
+          etiqueta_ui: La Corona Perdida
+          icono: artefacto
+          item_id: corona_perdida
+          evento_al_recoger: tomar_corona
+          requiere_confirmacion: true
+          texto_confirmacion: >
+            La Corona descansa sobre el pedestal de la sala. Si la recoges,
+            quedará incorporada al inventario del personaje y se activará el
+            evento de la cripta.
+      presencias_tacticas:
+        - id: espectros_juramentados_01
+          tipo: bestiario
+          ref: espectro_juramentado
+          celda:
+            - 44
+            - 5
+          cantidad: 4
+          visible: true
+          etiqueta_ui: Espectros Juramentados
+      tiled:
+        json: mapas/cripta_sala/cripta_sala__manual__ea2b9ff9.tmj
+    ambiente:
+      audio:
+        src: mapas/cripta_camara/musica_cripta_02c.mp3
+        volumen: 0.35
+        fade_ms: 1500
   - id: mina_entrada
-    nombre: "Mina Abandonada — Galería Principal"
-    nombre_en: "Abandoned Mine — Main Gallery"
+    nombre: Mina Abandonada — Galería Principal
+    nombre_en: Abandoned Mine — Main Gallery
     zona: mina
+    navegacion_mundo: false
     descripcion: >
-      Túnel reforzado con vigas de madera podrida. Vagonetas oxidadas
-      sobre raíles. Algunos tramos están inundados.
-    conexiones: [afueras_sur, mina_veta]
-
+      Túnel reforzado con vigas de madera podrida. Vagonetas oxidadas sobre raíles. Algunos tramos
+      están inundados.
+    conexiones:
+      - afueras_sur
+      - mina_veta
+    mapa:
+      imagen: mapas/mina_entrada/mina_entrada__manual__d927988a.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: d927988aa7106eca
+        origen: manual
+        ancho: 2816
+        alto: 1536
+      tile_w: 128
+      tile_h: 61
+      cols: 14
+      rows: 12
+      origen_px:
+        - 1264
+        - 428
+      pisable: |
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+        ##############
+      spawn_entrada:
+        celda:
+          - 7
+          - 6
+      puntos_interes:
+        - id: ir_afueras_sur
+          tipo: transicion
+          celda:
+            - 8
+            - 1
+          destino: afueras_sur
+          etiqueta_ui: Ir a afueras_sur
+          icono: salida
+          oculto: false
+        - id: ir_afueras_sur_2
+          tipo: transicion
+          celda:
+            - 2
+            - 5
+          destino: mina_veta
+          etiqueta_ui: Ir a afueras_sur
+          icono: salida
+          oculto: false
+      presencias_tacticas:
+        - id: ratas_velo_01
+          tipo: bestiario
+          ref: ratas_velo
+          celda:
+            - 5
+            - 5
+          cantidad: 3
+          visible: true
+          etiqueta_ui: Ratas del Velo
+        - id: arana_tejedora_01
+          tipo: bestiario
+          ref: arana_tejedora
+          celda:
+            - 9
+            - 5
+          cantidad: 1
+          visible: true
+          etiqueta_ui: Araña Tejedora
   - id: mina_veta
-    nombre: "Mina — Veta del Corazón"
-    nombre_en: "Mine — Heart Vein"
+    nombre: Mina — Veta del Corazón
+    nombre_en: Mine — Heart Vein
     zona: mina
+    navegacion_mundo: false
     descripcion: >
-      La sección más profunda. Aquí se extrajo el hierro especial con el
-      que se forjó la Corona. Las paredes brillan con un tono rojizo
-      antinatural. Es el único lugar donde la Corona puede ser destruida.
-    conexiones: [mina_entrada]
-    notas_dm: "Final 'destruir la corona' requiere llegar aquí con la Corona."
-
-# ============================================================================
-# NPCs
-# ============================================================================
+      La sección más profunda. Aquí se extrajo el hierro especial con el que se forjó la Corona. Las
+      paredes brillan con un tono rojizo antinatural. Es el único lugar donde la Corona puede ser
+      destruida.
+    conexiones:
+      - mina_entrada
+    notas_dm: Final 'destruir la corona' requiere llegar aquí con la Corona.
+    mapa:
+      imagen: mapas/mina_veta/mina_veta__56c6c692.png
+      tipo: tactico
+      proyeccion: dimetrico_2_1
+      generado_ia:
+        hash: 56c6c692f9d4290d
+        prompt: >-
+          An underground mine tunnel. Scene elements: wooden scaffolding and support beams, rail
+          tracks, abandoned mining carts, hanging lanterns, rough stone walls. Indoor scene:
+          enclosed by walls and ceiling, no open sky visible. Cutaway open-top view showing the
+          interior from above, no ceiling or roof obstructing the floor plan, low perimeter walls
+          only. isometric 2.5D video game level, dimetric 2:1 projection, top-down angled view at 30
+          degrees, strict isometric grid with parallel edges and no perspective vanishing point,
+          large flat playable floor area centered in the frame covering at least 60 percent of the
+          image, props and obstacles pushed against the perimeter, center of the floor intentionally
+          left empty for token placement. dark fantasy digital painting, in the visual style of
+          Diablo 2 and Baldur's Gate 2, dramatic rim lighting, volumetric fog, detailed stone and
+          wood textures, muted cool color palette with warm accent highlights, high detail,
+          cinematic composition, ArtStation quality. medieval fantástica setting, Valle de las
+          Montañas de Hierro. Scene context (for understanding only; do not render any of these
+          words as text or labels in the image): La sección más profunda. Aquí se extrajo el hierro
+          especial con el que se forjó la Corona. Las paredes brillan con un tono rojizo
+          antinatural. Es el único lugar donde la Corona puede ser destruida. Negative: no
+          characters, no people, no humans, no creatures, no animals, no text, no letters, no
+          captions, no watermark, no logo, no UI elements, no HUD, no frame borders, no signatures,
+          no place names, no location titles, no scene headings, no floating text, no callouts.
+        seed: 1996586579
+        modelo: gemini-gemini-2.5-flash-image
+        ancho: 1024
+        alto: 1024
+      tile_w: 68
+      tile_h: 43
+      cols: 10
+      rows: 10
+      origen_px:
+        - 487
+        - 456
+      pisable: |
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+        ##########
+      spawn_entrada:
+        celda:
+          - 5
+          - 5
+      puntos_interes:
+        - id: ir_mina_entrada
+          tipo: transicion
+          celda:
+            - 8
+            - 2
+          destino: mina_entrada
+          etiqueta_ui: Ir a mina_entrada
+          icono: salida
+          oculto: false
+      spawns_npc: []
 npcs:
   - id: marta
-    nombre: "Marta la Tabernera"
-    nombre_en: "Marta the Innkeeper"
+    nombre: Marta la Tabernera
+    nombre_en: Marta the Innkeeper
     ubicacion: taberna
     vende:
       - cerveza
@@ -262,132 +1802,898 @@ npcs:
     actitud_inicial: amistosa
     genero: femenino
     descripcion: >
-      Mujer robusta de mediana edad, pelo castaño recogido, siempre con un
-      delantal manchado. Ríe con facilidad y conoce a todo el pueblo.
+      Mujer robusta de mediana edad, pelo castaño recogido, siempre con un delantal manchado. Ríe
+      con facilidad y conoce a todo el pueblo.
     descripcion_en: >
-      Stout middle-aged woman with her brown hair tied back, always wearing a
-      stained apron. She laughs easily and knows everyone in the village.
-    motivacion: "Mantener su negocio y proteger a sus amigos."
+      Stout middle-aged woman with her brown hair tied back, always wearing a stained apron. She
+      laughs easily and knows everyone in the village.
+    motivacion: Mantener su negocio y proteger a sus amigos.
     secretos:
-      - "Gorin se esconde en la bodega de la taberna."
-      - "No se lo dirá a nadie a menos que confíe en ellos."
+      - Gorin se esconde en la bodega de la taberna.
+      - No se lo dirá a nadie a menos que confíe en ellos.
     secretos_en:
-      - "Gorin is hiding in the tavern cellar."
-      - "She won't tell anyone unless she trusts them."
-    frase: "Siéntate, forastero. Aquí nadie pasa hambre."
+      - Gorin is hiding in the tavern cellar.
+      - She won't tell anyone unless she trusts them.
+    frase: Siéntate, forastero. Aquí nadie pasa hambre.
     condicion_revelar_secreto:
       descripcion: "Ganarse su confianza: ayudarla, ser amable, o superar una tirada de Persuasión"
       reglas:
         - tipo: actitud_npc
           npc: marta
           valor: confiada
+    guardian:
+      arquetipo: Tabernera protectora
+      personalidad: Cálida en apariencia, cauta cuando se habla de Gorin.
+      finalidad: Mantener la taberna tranquila y proteger a Gorin sin revelar su escondite.
+      patron_voz: >-
+        Frases cercanas y prácticas. Cuando rozan temas sensibles redirige con calidez (otra ronda,
+        preguntar por la procedencia, hablar del clima) antes que cerrarse en seco. Solo si insisten
+        varias veces, modula a más cauta.
+      objetivos:
+        - Proteger a Gorin mientras no confíe en el grupo.
+        - Evitar que las preguntas atraigan problemas con el barón.
+      progresion_confianza:
+        señales_positivas:
+          - >-
+            Si el jugador habla bajo, compra sin presionar o muestra preocupación sincera por Gorin,
+            Marta se suaviza.
+          - >-
+            Si el jugador evita mencionar a Gorin en voz alta cuando hay guardias cerca, Marta lo
+            considera discreto.
+          - >-
+            Si el jugador ayuda a mantener tranquila la taberna o protege a alguien sin exigir
+            recompensa, Marta gana confianza.
+        pistas_seguras:
+          - No preguntes por nombres delicados en una sala llena.
+          - Si de verdad quieres ayudar, vuelve cuando los guardias no estén mirando.
+          - Busca primero a quien haya visto patrullar cerca de la taberna o la plaza.
+          - Demuestra discreción antes de pedir respuestas directas.
+        condicion_siguiente: Demostrar discreción, hablar en privado y no poner a Gorin en peligro.
+      lineas_rojas:
+        - No revelar ni insinuar la ubicación real de Gorin salvo condición validada.
+        - No señalar, mirar ni dirigir físicamente hacia la bodega como pista.
+      secretos_protegidos:
+        - id: gorin_bodega
+          hecho: Gorin está escondido en la bodega de la taberna.
+          terminos_sensibles:
+            - gorin
+            - bodega
+            - cellar
+            - basement
+            - almacen
+            - sotano
+          terminos_prohibidos_respuesta:
+            - bodega
+            - cellar
+            - basement
+            - almacen
+            - sotano
+          condicion_revelar: condicion_revelar_secreto
+      disparadores:
+        pregunta_gorin:
+          accion_contiene:
+            - gorin
+            - desapariciones
+            - secreto
+            - bodega
+            - cellar
+            - basement
+          reaccion: >-
+            Recibe la mención con calidez aparente. Da una respuesta vaga ("hace tiempo que no le
+            veo por aquí", "podría estar de viaje"). Solo si el jugador insiste, sube la presión o
+            nombra la bodega, marca el tono más cauto y pide discreción.
+          requiere_revision_dm: true
+          no_revelar:
+            - La ubicación real de Gorin.
+            - La bodega como lugar del secreto.
+      coherencia_narrativa:
+        npc_fuera_de_escena:
+          - objetivo_npc: gorin
+            texto: >
+              {prefijo}La conversación no llega a convertirse en un encuentro directo con {nombre}.
+              Marta se queda un instante demasiado quieta, desvía la mirada hacia una puerta
+              interior y corta el hilo con una excusa sobre el barón y sus guardias. Está claro que
+              sabe más de lo que quiere admitir, pero hará falta ganarse su confianza antes de que
+              diga nada útil.
+            texto_en: >
+              {prefijo}The conversation never becomes a direct encounter with {nombre}. Marta goes
+              still for a heartbeat, glances toward an inner door, and cuts the thread with an
+              excuse about the baron and his guards. She clearly knows more than she wants to admit,
+              but earning her trust comes first.
+    sprite:
+      imagen: assets/fichas/npcs/marta__139d1b2d.png
+      estilo: token_retrato
+      origen: ia
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Marta la Tabernera.
+
+        Role or location: taberna.
+
+        Attitude: amistosa.
+
+        Description: Mujer robusta de mediana edad, pelo castaño recogido, siempre con un delantal
+        manchado. Ríe con facilidad y conoce a todo el pueblo..
+
+        Motivation: Mantener su negocio y proteger a sus amigos..
+
+        DM extra direction: Mujer robusta de mediana edad, pelo castaño recogido, siempre con un
+        delantal manchado. Ríe con facilidad y conoce a todo el pueblo.
+  - id: roque_borracho
+    nombre: Roque "Mediojarrra"
+    nombre_en: Roque "Half-Mug"
+    autorevelar_desde_narrativa: false
+    conocido: true
+    ubicacion: taberna
+    actitud_inicial: hostil
+    salud: 12
+    salud_max: 12
+    estado: healthy
+    genero: masculino
+    descripcion: >
+      Leñador corpulento con nariz rota y olor constante a cerveza. Se pica con facilidad cuando
+      pierde a los dados.
+    descripcion_en: >
+      Burly woodsman with a broken nose and a permanent beer smell. Picks fights quickly after
+      losing at dice.
+    motivacion: Proteger su orgullo frente a todo el pueblo.
+    secretos:
+      - Debe varias rondas a Marta y evita la barra cuando ella le mira.
+      - Guarda una llave de repuesto de la bodega en la bota, "por si acaso".
+    secretos_en:
+      - He owes Marta several rounds and avoids the bar when she stares at him.
+      - He keeps a spare cellar key in his boot, "just in case".
+    frase: ¡Nadie me llama tramposo y se queda con los dientes!
+    condicion_revelar_secreto:
+      descripcion: Calmar la pelea de taberna y hablarle sin humillarlo delante de todos
+      reglas:
+        - tipo: actitud_npc
+          npc: roque_borracho
+          valor: neutral
+    sprite:
+      imagen: assets/fichas/npcs/roque_borracho__1fab02ec.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      visualScale: 1
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
+
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Roque "Mediojarrra".
+
+        Role or location: taberna.
+
+        Attitude: hostil.
+
+        Description: Leñador corpulento con nariz rota y olor constante a cerveza. Se pica con
+        facilidad cuando pierde a los dados.
+
+        Motivation: Proteger su orgullo frente a todo el pueblo.
+
+        DM extra direction: Hombre humano robusto de mediana edad, barba corta desordenada, ropa de
+        trabajo manchada de cerveza, gesto desafiante, luz cálida de taberna, estilo fantasía
+        medieval realista, retrato token centrado, busto claro, sin texto ni letras.
+    guardian:
+      arquetipo: Bravucón endeudado
+      personalidad: >-
+        Ruidoso, orgulloso y fácilmente ofendible. Se protege con amenazas y burlas, pero se vuelve
+        esquivo cuando Marta o la bodega entran en la conversación.
+      finalidad: >-
+        Mantener su fachada de tipo duro, ocultar que debe dinero a Marta y no admitir que lleva una
+        llave de repuesto de la bodega en la bota.
+      patron_voz: Frases cortas, ásperas y provocadoras; usa pullas de taberna y evita sonar vulnerable.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador no lo humilla y le ofrece una salida digna, Roque baja el tono.
+          - Si paga una ronda o reconoce su orgullo, Roque puede soltar pistas indirectas.
+        pistas_seguras:
+          - No todo lo que se guarda bajo una bota merece decirse en voz alta.
+          - Si buscas puertas cerradas, empieza preguntando quién tiene deudas.
+          - Marta mira más de lo que habla.
+        condicion_siguiente: Calmarlo sin avergonzarlo y hablarle lejos de miradas burlonas.
+      lineas_rojas:
+        - No confesar directamente que tiene una llave de la bodega salvo condición validada.
+        - No revelar la ubicación de Gorin ni confirmar que esté en la bodega.
+        - No volverse servicial si el jugador lo humilla en público
+      disparadores:
+        pregunta_bodega_llave:
+          accion_contiene:
+            - bodega
+            - llave
+            - Marta
+            - Gorin
+            - deuda
+          reaccion: Se pone defensivo, insulta para desviar la atención o amenaza con irse.
+          requiere_revision_dm: true
+          no_revelar:
+            - >-
+              La llave de repuesto en la bota. La deuda concreta con Marta. La ubicación real de
+              Gorin.
+  - id: ines_borracha
+    nombre: Inés la Cantarina
+    nombre_en: Ines the Singer
+    autorevelar_desde_narrativa: false
+    conocido: true
+    ubicacion: taberna
+    actitud_inicial: desconfiada
+    salud: 10
+    salud_max: 10
+    estado: healthy
+    genero: femenino
+    descripcion: >
+      Minera joven de voz potente, mejillas enrojecidas y humor cambiante. Canta baladas tristes y
+      conoce media vida del pueblo.
+    descripcion_en: >
+      Young miner with a powerful voice, flushed cheeks, and shifting moods. Sings sad ballads and
+      knows half the town's stories.
+    motivacion: Mantener su sitio en la taberna y no quedar como cobarde.
+    secretos:
+      - Oyó a guardias mencionar la cripta mientras bebían en la mesa del fondo.
+      - >-
+        Vio a Gorin bajar a la bodega con un paquete envuelto en cuero; sospecha que guarda algo
+        importante.
+    secretos_en:
+      - She overheard guards mention the crypt while they drank at the back table.
+      - >-
+        She saw Gorin going down to the cellar carrying a leather-wrapped bundle; she suspects he
+        keeps something important.
+    frase: Si queréis paz, pagad la ronda y escuchad la canción.
+    condicion_revelar_secreto:
+      descripcion: Pedirle una canción o un brindis y tratarla con respeto
+      reglas:
+        - tipo: actitud_npc
+          npc: ines_borracha
+          valor: neutral
+    sprite:
+      imagen: assets/fichas/npcs/ines_borracha__7bc0648f.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      visualScale: 1
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
+
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Inés la Cantarina.
+
+        Role or location: taberna.
+
+        Attitude: desconfiada.
+
+        Description: Minera joven de voz potente, mejillas enrojecidas y humor cambiante. Canta
+        baladas tristes y conoce media vida del pueblo.
+
+        Motivation: Mantener su sitio en la taberna y no quedar como cobarde.
+
+        DM extra direction: Mujer humana joven de mirada intensa, cabello oscuro recogido a medias,
+        gesto cansado pero orgulloso, ropa de minera y bufanda gastada, ambiente de taberna con luz
+        de velas, fantasía medieval oscura, retrato token centrado, busto claro, sin texto ni
+        letras.
+    guardian:
+      arquetipo: Testigo desconfiada
+      personalidad: >-
+        Expresiva, orgullosa y emocionalmente cambiante. Puede pasar de cantar y bromear a cerrarse
+        por completo si siente que la están usando.
+      finalidad: >-
+        Proteger su dignidad, conservar su sitio en la taberna y decidir si el grupo merece saber lo
+        que oyó sobre la cripta y lo que vio de Gorin.
+      patron_voz: Habla con imágenes de canciones, brindis y rumores; mezcla ironía, tristeza y orgullo.
+      progresion_confianza:
+        señales_positivas:
+          - >-
+            Si el jugador invita una ronda, pide una canción o brinda con respeto, Inés baja la
+            guardia.
+          - >-
+            Si el jugador escucha sin ridiculizarla ni usarla como informante, Inés se muestra más
+            colaboradora.
+          - >-
+            Si hay guardias presentes y el jugador habla con tacto, Inés convierte las pistas en
+            canción o metáfora.
+        pistas_seguras:
+          - Una canción puede señalar un camino sin decir el nombre del lugar.
+          - Pregunta por quienes bebieron en la mesa del fondo.
+          - No repitas ciertas palabras si hay acero del barón cerca.
+          - Si quieres verdades, empieza por un brindis y una voz baja.
+        condicion_siguiente: Tratarla con respeto, pedirle una canción o brindis y no exponerla ante guardias.
+      lineas_rojas:
+        - No revelar lo de la cripta salvo que la traten con respeto o cumplan su condición.
+        - No confirmar que Gorin bajó a la bodega con un paquete si la presionan o ridiculizan.
+        - No convertirse en guía fiable si está asustada o humillada.
+      disparadores:
+        pregunta_cripta_gorin:
+          accion_contiene:
+            - cripta
+            - guardias
+            - Gorin
+            - paquete
+            - bodega
+            - canción
+            - brindis
+          reaccion: Mide al jugador, baja la voz o convierte la respuesta en una canción ambigua.
+          requiere_revision_dm: true
+          no_revelar:
+            - La mención directa de la cripta. El paquete de Gorin. Que Gorin bajó a la bodega.
   - id: gorin
-    nombre: "Gorin el Herrero"
-    nombre_en: "Gorin the Blacksmith"
+    nombre: Gorin el Herrero
+    nombre_en: Gorin the Blacksmith
+    autorevelar_desde_narrativa: true
     ubicacion: bodega
     vende:
       - espada_corta
       - antorcha
+      - jabalina
+    objetos_clave_ocultos:
+      - llave_magica_cripta
+    entrega_objetos_clave:
+      confianza_minima: cordial
+      items:
+        - item_id: llave_magica_cripta
+          evento_al_entregar: obtener_llave_cripta
     actitud_inicial: desconfiado
     genero: masculino
     descripcion: >
-      Enano fornido con barba trenzada y manos llenas de cicatrices de
-      quemaduras. Ojos hundidos por el miedo.
-    descripcion_en: >
-      Stocky dwarf with a braided beard and hands covered in burn scars.
-      Eyes hollowed by fear.
-    motivacion: "Sobrevivir. Forjó una llave por encargo sin saber para qué."
+      Enano fornido con barba trenzada y manos llenas de cicatrices de quemaduras. Ojos hundidos por
+      el miedo.
+    descripcion_en: |
+      Stocky dwarf with a braided beard and hands covered in burn scars. Eyes hollowed by fear.
+    motivacion: Sobrevivir. Custodia la Llave mágica de la cripta y teme que el Barón la consiga.
     secretos:
-      - "La llave abre la cripta bajo la iglesia."
-      - "Se la encargó un emisario del barón."
+      - Gorin custodia la Llave mágica de la cripta y teme que el Barón la consiga.
+      - La Llave mágica de la cripta abre la cripta sellada bajo la iglesia.
+      - La forjó por encargo de un emisario del barón.
     secretos_en:
-      - "The key opens the crypt beneath the church."
-      - "A baron's envoy commissioned it from him."
-    frase: "No debí aceptar ese trabajo. Ahora todos quieren mi cabeza."
+      - Gorin keeps the Magic crypt key and fears the Baron will get it.
+      - The Magic crypt key opens the sealed crypt beneath the church.
+      - A baron's envoy commissioned it from him.
+    frase: No debí aceptar ese trabajo. Ahora todos quieren mi cabeza.
     condicion_revelar_secreto:
-      descripcion: "Encontrarle en la bodega y convencerle de que no eres una amenaza"
+      descripcion: Encontrarle en la bodega y convencerle de que no eres una amenaza
       reglas:
         - tipo: actitud_npc
           npc: gorin
           valor: neutral
+    guardian:
+      arquetipo: Herrero fugitivo
+      personalidad: >-
+        Honrado, agotado y asustado. Se culpa por haber aceptado el encargo del barón y mide cada
+        palabra como si pudiera delatarle.
+      finalidad: >-
+        Sobrevivir, proteger la Llave mágica de la cripta y decidir si el grupo puede ayudarle sin
+        entregarlo al barón.
+      patron_voz: Frases entrecortadas y directas; usa imágenes de fragua, metal, deuda y culpa.
+      objetivos:
+        - Mantener oculta la Llave mágica de la cripta hasta confiar en el grupo.
+        - Averiguar si los jugadores vienen por cuenta del barón o por ayudar al pueblo.
+        - Encontrar una forma segura de llevar la verdad hasta Padre Eamon.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador promete no entregarlo a Aldric ni al barón, Gorin respira con menos miedo.
+          - >-
+            Si menciona a Marta como aliada sin presionarla, Gorin considera que sabe moverse con
+            cuidado.
+          - Si ofrece escoltarlo hasta la iglesia o proteger la llave, Gorin puede colaborar.
+        pistas_seguras:
+          - La llave no nació para abrir una puerta cualquiera.
+          - Padre Eamon sabrá leer las runas mejor que un herrero asustado.
+          - El barón no pagó por hierro; pagó por acceso.
+          - Si Aldric os sigue, ninguna respuesta será segura aquí abajo.
+        condicion_siguiente: Demostrar que no trabajan para el barón y ofrecer una salida segura hacia la iglesia.
+      lineas_rojas:
+        - No entregar la Llave mágica de la cripta salvo condición validada.
+        - No revelar detalles completos del encargo del barón si sospecha amenaza.
+        - No salir de la bodega si cree que Aldric o sus guardias vigilan la taberna.
+      secretos_protegidos:
+        - id: llave_cripta
+          hecho: Gorin custodia la Llave mágica de la cripta, que abre la cripta sellada bajo la iglesia.
+          terminos_sensibles:
+            - llave
+            - cripta
+            - barón
+            - baron
+            - Aldric
+            - iglesia
+          terminos_prohibidos_respuesta:
+            - bodega
+            - escondido
+            - ubicación
+            - ubicacion
+          condicion_revelar: condicion_revelar_secreto
+      disparadores:
+        pregunta_llave_barón:
+          accion_contiene:
+            - llave
+            - cripta
+            - barón
+            - baron
+            - Aldric
+            - encargo
+          reaccion: >-
+            Se encoge, mira hacia la salida y responde con medias verdades hasta comprobar que no le
+            están tendiendo una trampa.
+          requiere_revision_dm: true
+          no_revelar:
+            - La posesión exacta de la Llave mágica de la cripta.
+            - La ruta segura para salir de la bodega.
+            - Detalles completos del encargo del barón.
+    sprite:
+      imagen: assets/fichas/npcs/gorin__ba516292.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Gorin el Herrero.
+
+        Role or location: bodega.
+
+        Attitude: desconfiado.
+
+        Description: Enano fornido con barba trenzada y manos llenas de cicatrices de quemaduras.
+        Ojos hundidos por el miedo..
+
+        Motivation: Sobrevivir. Forjó una llave por encargo sin saber para qué..
+
+        DM extra direction: Herrero humano de mediana edad, robusto y cansado, barba oscura con
+        canas, rostro preocupado, manos fuertes manchadas de hollín, delantal de cuero de herrero,
+        mirada noble pero asustada, luz cálida de fragua, estilo fantasía medieval oscuro, retrato
+        token centrado, busto claro, sin texto ni letras.
+      visualScale: 1
   - id: aldric
-    nombre: "Capitán Aldric"
-    nombre_en: "Captain Aldric"
+    nombre: Capitán Aldric
+    nombre_en: Captain Aldric
     ubicacion: cuartel
     actitud_inicial: neutral
     genero: masculino
     descripcion: >
-      Hombre alto de mandíbula cuadrada y una cicatriz blanca en la mejilla
-      derecha. Armadura bien mantenida.
-    descripcion_en: >
-      Tall man with a square jaw and a white scar on his right cheek.
-      Well-kept armour.
-    motivacion: "Servir al barón y ascender en la corte. No le importa el pueblo."
+      Hombre alto de mandíbula cuadrada y una cicatriz blanca en la mejilla derecha. Armadura bien
+      mantenida.
+    descripcion_en: |
+      Tall man with a square jaw and a white scar on his right cheek. Well-kept armour.
+    motivacion: Servir al barón y ascender en la corte. No le importa el pueblo.
     secretos:
-      - "El barón quiere la Corona Perdida para reclamar el trono."
-      - "Aldric debe encontrarla a cualquier precio."
+      - El barón quiere la Corona Perdida para reclamar el trono.
+      - Aldric debe encontrarla a cualquier precio.
     secretos_en:
-      - "The baron wants the Lost Crown to claim the throne."
-      - "Aldric must find it at any cost."
-    frase: "Mantengo el orden en este pueblo. Le sugiero que no lo altere."
+      - The baron wants the Lost Crown to claim the throne.
+      - Aldric must find it at any cost.
+    frase: Mantengo el orden en este pueblo. Le sugiero que no lo altere.
+    guardian:
+      arquetipo: Oficial ambicioso del barón
+      personalidad: >-
+        Cortés de forma fría, autoritario y calculador. Cree que el miedo mantiene unido al pueblo y
+        que la obediencia vale más que la verdad.
+      finalidad: >-
+        Controlar Valdecanto, localizar la Corona Perdida y ocultar que actúa por ambición y no por
+        justicia.
+      patron_voz: Mandatos sobrios, amenazas veladas y preguntas administrativas que suenan a interrogatorio.
+      objetivos:
+        - Identificar quién pregunta por Gorin, la cripta o la Corona.
+        - Mantener a los aldeanos dentro del relato oficial del barón.
+        - Usar al grupo si puede servirle y neutralizarlo si estorba.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador muestra respeto formal o información útil, Aldric finge cooperación.
+          - Si denuncia bandidos o problemas de orden público, Aldric ofrece una versión controlada.
+          - Si el jugador parece ambicioso, Aldric tantea si puede comprarlo.
+        pistas_seguras:
+          - El barón no tolera rumores sobre reliquias antiguas.
+          - Las patrullas siguen órdenes, no supersticiones.
+          - Quien busque al herrero debería preguntarse primero quién lo necesita vivo.
+          - El cuartel registra más de lo que cuenta.
+        condicion_siguiente: Aportar información útil sin desafiar su autoridad en público.
+      lineas_rojas:
+        - No admitir que el barón busca la Corona Perdida para reclamar el trono.
+        - No revelar órdenes privadas ni movimientos de patrulla.
+        - No mostrarse culpable por la desaparición de Gorin.
+      secretos_protegidos:
+        - id: ordenes_baron
+          hecho: Aldric sirve al plan del barón para encontrar la Corona Perdida y controlar Valdecanto.
+          terminos_sensibles:
+            - Corona
+            - corona perdida
+            - barón
+            - baron
+            - Gorin
+            - cripta
+          terminos_prohibidos_respuesta:
+            - reclamar el trono
+            - plan del barón
+            - plan del baron
+          condicion_revelar: ""
+      disparadores:
+        pregunta_corona_gorin:
+          accion_contiene:
+            - Corona
+            - corona perdida
+            - Gorin
+            - herrero
+            - cripta
+            - barón
+            - baron
+          reaccion: >-
+            Endurece el tono, convierte la pregunta en interrogatorio y exige saber quién más conoce
+            esos rumores.
+          requiere_revision_dm: true
+          no_revelar:
+            - El interés real del barón por la Corona.
+            - Las órdenes privadas sobre Gorin.
+            - La relación entre la cripta y la legitimidad del barón.
+    sprite:
+      imagen: assets/fichas/npcs/aldric__e11cc873.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Capitán Aldric.
+
+        Role or location: cuartel.
+
+        Attitude: neutral.
+
+        Description: Hombre alto de mandíbula cuadrada y una cicatriz blanca en la mejilla derecha.
+        Armadura bien mantenida..
+
+        Motivation: Servir al barón y ascender en la corte. No le importa el pueblo..
+
+        DM extra direction: Capitán de la guardia humano, rostro severo, mirada autoritaria y
+        desconfiada, armadura medieval sobria con capa oscura, cicatriz ligera en el rostro, porte
+        rígido de oficial, luz fría de cuartel, estilo fantasía medieval realista, retrato token
+        centrado, busto claro, sin texto ni letras.
+      visualScale: 1.4
+  - id: guardia
+    nombre: Guardia del Barón
+    nombre_en: Baron's Guard
+    ubicacion: cuartel
+    actitud_inicial: neutral
+    genero: masculino
+    descripcion: >
+      Soldado raso con cota de malla, lanza corta y escudo con el blasón del barón. Cumple órdenes
+      sin hacer preguntas.
+    descripcion_en: >
+      Rank-and-file guard with chain mail, short spear, and shield bearing the baron's crest.
+      Follows orders without asking questions.
+    motivacion: Mantener el orden y no meterse en problemas con Aldric.
+    secretos:
+      - Algunos guardias dudan en privado de las órdenes del barón.
+      - Varios patrullan la taberna de noche por miedo a disturbios.
+    secretos_en:
+      - Some guards privately doubt the baron's orders.
+      - Several patrol the tavern at night for fear of unrest.
+    frase: En nombre del barón, identifícate y explica qué haces aquí.
+    guardian:
+      arquetipo: Soldado obediente con dudas
+      personalidad: >-
+        Rígido mientras le observan, más humano cuando está lejos de Aldric. Teme equivocarse y
+        pagar por ello.
+      finalidad: >-
+        Cumplir órdenes, evitar castigos y no revelar que algunos guardias dudan de lo que está
+        ocurriendo en Valdecanto.
+      patron_voz: Fórmulas militares, respuestas breves y cautela de soldado raso.
+      objetivos:
+        - Mantener el orden sin meterse en problemas con Aldric.
+        - Evitar hablar demasiado de patrullas, taberna o dudas internas.
+        - Proteger a compañeros que no están convencidos de las órdenes del barón.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador no se burla de su rango, el guardia baja un poco la rigidez.
+          - >-
+            Si pregunta por seguridad del pueblo y no por conspiraciones, puede dar información
+            pública.
+          - Si ofrece ayudar con problemas reales, el guardia puede insinuar rutas de patrulla.
+        pistas_seguras:
+          - La taberna recibe más rondas de patrulla de noche que de día.
+          - No todos los guardias miran las órdenes con los mismos ojos.
+          - Si queréis hablar sin uniforme cerca, elegid mal tiempo y poca luz.
+          - Aldric escucha más de lo que parece.
+        condicion_siguiente: Tratarlo con respeto y hablarle lejos de superiores.
+      lineas_rojas:
+        - No delatar a guardias que dudan de Aldric.
+        - No revelar horarios completos de patrulla.
+        - No acusar al barón ni a Aldric sin pruebas directas.
+      secretos_protegidos:
+        - id: dudas_guardias
+          hecho: Algunos guardias dudan de las órdenes del barón y varios patrullan la taberna de noche.
+          terminos_sensibles:
+            - guardias
+            - patrulla
+            - taberna
+            - Aldric
+            - barón
+            - baron
+          terminos_prohibidos_respuesta:
+            - horario completo
+            - nombres de guardias
+            - compañeros concretos
+          condicion_revelar: ""
+      disparadores:
+        pregunta_patrullas:
+          accion_contiene:
+            - patrulla
+            - guardias
+            - taberna
+            - Aldric
+            - órdenes
+            - ordenes
+          reaccion: >-
+            Repite la versión oficial primero; si no hay superiores cerca, deja caer una pista
+            prudente.
+          requiere_revision_dm: true
+          no_revelar:
+            - Identidades de guardias disidentes.
+            - Horarios completos de patrulla.
+            - Dudas explícitas contra Aldric delante de otros soldados.
+    sprite:
+      imagen: assets/fichas/npcs/guardia__00f8f373.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      visualScale: 1
   - id: eamon
-    nombre: "Padre Eamon"
-    nombre_en: "Father Eamon"
+    nombre: Padre Eamon
+    nombre_en: Father Eamon
     ubicacion: iglesia
     actitud_inicial: amistosa
     genero: masculino
     descripcion: >
-      Anciano de pelo blanco escaso, espalda encorvada y manos temblorosas.
-      Medio sordo del oído izquierdo. Sotana raída pero limpia.
+      Anciano de pelo blanco escaso, espalda encorvada y manos temblorosas. Medio sordo del oído
+      izquierdo. Sotana raída pero limpia.
     descripcion_en: >
-      Elderly priest with thinning white hair, a stooped back, and trembling hands.
-      Half deaf in his left ear. Threadbare but clean robes.
-    motivacion: "Proteger la iglesia y sus secretos."
+      Elderly priest with thinning white hair, a stooped back, and trembling hands. Half deaf in his
+      left ear. Threadbare but clean robes.
+    motivacion: Proteger la iglesia y sus secretos.
     secretos:
-      - "Conoce el ritual de sellado de la cripta, transmitido de párroco en párroco."
-      - "Sabe que hay algo malo abajo pero no los detalles."
-      - "Si el jugador se gana su confianza, enseña la oración que debilita a los espectros."
+      - Conoce el ritual de sellado de la cripta, transmitido de párroco en párroco.
+      - Sabe que hay algo malo abajo pero no los detalles.
+      - >-
+        Si ve la Llave mágica de la cripta, puede reconocer sus runas y explicar que pertenecen al
+        sello antiguo.
+      - Si el jugador se gana su confianza, enseña la oración que debilita a los espectros.
     secretos_en:
-      - "He knows the crypt sealing ritual, handed from priest to priest."
-      - "He senses something evil below but not the details."
-      - "If the party earns his trust, he teaches the prayer that weakens the spectres."
-    frase: "¿Eh? Habla más alto, hijo. Estos oídos ya no son lo que eran."
+      - He knows the crypt sealing ritual, handed from priest to priest.
+      - He senses something evil below but not the details.
+      - >-
+        If he sees the Magic crypt key, he can recognize its runes and explain that they belong to
+        the old seal.
+      - If the party earns his trust, he teaches the prayer that weakens the spectres.
+    frase: ¿Eh? Habla más alto, hijo. Estos oídos ya no son lo que eran.
     condicion_revelar_secreto:
-      descripcion: "Ganarse su confianza o mencionar la cripta con respeto"
+      descripcion: Ganarse su confianza o mencionar la cripta con respeto
       reglas:
         - tipo: actitud_npc
           npc: eamon
           valor: confiada
+    guardian:
+      arquetipo: Sacerdote custodio
+      personalidad: >-
+        Bondadoso, cansado y prudente. Quiere ayudar, pero teme que una verdad mal dicha despierte
+        algo peor bajo la iglesia.
+      finalidad: >-
+        Proteger el ritual de sellado, orientar a quienes actúan con respeto y evitar que la cripta
+        se abra por codicia.
+      patron_voz: >-
+        Voz pausada, pastoral y algo sorda; pide que le repitan cosas y responde con parábolas
+        breves.
+      objetivos:
+        - Discernir si el grupo busca salvar el pueblo o saquear la cripta.
+        - Proteger el ritual hasta que haya una necesidad real.
+        - Guiar a los jugadores hacia una entrada respetuosa y segura.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador habla de la cripta con respeto, Eamon se vuelve más concreto.
+          - Si muestra la Llave mágica de la cripta sin amenazas, Eamon reconoce las runas.
+          - >-
+            Si promete no profanar tumbas ni tocar la Corona por codicia, Eamon ofrece ayuda
+            espiritual.
+        pistas_seguras:
+          - Lo sellado bajo la iglesia no se abre con hierro solamente.
+          - Una oración antigua puede detener a quienes aún recuerdan su juramento.
+          - Las runas de una llave hablan mejor que los rumores de taberna.
+          - Morath no fue un monstruo al principio; fue un hombre con miedo.
+        condicion_siguiente: Mostrar respeto por la cripta, la iglesia y los muertos.
+      lineas_rojas:
+        - No enseñar la oración completa si el grupo parece codicioso o irrespetuoso.
+        - No describir el ritual de sellado como herramienta de saqueo.
+        - No confirmar detalles de la Corona si no hay confianza.
+      secretos_protegidos:
+        - id: ritual_cripta
+          hecho: Eamon conoce el ritual de sellado y una oración que debilita a los espectros.
+          terminos_sensibles:
+            - ritual
+            - cripta
+            - oración
+            - oracion
+            - espectros
+            - Corona
+          terminos_prohibidos_respuesta:
+            - oración completa
+            - oracion completa
+            - ritual completo
+          condicion_revelar: condicion_revelar_secreto
+      disparadores:
+        pregunta_cripta_ritual:
+          accion_contiene:
+            - cripta
+            - ritual
+            - oración
+            - oracion
+            - espectros
+            - llave
+            - Corona
+          reaccion: >-
+            Escucha con gravedad, pide respeto por los muertos y ofrece una pista espiritual antes
+            que instrucciones completas.
+          requiere_revision_dm: true
+          no_revelar:
+            - La oración completa contra los espectros.
+            - El ritual de sellado en detalle.
+            - Secretos de la Corona sin confianza.
+    sprite:
+      imagen: assets/fichas/npcs/eamon__fefbb9df.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Padre Eamon.
+
+        Role or location: iglesia.
+
+        Attitude: amistosa.
+
+        Description: Anciano de pelo blanco escaso, espalda encorvada y manos temblorosas. Medio
+        sordo del oído izquierdo. Sotana raída pero limpia..
+
+        Motivation: Proteger la iglesia y sus secretos..
+
+        DM extra direction: Sacerdote anciano humano, rostro sereno y fatigado, barba blanca corta,
+        túnica clerical sencilla, símbolo sagrado discreto sin letras, mirada compasiva con sombra
+        de preocupación, luz tenue de velas de iglesia, fantasía medieval oscura, retrato token
+        centrado, busto claro, sin texto ni letras.
+      visualScale: 1
+    vende:
+      - pocion_curacion
+      - servicio_curacion_menor
   - id: syla
-    nombre: "Syla la Bandida"
-    nombre_en: "Syla the Bandit"
+    nombre: Syla la Bandida
+    nombre_en: Syla the Bandit
     ubicacion: puente_cuervo
     actitud_inicial: hostil
     genero: femenino
     descripcion: >
-      Mujer joven de pelo rapado, piel bronceada y una sonrisa torcida.
-      Armadura ligera de cuero con parches. Espada curva al cinto.
+      Mujer joven de pelo rapado, piel bronceada y una sonrisa torcida. Armadura ligera de cuero con
+      parches. Espada curva al cinto.
     descripcion_en: >
-      Young woman with a shaved head, bronzed skin, and a crooked smile.
-      Light patched leather armour. A curved sword at her belt.
-    motivacion: "Sobrevivir. Ex soldado del barón, desertó cuando le ordenaron quemar una aldea."
+      Young woman with a shaved head, bronzed skin, and a crooked smile. Light patched leather
+      armour. A curved sword at her belt.
+    motivacion: Sobrevivir. Ex soldado del barón, desertó cuando le ordenaron quemar una aldea.
     secretos:
-      - "El barón está reclutando mercenarios en secreto."
-      - "Algo grande se prepara."
+      - El barón está reclutando mercenarios en secreto.
+      - Algo grande se prepara.
     secretos_en:
-      - "The baron is secretly hiring mercenaries."
-      - "Something big is in motion."
-    frase: "Son cinco de plata. O el bolso. Tú eliges, forastero."
+      - The baron is secretly hiring mercenaries.
+      - Something big is in motion.
+    frase: Son cinco de plata. O el bolso. Tú eliges, forastero.
     reclutable: true
-    condicion_reclutamiento: "Ofrecerle una causa que merezca la pena o demostrar fuerza."
+    condicion_reclutamiento: Ofrecerle una causa que merezca la pena o demostrar fuerza.
+    guardian:
+      arquetipo: Bandida desertora
+      personalidad: >-
+        Desafiante, rápida para medir debilidades y más honorable de lo que aparenta. Detesta que la
+        confundan con una matona del barón.
+      finalidad: >-
+        Sobrevivir, mantener el control del puente y ocultar lo que sabe de mercenarios y órdenes
+        sucias del barón.
+      patron_voz: Frases afiladas, humor seco y amenazas prácticas; respeta la fuerza con propósito.
+      objetivos:
+        - Cobrar peaje sin iniciar una pelea perdida.
+        - Saber si el grupo puede servir contra el barón o solo traer problemas.
+        - Proteger a su banda sin vender su historia de desertora.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador negocia con firmeza sin humillarla, Syla escucha.
+          - Si demuestra fuerza sin crueldad, Syla reconoce una causa posible.
+          - Si menciona abusos del barón con conocimiento, Syla deja caer pistas.
+        pistas_seguras:
+          - El barón compra acero ajeno cuando no confía en el suyo.
+          - No todos los recaudadores llevan sello verdadero.
+          - Si queréis saber qué se prepara, seguid el dinero de los mercenarios.
+          - Una desertora sabe distinguir una orden de una condena.
+        condicion_siguiente: Ofrecerle una causa creíble o demostrar fuerza sin matarla ni humillarla.
+      lineas_rojas:
+        - No revelar contactos de la banda si no hay acuerdo.
+        - No confesar detalles de su deserción delante de subordinados.
+        - No servir al grupo si parece aliado del barón.
+      secretos_protegidos:
+        - id: mercenarios_baron
+          hecho: Syla sabe que el barón está reclutando mercenarios en secreto y prepara algo grande.
+          terminos_sensibles:
+            - barón
+            - baron
+            - mercenarios
+            - recaudadores
+            - desertó
+            - deserto
+          terminos_prohibidos_respuesta:
+            - contactos de la banda
+            - campamento exacto
+            - nombres de mercenarios
+          condicion_revelar: condicion_reclutamiento
+      disparadores:
+        pregunta_baron_mercenarios:
+          accion_contiene:
+            - barón
+            - baron
+            - mercenarios
+            - recaudadores
+            - desertora
+            - puente
+          reaccion: >-
+            Sonríe sin humor, prueba si el jugador viene a comprarla o a usarla y da pistas solo si
+            ve una causa.
+          requiere_revision_dm: true
+          no_revelar:
+            - Contactos concretos de la banda.
+            - Detalles completos del reclutamiento del barón.
+            - Su ruta segura de retirada.
+    sprite:
+      imagen: assets/fichas/npcs/syla__4338d27c.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Syla la Bandida.
+
+        Role or location: puente_cuervo.
+
+        Attitude: hostil.
+
+        Description: Mujer joven de pelo rapado, piel bronceada y una sonrisa torcida. Armadura
+        ligera de cuero con parches. Espada curva al cinto..
+
+        Motivation: Sobrevivir. Ex soldado del barón, desertó cuando le ordenaron quemar una aldea..
+
+        DM extra direction: Bandida humana ágil, expresión desafiante y astuta, cabello oscuro
+        desordenado, capucha de cuero gastado, pañuelo al cuello, pequeña cicatriz en la mejilla,
+        mirada de superviviente, luz de bosque nocturno, fantasía medieval oscura, retrato token
+        centrado, busto claro, sin texto ni letras.
+      visualScale: 1
   - id: bertram
-    nombre: "Bertram el Posadero"
-    nombre_en: "Bertram the Innkeeper"
+    nombre: Bertram el Posadero
+    nombre_en: Bertram the Innkeeper
     ubicacion: posada
     vende:
       - cerveza
@@ -398,407 +2704,1058 @@ npcs:
     actitud_inicial: amistosa
     genero: masculino
     descripcion: >
-      Hombre gordo y calvo con un bigote ridículamente encerado. Siempre
-      secando un vaso con un trapo más sucio que el vaso.
+      Hombre gordo y calvo con un bigote ridículamente encerado. Siempre secando un vaso con un
+      trapo más sucio que el vaso.
     descripcion_en: >
-      Fat, bald man with a ridiculously waxed moustache. Always drying a glass
-      with a rag dirtier than the glass.
-    motivacion: "El dinero. Compra y vende información. Sin lealtades."
+      Fat, bald man with a ridiculously waxed moustache. Always drying a glass with a rag dirtier
+      than the glass.
+    motivacion: El dinero. Compra y vende información. Sin lealtades.
     secretos:
-      - "Ha oído hablar de la Corona a un mercader borracho."
-      - "Sabe que el barón ha enviado agentes a Valdecanto."
+      - Ha oído hablar de la Corona a un mercader borracho.
+      - Sabe que el barón ha enviado agentes a Valdecanto.
     secretos_en:
-      - "He heard about the Crown from a drunk merchant."
-      - "He knows the baron has sent agents to Valdecanto."
-    frase: "Información gratis no existe, amigo. Pero tengo una oferta especial."
+      - He heard about the Crown from a drunk merchant.
+      - He knows the baron has sent agents to Valdecanto.
+    frase: Información gratis no existe, amigo. Pero tengo una oferta especial.
     condicion_revelar_secreto:
-      descripcion: "Pagar 10 monedas de plata o hacer un favor"
+      descripcion: Pagar 10 monedas de plata o hacer un favor
       reglas:
         - tipo: item_en_inventario
-          item_patron: "moneda.*plata"
+          item_patron: moneda.*plata
           cantidad_minima: 10
+    guardian:
+      arquetipo: Posadero mercader de rumores
+      personalidad: >-
+        Afable por negocio, cobarde ante el peligro y siempre atento a convertir una noticia en
+        beneficio.
+      finalidad: Vender información sin quedar implicado, proteger sus fuentes y no enemistarse con el barón.
+      patron_voz: Cortesía exagerada, refranes de posada y precios disfrazados de favores.
+      objetivos:
+        - Cobrar por rumores útiles o intercambiarlos por protección.
+        - Averiguar cuánto sabe el grupo antes de arriesgar su cuello.
+        - Mantener abierta la posada aunque el pueblo se hunda.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador paga, compra comida o ofrece un favor, Bertram se vuelve más útil.
+          - Si promete no citarlo como fuente, Bertram rebaja el precio de la verdad.
+          - Si trae noticias nuevas, Bertram intercambia rumor por rumor.
+        pistas_seguras:
+          - Un mercader borracho habló demasiado sobre una corona antigua.
+          - Los agentes del barón no siempre visten uniforme.
+          - En una posada se oye más por las escaleras que por la barra.
+          - La información gratis suele ser la más peligrosa.
+        condicion_siguiente: Pagar, hacer un favor o traer una noticia de valor equivalente.
+      lineas_rojas:
+        - No revelar una fuente concreta sin pago o protección.
+        - No admitir que vende información a ambos bandos.
+        - No acusar al barón directamente en público.
+      secretos_protegidos:
+        - id: rumor_corona_agentes
+          hecho: >-
+            Bertram oyó hablar de la Corona a un mercader borracho y sabe que el barón envió
+            agentes.
+          terminos_sensibles:
+            - Corona
+            - mercader
+            - barón
+            - baron
+            - agentes
+            - Valdecanto
+          terminos_prohibidos_respuesta:
+            - nombre de la fuente
+            - fuente concreta
+            - contacto exacto
+          condicion_revelar: condicion_revelar_secreto
+      disparadores:
+        pregunta_rumores_corona:
+          accion_contiene:
+            - Corona
+            - rumor
+            - mercader
+            - barón
+            - baron
+            - agentes
+            - información
+            - informacion
+          reaccion: >-
+            Calcula un precio, sonríe demasiado y ofrece una pista parcial antes de pedir pago o
+            favor.
+          requiere_revision_dm: true
+          no_revelar:
+            - La identidad exacta del mercader.
+            - Qué agentes del barón ha visto.
+            - Información completa sin pago o favor.
+    sprite:
+      imagen: assets/fichas/npcs/bertram__059659af.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Bertram el Posadero.
+
+        Role or location: posada.
+
+        Attitude: amistosa.
+
+        Description: Hombre gordo y calvo con un bigote ridículamente encerado. Siempre secando un
+        vaso con un trapo más sucio que el vaso..
+
+        Motivation: El dinero. Compra y vende información. Sin lealtades..
+
+        DM extra direction: Posadero humano mayor, rostro redondo y amable, bigote canoso, ropa
+        sencilla de taberna, chaleco gastado, expresión hospitalaria pero algo nerviosa, luz cálida
+        de posada, ambiente acogedor medieval, retrato token centrado, busto claro, sin texto ni
+        letras.
+      visualScale: 1
   - id: hilda
-    nombre: "Vieja Hilda"
-    nombre_en: "Old Hilda"
+    nombre: Vieja Hilda
+    nombre_en: Old Hilda
     ubicacion: casa_hilda
+    vende:
+      - curacion_menor
+      - escudo_magico
+      - eco_tonante
     actitud_inicial: desconfiada
     genero: femenino
     descripcion: >
-      Anciana enjuta con ojos de un verde intenso. Pelo gris largo y suelto.
-      Huele a hierbas y tierra mojada. Los aldeanos la llaman bruja.
+      Anciana enjuta con ojos de un verde intenso. Pelo gris largo y suelto. Huele a hierbas y
+      tierra mojada. Los aldeanos la llaman bruja.
     descripcion_en: >
-      Gaunt old woman with intense green eyes. Long grey hair left loose.
-      She smells of herbs and damp earth. Villagers call her a witch.
-    motivacion: "Que la dejen en paz. Cuida del equilibrio entre pueblo y bosque."
+      Gaunt old woman with intense green eyes. Long grey hair left loose. She smells of herbs and
+      damp earth. Villagers call her a witch.
+    motivacion: Que la dejen en paz. Cuida del equilibrio entre pueblo y bosque.
     secretos:
-      - "El Bosque de Bruma está inquieto desde que el barón busca la Corona."
-      - "La Hondonada del Susurro escucha lo que pasa en la cripta."
+      - El Bosque de Bruma está inquieto desde que el barón busca la Corona.
+      - La Hondonada del Susurro escucha lo que pasa en la cripta.
     secretos_en:
-      - "The Mistwood has been restless since the baron began hunting the Crown."
-      - "Whisper Hollow hears what happens in the crypt."
-    frase: "El bosque sabe. El bosque siempre sabe."
+      - The Mistwood has been restless since the baron began hunting the Crown.
+      - Whisper Hollow hears what happens in the crypt.
+    frase: El bosque sabe. El bosque siempre sabe.
     servicios:
-      - "Puede preparar pociones y ungüentos a cambio de ingredientes."
+      - Puede preparar pociones y ungüentos a cambio de ingredientes.
+    guardian:
+      arquetipo: Bruja del bosque
+      personalidad: >-
+        Áspera, intuitiva y poco paciente con la soberbia. Habla como si escuchara al bosque antes
+        que a las personas.
+      finalidad: >-
+        Proteger el equilibrio del bosque, advertir sobre la Hondonada del Susurro y no entregar
+        saber antiguo a manos imprudentes.
+      patron_voz: Frases enigmáticas, imágenes de raíces, lluvia, huesos y niebla.
+      objetivos:
+        - Saber si el grupo respeta el bosque o solo busca herramientas.
+        - Guardar los secretos de la Hondonada hasta que haya confianza.
+        - Preparar remedios útiles sin revelar todo lo que escucha.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador trae ingredientes o respeta sus advertencias, Hilda se vuelve más clara.
+          - Si pregunta por el bosque sin burlarse de la brujería, comparte pistas.
+          - Si menciona la cripta con temor prudente, Hilda advierte sin cerrar la puerta.
+        pistas_seguras:
+          - La Hondonada repite lo que la piedra quiere callar.
+          - El Bosque de Bruma no está inquieto por lobos.
+          - La Corona deja una raíz negra incluso donde no toca tierra.
+          - Si la cripta respira, el bosque tose.
+        condicion_siguiente: Mostrar respeto por el bosque y ofrecer ayuda o ingredientes.
+      lineas_rojas:
+        - No revelar todo lo que escucha la Hondonada si el grupo parece codicioso.
+        - No entregar remedios o saber peligroso sin pago, ingrediente o respeto.
+        - No tratar la maldición de la Corona como simple superstición.
+      secretos_protegidos:
+        - id: bosque_hondonada_corona
+          hecho: >-
+            Hilda sabe que el Bosque de Bruma está inquieto por la búsqueda de la Corona y que la
+            Hondonada oye la cripta.
+          terminos_sensibles:
+            - Bosque de Bruma
+            - Hondonada
+            - cripta
+            - Corona
+            - maldición
+            - maldicion
+          terminos_prohibidos_respuesta:
+            - ruta exacta
+            - escucha todo
+            - método completo
+          condicion_revelar: ""
+      disparadores:
+        pregunta_bosque_cripta:
+          accion_contiene:
+            - bosque
+            - Hondonada
+            - cripta
+            - Corona
+            - maldición
+            - maldicion
+            - poción
+            - pocion
+          reaccion: >-
+            Entrecierra los ojos, escucha algo que nadie más oye y responde con advertencia
+            simbólica antes que dato directo.
+          requiere_revision_dm: true
+          no_revelar:
+            - Todo lo que oye la Hondonada.
+            - Rutas exactas o métodos completos sin confianza.
+            - Secretos de la Corona tratados como receta.
+    sprite:
+      imagen: assets/fichas/npcs/hilda__cdd9ac17.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Vieja Hilda.
+
+        Role or location: casa_hilda.
+
+        Attitude: desconfiada.
+
+        Description: Anciana enjuta con ojos de un verde intenso. Pelo gris largo y suelto. Huele a
+        hierbas y tierra mojada. Los aldeanos la llaman bruja..
+
+        Motivation: Que la dejen en paz. Cuida del equilibrio entre pueblo y bosque..
+
+        DM extra direction: Anciana humana sabia y misteriosa, rostro arrugado, ojos penetrantes,
+        pañuelo oscuro sobre el cabello, manos huesudas sosteniendo hierbas secas, expresión
+        enigmática, luz tenue de cabaña, fantasía rural oscura, retrato token centrado, busto claro,
+        sin texto ni letras.
+      visualScale: 1
   - id: baron_renard
-    nombre: "Barón Renard"
-    nombre_en: "Baron Renard"
+    nombre: Barón Renard
+    nombre_en: Baron Renard
     ubicacion: corte_baron
     actitud_inicial: desconfiado
     genero: masculino
     descripcion: >
-      Señor laico de mediana edad, mirada afilada y manos bien cuidadas.
-      Viste telas oscuras bordadas con su blasón. Habla poco; cada palabra
-      pesa. Rara vez sale de su corte; prefiere emisarios y al capitán Aldric.
+      Señor laico de mediana edad, mirada afilada y manos bien cuidadas. Viste telas oscuras
+      bordadas con su blasón. Habla poco; cada palabra pesa. Rara vez sale de su corte; prefiere
+      emisarios y al capitán Aldric.
     descripcion_en: >
-      Middle-aged secular lord with a sharp gaze and well-kept hands.
-      Dark fabrics embroidered with his crest. Rarely leaves his seat;
-      prefers envoys and Captain Aldric to dirty their boots.
-    motivacion: "Hacerse con la Corona Perdida para legitimar su ascenso."
+      Middle-aged secular lord with a sharp gaze and well-kept hands. Dark fabrics embroidered with
+      his crest. Rarely leaves his seat; prefers envoys and Captain Aldric to dirty their boots.
+    motivacion: Hacerse con la Corona Perdida para legitimar su ascenso.
     secretos:
-      - "Ordenó forjar la llave de la cripta (Gorin) y envió a Aldric a controlar Valdecanto."
-      - "Posee fragmentos del diario de Morath; subestima o niega el alcance de la maldición."
+      - Ordenó forjar la Llave mágica de la cripta (Gorin) y envió a Aldric a controlar Valdecanto.
+      - Posee fragmentos del diario de Morath; subestima o niega el alcance de la maldición.
     secretos_en:
-      - "He ordered the crypt key forged (Gorin) and sent Aldric to lock down Valdecanto."
-      - "He holds fragments of Morath's diary; he underestimates or denies the curse."
-    frase: "El valle es mío. Lo que duerme bajo la iglesia también — si hace falta."
+      - He ordered the Magic crypt key forged (Gorin) and sent Aldric to lock down Valdecanto.
+      - He holds fragments of Morath's diary; he underestimates or denies the curse.
+    frase: El valle es mío. Lo que duerme bajo la iglesia también — si hace falta.
+    guardian:
+      arquetipo: Noble usurpador
+      personalidad: >-
+        Elegante, frío y seguro de su derecho a mandar. Confunde prudencia con debilidad y trata la
+        historia como una propiedad más.
+      finalidad: >-
+        Obtener la Corona Perdida, borrar rastros comprometedores y usar a Gorin, Aldric o los
+        jugadores como piezas de su legitimidad.
+      patron_voz: >-
+        Frases lentas, cortesanas y amenazantes; convierte toda pregunta en una evaluación de
+        lealtad.
+      objetivos:
+        - Descubrir qué sabe el grupo sobre la Corona, Gorin y la cripta.
+        - Mantener oculto su encargo de la Llave mágica de la cripta.
+        - Presentarse como gobernante inevitable, no como conspirador.
+      progresion_confianza:
+        señales_positivas:
+          - Si el jugador muestra ambición o desprecio por el pueblo, Renard tantea una alianza.
+          - Si ofrece información útil sin moralizar, Renard concede migajas calculadas.
+          - Si demuestra poder, Renard intenta comprarlo antes que destruirlo.
+        pistas_seguras:
+          - Un reino no se reclama con cuentos, sino con símbolos.
+          - Morath entendía que el miedo puede ser una cerradura.
+          - Los herreros cobran por hierro, pero los nobles pagan por llaves.
+          - La iglesia guarda más política que plegarias.
+        condicion_siguiente: Demostrar utilidad política o entregar información sobre la Corona.
+      lineas_rojas:
+        - No confesar que ordenó forjar la Llave mágica de la cripta.
+        - No admitir que quiere la Corona Perdida para reclamar el trono.
+        - No mostrar miedo real a la maldición de Morath.
+      secretos_protegidos:
+        - id: plan_corona_renard
+          hecho: >-
+            El barón Renard ordenó forjar la Llave mágica de la cripta y quiere la Corona Perdida
+            para legitimar su ascenso.
+          terminos_sensibles:
+            - Corona
+            - Llave mágica
+            - Llave magica
+            - Gorin
+            - cripta
+            - Morath
+            - trono
+          terminos_prohibidos_respuesta:
+            - reclamar el trono
+            - ordené forjar
+            - ordene forjar
+            - legitimidad usurpada
+          condicion_revelar: ""
+      disparadores:
+        pregunta_corona_llave:
+          accion_contiene:
+            - Corona
+            - Llave
+            - llave
+            - Gorin
+            - cripta
+            - Morath
+            - trono
+            - Aldric
+          reaccion: >-
+            Sonríe con paciencia peligrosa, mide la utilidad del jugador y responde con superioridad
+            antes que con verdad.
+          requiere_revision_dm: true
+          no_revelar:
+            - Su encargo directo a Gorin.
+            - Su intención de reclamar el trono con la Corona.
+            - El contenido real de los fragmentos del diario de Morath.
+    sprite:
+      imagen: assets/fichas/npcs/baron_renard__525aeb9d.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
-# ============================================================================
-# BESTIARIO
-# ============================================================================
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Name: Barón Renard.
+
+        Role or location: corte_baron.
+
+        Attitude: desconfiado.
+
+        Description: Señor laico de mediana edad, mirada afilada y manos bien cuidadas. Viste telas
+        oscuras bordadas con su blasón. Habla poco; cada palabra pesa. Rara vez sale de su corte;
+        prefiere emisarios y al capitán Aldric..
+
+        Motivation: Hacerse con la Corona Perdida para legitimar su ascenso..
+
+        DM extra direction: Noble humano de mediana edad, rostro elegante y desconfiado, barba
+        cuidadosamente recortada, ropa aristocrática oscura con detalles dorados, mirada fría y
+        calculadora, luz de salón noble en penumbra, fantasía medieval política, retrato token
+        centrado, busto claro, sin texto ni letras.
+      visualScale: 1.4
 bestiario:
   - id: espectro_juramentado
-    nombre: "Espectro Juramentado"
+    nombre: Espectro Juramentado
     ubicacion: cripta_sala
     aspecto: >
-      Siluetas translúcidas de soldados con armaduras antiguas.
-      Ojos como ascuas blancas. Se mueven sin sonido.
+      Siluetas translúcidas de soldados con armaduras antiguas. Ojos como ascuas blancas. Se mueven
+      sin sonido.
     comportamiento: >
-      Patrullan la cripta en silencio. No atacan a menos que se profane
-      un sarcófago o se intente pasar sin el ritual de paz.
-    debilidad: "La oración del Padre Eamon los paraliza. Destruir la Corona los libera."
+      Patrullan la cripta en silencio. No atacan a menos que se profane un sarcófago o se intente
+      pasar sin el ritual de paz.
+    debilidad: La oración del Padre Eamon los paraliza. Destruir la Corona los libera.
     peligro: medio-alto
-    grupo: "3-4 espectros"
+    grupo: 3-4 espectros
+    sprite:
+      imagen: assets/fichas/bestiario/espectro_juramentado__8876f040.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Creature: Espectro Juramentado.
+
+        Threat: medio-alto.
+
+        Group: 3-4 espectros.
+
+        Appearance: Siluetas translúcidas de soldados con armaduras antiguas. Ojos como ascuas
+        blancas. Se mueven sin sonido..
+
+        Behavior: Patrullan la cripta en silencio. No atacan a menos que se profane un sarcófago o
+        se intente pasar sin el ritual de paz..
+
+        Weakness: La oración del Padre Eamon los paraliza. Destruir la Corona los libera..
+
+        DM extra direction: Espectro de antiguo soldado juramentado, figura fantasmal translúcida
+        con restos de armadura oxidada, rostro hueco y solemne, ojos verdosos brillantes, niebla
+        fría alrededor, aura de juramento roto, fantasía oscura, retrato token centrado, silueta
+        clara, sin texto ni letras.
+      visualScale: 1.4
   - id: espectro_morath
-    nombre: "Espectro de Morath"
+    nombre: Espectro de Morath
     ubicacion: cripta_camara
     aspecto: >
-      Sombra alta y estilizada con una corona de humo negro. Manos huesudas
-      flotantes. Voz cavernosa.
-    comportamiento: >
+      Sombra alta y estilizada con una corona de humo negro. Manos huesudas flotantes. Voz
+      cavernosa.
+    comportamiento: |
       Guarda la Corona. Intenta convencer de tocarla. Si se niegan, ataca.
-    debilidad: "Su nombre verdadero (Erasmus Morath) lo debilita."
+    debilidad: Su nombre verdadero (Erasmus Morath) lo debilita.
     peligro: alto
-    grupo: "individual"
+    grupo: individual
+    sprite:
+      imagen: assets/fichas/bestiario/espectro_morath__f2391bb4.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Creature: Espectro de Morath.
+
+        Threat: alto.
+
+        Group: individual.
+
+        Appearance: Sombra alta y estilizada con una corona de humo negro. Manos huesudas flotantes.
+        Voz cavernosa..
+
+        Behavior: Guarda la Corona. Intenta convencer de tocarla. Si se niegan, ataca..
+
+        Weakness: Su nombre verdadero (Erasmus Morath) lo debilita..
+
+        DM extra direction: Espectro arcano poderoso, rostro cadavérico translúcido, corona o
+        diadema rota apenas visible, túnica espectral desgarrada, ojos azules fantasmales, energía
+        necromántica alrededor, presencia antigua y maldita, fantasía oscura, retrato token
+        centrado, sin texto ni letras.
+      visualScale: 1.8
+  - id: guardia
+    nombre: Guardia del Barón
+    ubicacion: cuartel
+    aspecto: Soldado humano con cota de malla, casco abierto, escudo heráldico y lanza corta.
+    comportamiento: Patrulla en parejas, exige explicaciones y pide refuerzos si detecta amenazas.
+    debilidad: Disciplina rígida; se desorganizan si cae su capitán o si reciben órdenes contradictorias.
+    peligro: medio
+    grupo: patrulla de 2-4 guardias
+    sprite:
+      imagen: assets/fichas/bestiario/guardia__bdaca631.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      visualScale: 1
   - id: oso_palido
-    nombre: "Oso Pálido"
+    nombre: Oso Pálido
     ubicacion: guarida_oso
-    aspecto: "Oso albino el doble de grande que uno normal. Cicatrices en el hocico."
-    comportamiento: "Territorial. Ruge antes de atacar. Retroceder = no persigue. Comida = se calma."
-    debilidad: "Lento en espacios cerrados. Herida vieja en pata trasera izquierda."
+    aspecto: Oso albino el doble de grande que uno normal. Cicatrices en el hocico.
+    comportamiento: Territorial. Ruge antes de atacar. Retroceder = no persigue. Comida = se calma.
+    debilidad: Lento en espacios cerrados. Herida vieja en pata trasera izquierda.
     peligro: alto
     evitable: true
+    sprite:
+      imagen: assets/fichas/bestiario/oso_palido__acaf7ed3.png
+      estilo: token_retrato
+      origen: epic_isometric_bundle
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Creature: Oso Pálido.
+
+        Threat: alto.
+
+        Appearance: Oso albino el doble de grande que uno normal. Cicatrices en el hocico..
+
+        Behavior: Territorial. Ruge antes de atacar. Retroceder = no persigue. Comida = se calma..
+
+        Weakness: Lento en espacios cerrados. Herida vieja en pata trasera izquierda..
+
+        DM extra direction: Oso enorme de pelaje blanco grisáceo, aspecto enfermo y feroz, ojos
+        pequeños brillando en la oscuridad, hocico con cicatrices, respiración visible en aire frío,
+        bosque sombrío de fondo, criatura salvaje de fantasía oscura, retrato token centrado, cabeza
+        y pecho claros, sin texto ni letras.
+      visualScale: 1.4
   - id: ratas_velo
-    nombre: "Ratas del Velo"
+    nombre: Ratas del Velo
     ubicacion: mina_entrada
-    aspecto: "Ratas del tamaño de un gato, pelaje negro, ojos brillantes."
-    comportamiento: "Huyen de la luz. Atacan en masa sin ella. Roen cuerdas y provisiones."
-    debilidad: "Fuego, luz intensa."
+    aspecto: Ratas del tamaño de un gato, pelaje negro, ojos brillantes.
+    comportamiento: Huyen de la luz. Atacan en masa sin ella. Roen cuerdas y provisiones.
+    debilidad: Fuego, luz intensa.
     peligro: bajo
+    sprite:
+      imagen: assets/fichas/bestiario/ratas_velo__99a728d0.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Creature: Ratas del Velo.
+
+        Threat: bajo.
+
+        Appearance: Ratas del tamaño de un gato, pelaje negro, ojos brillantes..
+
+        Behavior: Huyen de la luz. Atacan en masa sin ella. Roen cuerdas y provisiones..
+
+        Weakness: Fuego, luz intensa..
+
+        DM extra direction: Rata monstruosa de tamaño anormal, pelaje oscuro y húmedo, ojos lechosos
+        brillantes, dientes afilados, sombra sobrenatural envolviendo el cuerpo, ambiente de cripta
+        o alcantarilla, fantasía oscura, retrato token centrado, silueta clara, sin texto ni letras.
+      visualScale: 1.4
   - id: bandidos
-    nombre: "Bandidos del Puente del Cuervo"
+    nombre: Bandidos del Puente del Cuervo
     ubicacion: puente_cuervo
     aspecto: "4-5 bandidos disfrazados de recaudadores. Líder: Syla."
-    comportamiento: "Cobran peaje (5 plata). Negociables. Huyen si la pelea va mal."
-    debilidad: "Oportunistas, no fanáticos."
+    comportamiento: Cobran peaje (5 plata). Negociables. Huyen si la pelea va mal.
+    debilidad: Oportunistas, no fanáticos.
     peligro: medio
+    sprite:
+      imagen: assets/fichas/bestiario/bandidos__09923c7d.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Creature: Bandidos del Puente del Cuervo.
+
+        Threat: medio.
+
+        Appearance: 4-5 bandidos disfrazados de recaudadores. Líder: Syla..
+
+        Behavior: Cobran peaje (5 plata). Negociables. Huyen si la pelea va mal..
+
+        Weakness: Oportunistas, no fanáticos..
+
+        DM extra direction: Bandido humano rudo con capucha y cuero gastado, mirada cruel y
+        oportunista, barba descuidada, daga o ballesta parcialmente visible sin tapar el rostro,
+        fondo de puente viejo bajo cielo gris, fantasía medieval oscura, retrato token centrado,
+        busto claro, sin texto ni letras.
+      visualScale: 1
   - id: arana_tejedora
-    nombre: "Araña Tejedora"
+    nombre: Araña Tejedora
     ubicacion: mina_entrada
-    aspecto: "Arañas tamaño perro grande. Tejen redes casi invisibles entre vigas."
-    comportamiento: "Emboscadoras. Hilo pegajoso + mordisco paralizante."
-    debilidad: "Fuego quema las telas. Frágiles ante golpes directos."
+    aspecto: Arañas tamaño perro grande. Tejen redes casi invisibles entre vigas.
+    comportamiento: Emboscadoras. Hilo pegajoso + mordisco paralizante.
+    debilidad: Fuego quema las telas. Frágiles ante golpes directos.
     peligro: medio
+    sprite:
+      imagen: assets/fichas/bestiario/arana_tejedora__8982ed25.png
+      estilo: token_retrato
+      origen: asset_fichas_editor
+      prompt: >-
+        Square fantasy tabletop RPG token portrait.
 
-# ============================================================================
-# HISTORIA DE FONDO
-# ============================================================================
+        Bust portrait centered in a circular token frame, readable at small size.
+
+        Painterly high-detail style, clean silhouette, transparent-looking edge, no text, no
+        watermark.
+
+        Creature: Araña Tejedora.
+
+        Threat: medio.
+
+        Appearance: Arañas tamaño perro grande. Tejen redes casi invisibles entre vigas..
+
+        Behavior: Emboscadoras. Hilo pegajoso + mordisco paralizante..
+
+        Weakness: Fuego quema las telas. Frágiles ante golpes directos..
+
+        DM extra direction: Araña gigante de cueva, cuerpo oscuro con marcas pálidas, múltiples ojos
+        brillantes, patas largas y afiladas, telarañas densas alrededor, gotas de humedad en los
+        colmillos, fantasía oscura subterránea, retrato token centrado, silueta clara, sin texto ni
+        letras.
+      visualScale: 1.4
 historia:
   leyenda: >
-    Hace trescientos años, el rey Aldaron III unificó los cinco reinos bajo
-    una sola corona forjada con el hierro del Corazón de la Montaña y
-    bendecida por los sacerdotes de la Luz Eterna. Quien la llevara,
-    gobernaría por derecho divino.
+    Hace trescientos años, el rey Aldaron III unificó los cinco reinos bajo una sola corona forjada
+    con el hierro del Corazón de la Montaña y bendecida por los sacerdotes de la Luz Eterna. Quien
+    la llevara, gobernaría por derecho divino.
   caida: >
-    El último rey, Aldaron V, murió sin herederos durante la Plaga del Velo
-    Negro. Su consejero Morath ocultó la corona en una cripta secreta bajo
-    la iglesia de Valdecanto para evitar que cayera en manos equivocadas.
+    El último rey, Aldaron V, murió sin herederos durante la Plaga del Velo Negro. Su consejero
+    Morath ocultó la corona en una cripta secreta bajo la iglesia de Valdecanto para evitar que
+    cayera en manos equivocadas.
   presente: >
-    Siglos después, el barón Renard ha encontrado fragmentos del diario de
-    Morath. Obsesionado con el poder, ordenó forjar una llave (a Gorin)
-    y envió al Capitán Aldric para asegurar la zona.
+    Siglos después, el barón Renard ha encontrado fragmentos del diario de Morath. Obsesionado con
+    el poder, ordenó forjar la Llave mágica de la cripta (a Gorin) y envió al Capitán Aldric para
+    asegurar la zona.
   secreto_mayor: >
-    La corona está maldita. Morath la selló con un ritual de sangre que
-    despertó a los espectros de los soldados de Aldaron V. La corona no
-    da poder: consume a quien la porta. Morath fue su primera víctima.
-
-# ============================================================================
-# FINALES
-# ============================================================================
+    La corona está maldita. Morath la selló con un ritual de sangre que despertó a los espectros de
+    los soldados de Aldaron V. La corona no da poder: consume a quien la porta. Morath fue su
+    primera víctima.
+artefactos:
+  - id: corona_perdida
+    nombre: La Corona Perdida
+    categoria: artefacto
+    canonico: true
+    objeto_catalogo: corona_perdida
+    descripcion: >
+      La Corona Perdida es un artefacto mágico central, no botín menor ni mercancía. Puede convocar
+      a tres Espectros Juramentados aliados temporales, pero cada uso aumenta la corrupción de la
+      Corona.
+    poderes:
+      - id: convocar_juramentados
+        nombre: Convocar a los Juramentados
+        requiere:
+          - El personaje posee o porta `corona_perdida`
+        efecto: >
+          Invoca 3 Espectros Juramentados aliados temporales durante 3 turnos o hasta el final del
+          combate.
+        coste:
+          corrupcion_corona: 1
+        limite: 1 vez por escena o combate
+        narrativa: >
+          La gema oscura de la Corona late una vez, como un corazón bajo tierra. El aire se enfría.
+          Tres figuras espectrales emergen del suelo, arrodilladas ante el portador, con espadas
+          oxidadas y ojos vacíos. No miran al enemigo: miran primero a quien lleva la Corona,
+          esperando una orden.
+    corrupcion_corona:
+      inicial: 0
+      escala:
+        - nivel: 0
+          descripcion: Sin efecto visible
+        - nivel: 1
+          descripcion: Susurros leves
+        - nivel: 2
+          descripcion: Sueños extraños y sensación de ser observado
+        - nivel: 3
+          descripcion: La Corona empieza a tentar al portador
+        - nivel: 4
+          descripcion: Los espectros tratan al portador como señor oscuro
+        - nivel: 5
+          descripcion: Riesgo de final oscuro, posesión o pérdida de control
+    restricciones_llm:
+      - No permitir convocar espectros si el personaje no posee o porta `corona_perdida`.
+      - No permitir usos ilimitados del poder.
+      - Los espectros obedecen a la Corona tanto como al portador; no son mascotas inocentes.
+      - Cada uso debe sentirse inquietante, poderoso y peligroso.
+      - A partir de corrupción alta, mostrar consecuencias narrativas oscuras.
+economia:
+  recuperacion:
+    descripcion: >
+      Red de seguridad económica mínima: si el PJ se queda sin dinero, puede buscar trabajo,
+      trueque, favor o deuda con NPCs principales. Las recompensas son modestas, requieren causa
+      narrativa y no se pueden farmear.
+    restricciones_llm:
+      - No regalar dinero sin causa narrativa clara.
+      - No repetir encargos marcados como no repetibles si su evento ya ocurrió.
+      - Recompensas modestas y coherentes con la escena.
+      - Si el PJ no tiene dinero, los NPCs pueden ofrecer trabajo, trueque, favor o deuda.
+      - No permitir farmear dinero ni convertirlo en botín gratuito.
+    encargos:
+      - id: trabajo_marta_taberna
+        npc: marta
+        nombre: Ayudar en la taberna
+        descripcion: >
+          El PJ ayuda a servir mesas, limpiar, descargar barriles o calmar clientes en la Taberna
+          del Jabalí Rojo.
+        recompensas:
+          - tipo: dinero
+            valor: 3 coronas
+          - tipo: objeto
+            valor: estofado
+          - tipo: servicio
+            valor: habitacion_noche
+        evento_completado: trabajo_marta_completado
+        repetible: false
+        condicion: Marta debe estar neutral o mejor y no debe haber peligro inmediato.
+      - id: encargo_eamon_medicinas
+        npc: eamon
+        nombre: Ayudar con enfermos o llevar medicinas
+        descripcion: >
+          El PJ ayuda en la iglesia, atiende enfermos o lleva medicinas a alguien que no puede
+          desplazarse.
+        recompensas:
+          - tipo: objeto
+            valor: vendajes
+          - tipo: servicio
+            valor: servicio_curacion_menor
+          - tipo: dinero
+            valor: 3 coronas
+        evento_completado: encargo_eamon_completado
+        repetible: false
+        condicion: Eamon debe confiar mínimamente en el grupo.
+      - id: ayuda_gorin_herreria
+        npc: gorin
+        nombre: Ayudar en la herrería
+        descripcion: >
+          El PJ ayuda a reparar herramientas, mover material pesado o reforjar piezas sencillas en
+          la herrería.
+        recompensas:
+          - tipo: dinero
+            valor: 5 coronas
+        evento_completado: ayuda_gorin_completada
+        repetible: false
+        condicion: Gorin debe estar descubierto, liberado o disponible.
+      - id: encargo_bertram_informacion
+        npc: bertram
+        nombre: Encargo de información
+        descripcion: >
+          El PJ lleva un mensaje, averigua un dato o hace una gestión discreta para Bertram. Puede
+          traer problemas sociales.
+        recompensas:
+          - tipo: dinero
+            valor: 5 coronas
+          - tipo: informacion
+            valor: pista útil
+        evento_completado: encargo_bertram_completado
+        repetible: false
+        riesgo: Puede tener consecuencias sociales o meter al PJ en problemas.
 finales:
   - id: destruir_corona
-    nombre: "Destruir la Corona"
+    nombre: Destruir la Corona
     descripcion: >
-      El jugador lleva la Corona hasta la Veta del Corazón en la mina
-      abandonada y la funde en la fragua original. Los espectros son
-      liberados. Valdecanto queda en paz.
+      El jugador lleva la Corona hasta la Veta del Corazón en la mina abandonada y la funde en la
+      fragua original. Los espectros son liberados. Valdecanto queda en paz.
     tono: heroico
     requisitos:
-      - "Tener la Corona en el inventario"
-      - "Llegar a la Veta del Corazón (mina_veta)"
+      - Tener la Corona en el inventario
+      - Llegar a la Veta del Corazón (mina_veta)
     consecuencias:
-      - "Espectros liberados definitivamente"
-      - "El barón pierde su objetivo, se retira"
-      - "Valdecanto prospera"
-
+      - Espectros liberados definitivamente
+      - El barón pierde su objetivo, se retira
+      - Valdecanto prospera
   - id: entregar_baron
-    nombre: "Entregar la Corona al Barón"
+    nombre: Entregar la Corona al Barón
     descripcion: >
-      El jugador entrega la Corona al Capitán Aldric o directamente al barón.
-      El barón enloquece en semanas. Valdecanto cae bajo un reinado de terror.
+      El jugador entrega la Corona al Capitán Aldric o directamente al barón. El barón enloquece en
+      semanas. Valdecanto cae bajo un reinado de terror.
     tono: tragico
     requisitos:
-      - "Tener la Corona en el inventario"
-      - "Interactuar con Aldric o salir hacia la capital"
+      - Tener la Corona en el inventario
+      - Interactuar con Aldric o salir hacia la capital
     consecuencias:
-      - "El barón enloquece"
-      - "Valdecanto cae bajo un reinado de terror"
-      - "Los espectros siguen activos"
-
+      - El barón enloquece
+      - Valdecanto cae bajo un reinado de terror
+      - Los espectros siguen activos
   - id: sellar_cripta
-    nombre: "Sellar la Cripta para Siempre"
+    nombre: Sellar la Cripta para Siempre
     descripcion: >
-      Convencer al Padre Eamon de realizar el ritual de sellado. La Corona
-      queda enterrada, los espectros confinados. Solución temporal.
+      Convencer al Padre Eamon de realizar el ritual de sellado. La Corona queda enterrada, los
+      espectros confinados. Solución temporal.
     tono: agridulce
     requisitos:
-      - "Confianza del Padre Eamon"
-      - "No haber cogido la Corona"
+      - Confianza del Padre Eamon
+      - No haber cogido la Corona
     consecuencias:
-      - "La cripta queda sellada"
-      - "Los espectros siguen ahí, pero contenidos"
-      - "El barón puede volver a intentarlo en el futuro"
-
+      - La cripta queda sellada
+      - Los espectros siguen ahí, pero contenidos
+      - El barón puede volver a intentarlo en el futuro
   - id: portar_corona
-    nombre: "Portar la Corona"
+    nombre: Portar la Corona
     descripcion: >
-      El jugador se pone la Corona. Siente un poder inmenso... que va
-      consumiéndole turno a turno. Final oscuro.
+      El jugador se pone la Corona. Siente un poder inmenso... que va consumiéndole turno a turno.
+      Final oscuro.
     tono: oscuro
     requisitos:
-      - "Tener la Corona en el inventario"
-      - "Elegir ponérsela"
+      - Tener la Corona en el inventario
+      - Elegir ponérsela
     consecuencias:
-      - "Poder temporal enorme"
-      - "Deterioro progresivo del PJ"
-      - "Si no se la quita a tiempo, muere o se convierte en nuevo guardián"
-
-# ============================================================================
-# ESCENAS
-# ============================================================================
-#
-# Flujo de escenas:
-#
-#   [1_llegada] ──→ [2a_investigacion] ──→ [3_preparacion] ──→ [4_cripta] ──→ [5_decision]
-#       │                 ↑                      ↑
-#       └──→ [2b_exterior] ───────────────────────┘
-#                 │
-#                 └──→ (puede volver a 2a)
-#
-# ============================================================================
-
+      - Poder temporal enorme
+      - Deterioro progresivo del PJ
+      - Si no se la quita a tiempo, muere o se convierte en nuevo guardián
 escenas:
-  # ──────────────────────────────────────────────────────────────
-  # ESCENA 1: LLEGADA A VALDECANTO
-  # ──────────────────────────────────────────────────────────────
   - id: 1_llegada
-    nombre: "Llegada a Valdecanto"
+    nombre: Llegada a Valdecanto
     acto: 1
     objetivo: >
-      El jugador llega al pueblo, se familiariza con el ambiente tenso
-      y nota que algo va mal. Introducir a Marta como primera aliada
-      y plantar las semillas del misterio.
+      El jugador llega al pueblo, se familiariza con el ambiente tenso y nota que algo va mal.
+      Introducir a Marta como primera aliada y plantar las semillas del misterio.
     intencion_dm_default:
       tension: bajo
       tono: acogedor_con_sombras
       ritmo: pausado
       restricciones:
-        - "NO revelar nada sobre la Corona ni la cripta"
-        - "NO mencionar a Gorin directamente — solo rumores sobre el herrero desaparecido"
-        - "Los guardias son visibles pero no interactúan activamente"
-
-    ubicaciones_activas: [plaza, taberna, herreria, iglesia, cuartel]
-    npcs_activos: [marta, eamon, aldric]
-
+        - NO revelar nada sobre la Corona ni la cripta
+        - NO mencionar a Gorin directamente — solo rumores sobre el herrero desaparecido
+        - >
+          Si el jugador pregunta por Gorin antes de ganarse la confianza de Marta, no respondas con
+          una negativa plana ni reveles su paradero. Convierte la restricción en una pista social:
+          Marta se tensa, calla, desvía la mirada hacia la puerta de la bodega o corta la
+          conversación con una excusa. Insinúa que sabe más de lo que dice y empuja al jugador a
+          ganarse su confianza mediante ayuda, respeto o una conversación cuidadosa.
+        - >
+          Gorin no aparece físicamente ni habla hasta que Marta confíe en el jugador y permita el
+          acceso a la bodega.
+        - Los guardias son visibles pero no interactúan activamente
+    ubicaciones_activas:
+      - plaza
+      - taberna
+      - herreria
+      - iglesia
+      - cuartel
+    npcs_activos:
+      - marta
+      - roque_borracho
+      - ines_borracha
+      - eamon
+      - aldric
     info_visible:
       mundo: completo
-      localizaciones: [plaza, taberna, herreria, iglesia, cuartel]
+      localizaciones:
+        - plaza
+        - taberna
+        - herreria
+        - iglesia
+        - cuartel
       npcs:
         marta: sin_secretos
+        roque_borracho: sin_secretos
+        ines_borracha: sin_secretos
         eamon: sin_secretos
         aldric: sin_secretos
       historia: null
       bestiario: null
-
     info_oculta:
-      - "Todo sobre Gorin y la bodega"
-      - "La Corona y la cripta"
-      - "Los planes del barón"
-      - "Exterior (bosque, mina, camino)"
-
+      - Todo sobre Gorin y la bodega
+      - La Corona y la cripta
+      - Los planes del barón
+      - Exterior (bosque, mina, camino)
     eventos_opcionales:
       - id: pelea_borrachos
-        descripcion: "Dos parroquianos discuten por una deuda. Color ambiental."
+        descripcion: Dos parroquianos discuten por una deuda de bebida. Primer aviso narrativo.
+        probabilidad: media
+        avanza_trama: false
+      - id: pelea_taberna_estalla
+        descripcion: La discusión pasa a golpes y vuelan jarras por toda la sala.
         probabilidad: media
         avanza_trama: false
       - id: guardia_patrullando
-        descripcion: "Un guardia pasa mirando a todos con sospecha. Pista sutil."
+        descripcion: Un guardia pasa mirando a todos con sospecha. Pista sutil.
         probabilidad: alta
         avanza_trama: false
       - id: rumor_herreria
-        descripcion: "Alguien menciona que la herrería lleva días cerrada."
+        descripcion: Alguien menciona que la herrería lleva días cerrada.
         probabilidad: alta
         avanza_trama: true
-
+    reconducciones:
+      - id: salida_taberna_sin_marta
+        disparadores:
+          accion_contiene:
+            - sale
+            - salir
+            - irse
+            - abandona
+            - abandonar
+            - leave
+            - leaves
+            - exits
+          contexto:
+            - taberna
+            - tavern
+          evita_npc: marta
+        desviacion: media
+        pista: >-
+          Marta baja la voz o reacciona de forma sospechosa al oír mencionar a Gorin justo cuando el
+          grupo sale.
+        no_revelar:
+          - No revelar que Gorin está escondido en la bodega.
+        condiciones:
+          eventos_no_ocurridos:
+            - conocer_gorin
+            - obtener_llave_cripta
+      - id: presionan_secreto_gorin_bodega
+        disparadores:
+          accion_contiene:
+            - bodega
+            - cellar
+            - basement
+            - almacen
+            - storeroom
+            - sotano
+          accion_contiene_todos:
+            - marta
+            - gorin
+          contexto:
+            - taberna
+            - tavern
+            - marta
+            - gorin
+        desviacion: media
+        pista: >-
+          Marta se queda inmóvil al oír que el grupo cree saber dónde está Gorin; no confirma ni
+          desmiente la acusación, solo baja la voz y mide sus palabras.
+        no_revelar:
+          - >-
+            No confirmar que Gorin esté en la bodega ni mencionar bodega, almacén, trastienda,
+            sótano, cellar, storeroom o back room.
+        condiciones:
+          eventos_no_ocurridos:
+            - conocer_gorin
+            - obtener_llave_cripta
     condiciones_avance:
       - destino: 2a_investigacion
-        descripcion: "El jugador investiga la desaparición del herrero"
+        descripcion: El jugador investiga la desaparición del herrero
         operador: any
         reglas:
           - tipo: evento
             evento: investigar_herrero
-            descripcion_humana: "El jugador muestra interés activo por la desaparición de Gorin"
+            descripcion_humana: El jugador muestra interés activo por la desaparición de Gorin
           - tipo: keyword_en_historial
-            palabras: [gorin, herrero, herrería, desaparecido]
+            palabras:
+              - gorin
+              - herrero
+              - herrería
+              - desaparecido
           - tipo: npc_conocido
             npc: gorin
           - tipo: ubicacion_visitada
             lugar: herreria
       - destino: 2b_exterior
-        descripcion: "El jugador decide salir del pueblo"
+        descripcion: El jugador decide salir del pueblo
         operador: any
         reglas:
           - tipo: evento
             evento: salir_pueblo
-            descripcion_humana: "El jugador decide explorar fuera de Valdecanto"
+            descripcion_humana: El jugador decide explorar fuera de Valdecanto
           - tipo: ubicacion_visitada
             lugar: afueras_sur
           - tipo: keyword_en_historial
-            palabras: [salir, pueblo, bosque, camino]
-
-  # ──────────────────────────────────────────────────────────────
-  # ESCENA 2A: LA INVESTIGACIÓN
-  # ──────────────────────────────────────────────────────────────
+            palabras:
+              - salir
+              - pueblo
+              - bosque
+              - camino
   - id: 2a_investigacion
-    nombre: "La Investigación"
+    nombre: La Investigación
     acto: 2
     objetivo: >
-      El jugador descubre que Gorin está escondido, aprende sobre la llave
-      y la cripta. Introducir la tensión: Aldric también busca a Gorin.
-      El reloj corre — los guardias estrechan el cerco.
+      El jugador descubre que Gorin está escondido, aprende sobre la llave y la cripta. Introducir
+      la tensión: Aldric también busca a Gorin. El reloj corre — los guardias estrechan el cerco.
     intencion_dm_default:
       tension: medio
       tono: misterio_e_intriga
       ritmo: creciente
       restricciones:
-        - "Gorin NO revela la existencia de la Corona — solo sabe de la llave y la cripta"
-        - "Aldric se vuelve más sospechoso si el jugador hace preguntas"
-        - "Marta solo revela a Gorin si confía en el jugador"
-
-    ubicaciones_activas: [plaza, taberna, bodega, herreria, iglesia, cuartel]
-    npcs_activos: [marta, gorin, aldric, eamon]
-
+        - >-
+          Gorin NO revela la existencia de la Corona — solo sabe de la Llave mágica de la cripta y
+          la cripta
+        - Aldric se vuelve más sospechoso si el jugador hace preguntas
+        - Marta solo revela a Gorin si confía en el jugador
+        - >
+          La cripta solo puede abrirse con la Llave mágica de la cripta (`llave_magica_cripta`). No
+          inventes llaves alternativas ni permitas abrirla con una llave genérica salvo decisión
+          explícita del DM.
+        - >
+          Si el jugador pregunta por Gorin antes de ganarse la confianza de Marta, no respondas con
+          una negativa plana ni reveles su paradero. Convierte la restricción en una pista social:
+          Marta se tensa, calla, desvía la mirada hacia la puerta de la bodega o corta la
+          conversación con una excusa. Insinúa que sabe más de lo que dice y empuja al jugador a
+          ganarse su confianza mediante ayuda, respeto o una conversación cuidadosa.
+        - >
+          Gorin no aparece físicamente ni habla hasta que Marta confíe en el jugador y permita el
+          acceso a la bodega.
+    ubicaciones_activas:
+      - plaza
+      - taberna
+      - bodega
+      - herreria
+      - iglesia
+      - cuartel
+    npcs_activos:
+      - marta
+      - roque_borracho
+      - ines_borracha
+      - gorin
+      - aldric
+      - eamon
     info_visible:
       mundo: completo
-      localizaciones: [plaza, taberna, bodega, herreria, iglesia, cuartel]
+      localizaciones:
+        - plaza
+        - taberna
+        - bodega
+        - herreria
+        - iglesia
+        - cuartel
       npcs:
         marta: completo
+        roque_borracho: sin_secretos
+        ines_borracha: sin_secretos
         gorin: completo
         aldric: sin_secretos
         eamon: sin_secretos
       historia:
         - presente
       bestiario: null
-
     info_oculta:
-      - "La Corona y la maldición"
-      - "Los espectros"
-      - "El diario de Morath"
-      - "Los planes completos del barón (Aldric solo muestra presión)"
-
+      - La Corona y la maldición
+      - Los espectros
+      - El diario de Morath
+      - Los planes completos del barón (Aldric solo muestra presión)
     eventos_opcionales:
       - id: aldric_presiona_marta
-        descripcion: >
-          Aldric entra en la taberna preguntando por Gorin. Marta niega saber nada.
-          Tensión directa.
+        descripcion: |
+          Aldric entra en la taberna preguntando por Gorin. Marta niega saber nada. Tensión directa.
         probabilidad: alta
         avanza_trama: true
       - id: guardia_registra_herreria
-        descripcion: "Guardias registrando la herrería — están buscando a Gorin."
+        descripcion: Guardias registrando la herrería — están buscando a Gorin.
         probabilidad: media
         avanza_trama: true
-
+      - id: guardias_irrumpen_taberna
+        descripcion: Aldric manda guardias a cortar la bronca y preguntar por Gorin.
+        probabilidad: media
+        avanza_trama: true
     condiciones_avance:
       - destino: 3_preparacion
-        descripcion: "El jugador tiene la llave o sabe dónde está la cripta"
+        descripcion: El jugador tiene la Llave mágica de la cripta o sabe dónde está la cripta
         operador: any
         reglas:
           - tipo: evento
-            evento: obtener_llave
-            descripcion_humana: "El jugador consigue la llave de la cripta de manos de Gorin"
+            evento: obtener_llave_cripta
+            descripcion_humana: El jugador consigue la Llave mágica de la cripta de manos de Gorin
           - tipo: evento
             evento: descubrir_cripta
-            descripcion_humana: "El jugador descubre la existencia de la cripta bajo la iglesia"
+            descripcion_humana: El jugador descubre la existencia de la cripta bajo la iglesia
           - tipo: item_en_inventario
-            item_patron: "llave"
+            item_id: llave_magica_cripta
           - tipo: keyword_en_historial
-            palabras: [cripta, trampilla, altar]
+            palabras:
+              - cripta
+              - trampilla
+              - altar
       - destino: 2b_exterior
-        descripcion: "El jugador decide explorar fuera del pueblo"
+        descripcion: El jugador decide explorar fuera del pueblo
         operador: any
         reglas:
           - tipo: evento
             evento: salir_pueblo
-            descripcion_humana: "El jugador decide explorar fuera de Valdecanto"
+            descripcion_humana: El jugador decide explorar fuera de Valdecanto
           - tipo: ubicacion_visitada
             lugar: afueras_sur
-
-  # ──────────────────────────────────────────────────────────────
-  # ESCENA 2B: LOS ALREDEDORES
-  # ──────────────────────────────────────────────────────────────
   - id: 2b_exterior
-    nombre: "Los Alrededores"
+    nombre: Los Alrededores
     acto: 2
     objetivo: >
-      El jugador explora fuera del pueblo. Puede obtener pistas alternativas
-      (Hilda, Bertram), encontrar aliados (Syla) o meterse en problemas.
-      Eventualmente, las pistas le llevan de vuelta al pueblo con nueva
-      información.
+      El jugador explora fuera del pueblo. Puede obtener pistas alternativas (Hilda, Bertram),
+      encontrar aliados (Syla) o meterse en problemas. Eventualmente, las pistas le llevan de vuelta
+      al pueblo con nueva información.
     intencion_dm_default:
       tension: medio
       tono: aventura_y_peligro
       ritmo: variado
       restricciones:
-        - "Hilda da pistas crípticas, no información directa"
-        - "Bertram vende info por dinero, no por amistad"
-        - "El bosque tiene peligros reales (oso, niebla)"
-
+        - Hilda da pistas crípticas, no información directa
+        - Bertram vende info por dinero, no por amistad
+        - El bosque tiene peligros reales (oso, niebla)
     ubicaciones_activas:
       - afueras_sur
       - casa_hilda
@@ -808,8 +3765,10 @@ escenas:
       - camino_mercader
       - puente_cuervo
       - posada
-    npcs_activos: [hilda, syla, bertram]
-
+    npcs_activos:
+      - hilda
+      - syla
+      - bertram
     info_visible:
       mundo: completo
       localizaciones:
@@ -827,67 +3786,72 @@ escenas:
         bertram: completo
       historia:
         - leyenda
-      bestiario: [oso_palido, bandidos]
-
+      bestiario:
+        - oso_palido
+        - bandidos
     info_oculta:
-      - "Los espectros (solo se intuyen en la Hondonada)"
-      - "El diario de Morath"
-      - "Detalles sobre la maldición"
-
+      - Los espectros (solo se intuyen en la Hondonada)
+      - El diario de Morath
+      - Detalles sobre la maldición
     eventos_opcionales:
       - id: voces_hondonada
         descripcion: >
-          En la Hondonada del Susurro se oyen voces espectrales por la noche.
-          Pista de que la cripta está conectada.
+          En la Hondonada del Susurro se oyen voces espectrales por la noche. Pista de que la cripta
+          está conectada.
         probabilidad: alta
         avanza_trama: true
       - id: emboscada_syla
-        descripcion: "Syla y sus bandidos cobran peaje en el Puente del Cuervo."
+        descripcion: Syla y sus bandidos cobran peaje en el Puente del Cuervo.
         probabilidad: alta
         avanza_trama: false
-
     condiciones_avance:
       - destino: 2a_investigacion
-        descripcion: "El jugador vuelve al pueblo con información nueva"
+        descripcion: El jugador vuelve al pueblo con información nueva
         operador: any
         reglas:
           - tipo: evento
             evento: volver_pueblo
-            descripcion_humana: "El jugador regresa a Valdecanto tras explorar los alrededores"
+            descripcion_humana: El jugador regresa a Valdecanto tras explorar los alrededores
           - tipo: ubicacion_visitada
             lugar: plaza
           - tipo: keyword_en_historial
-            palabras: [volver, pueblo, taberna]
+            palabras:
+              - volver
+              - pueblo
+              - taberna
       - destino: 3_preparacion
-        descripcion: "El jugador consigue información clave fuera (Bertram, Hondonada)"
+        descripcion: El jugador consigue información clave fuera (Bertram, Hondonada)
         operador: all
         reglas:
           - tipo: evento
             evento: descubrir_corona_exterior
-            descripcion_humana: "El jugador descubre la existencia de la Corona por fuentes externas"
+            descripcion_humana: El jugador descubre la existencia de la Corona por fuentes externas
           - tipo: ubicacion_visitada
             lugar: plaza
-
-  # ──────────────────────────────────────────────────────────────
-  # ESCENA 3: LA PREPARACIÓN
-  # ──────────────────────────────────────────────────────────────
   - id: 3_preparacion
-    nombre: "La Preparación"
+    nombre: La Preparación
     acto: 2
     objetivo: >
-      El jugador sabe que la cripta existe y necesita prepararse para entrar.
-      Momento de decisiones: ¿pedir ayuda al Padre Eamon? ¿Aliarse con Syla?
-      ¿Enfrentarse a Aldric? La tensión está al máximo — Aldric se acerca
-      a la verdad.
+      El jugador sabe que la cripta existe y necesita prepararse para entrar. Momento de decisiones:
+      ¿pedir ayuda al Padre Eamon? ¿Aliarse con Syla? ¿Enfrentarse a Aldric? La tensión está al
+      máximo — Aldric se acerca a la verdad.
     intencion_dm_default:
       tension: alto
       tono: urgencia_y_decision
       ritmo: acelerado
       restricciones:
-        - "Aldric se vuelve abiertamente hostil si sospecha del jugador"
-        - "El Padre Eamon solo ayuda si confía en el jugador"
-        - "Sensación de que el tiempo se agota"
-
+        - Aldric se vuelve abiertamente hostil si sospecha del jugador
+        - El Padre Eamon solo ayuda si confía en el jugador
+        - >
+          Si el jugador pregunta por Gorin antes de ganarse la confianza de Marta, no respondas con
+          una negativa plana ni reveles su paradero. Convierte la restricción en una pista social:
+          Marta se tensa, calla, desvía la mirada hacia la puerta de la bodega o corta la
+          conversación con una excusa. Insinúa que sabe más de lo que dice y empuja al jugador a
+          ganarse su confianza mediante ayuda, respeto o una conversación cuidadosa.
+        - >
+          Gorin no aparece físicamente ni habla hasta que Marta confíe en el jugador y permita el
+          acceso a la bodega.
+        - Sensación de que el tiempo se agota
     ubicaciones_activas:
       - plaza
       - taberna
@@ -896,8 +3860,14 @@ escenas:
       - cuartel
       - afueras_sur
       - casa_hilda
-    npcs_activos: [marta, gorin, aldric, eamon, hilda]
-
+    npcs_activos:
+      - marta
+      - roque_borracho
+      - ines_borracha
+      - gorin
+      - aldric
+      - eamon
+      - hilda
     info_visible:
       mundo: completo
       localizaciones: completo
@@ -905,247 +3875,333 @@ escenas:
       historia:
         - leyenda
         - presente
-      bestiario: [espectro_juramentado]
-
+      bestiario:
+        - espectro_juramentado
     info_oculta:
-      - "El espectro de Morath (solo se revela al entrar en la Cámara)"
-      - "La maldición exacta de la Corona"
-      - "El nombre verdadero de Morath (Erasmus)"
-
+      - El espectro de Morath (solo se revela al entrar en la Cámara)
+      - La maldición exacta de la Corona
+      - El nombre verdadero de Morath (Erasmus)
     eventos_opcionales:
       - id: aldric_confrontacion
-        descripcion: >
+        descripcion: |
           Aldric confronta directamente al jugador. ¿Combate, negociación o huida?
         probabilidad: alta
         avanza_trama: true
       - id: eamon_ritual
-        descripcion: >
+        descripcion: |
           Eamon enseña la oración que debilita a los espectros si confía en el jugador.
         probabilidad: media
         avanza_trama: true
-
+      - id: taberna_revancha
+        descripcion: La pelea vuelve con aliados de los borrachos si no se resolvió antes.
+        probabilidad: media
+        avanza_trama: false
     condiciones_avance:
       - destino: 4_cripta
-        descripcion: "El jugador entra en la cripta"
-        operador: any
+        descripcion: El jugador abre la trampilla con la Llave mágica de la cripta y entra en la cripta
+        operador: all
         reglas:
           - tipo: evento
-            evento: entrar_cripta
-            descripcion_humana: "El jugador abre la trampilla y desciende a la cripta"
+            evento: obtener_llave_cripta
+            descripcion_humana: El jugador tiene la Llave mágica de la cripta
           - tipo: ubicacion_visitada
             lugar: cripta_01
-
-  # ──────────────────────────────────────────────────────────────
-  # ESCENA 4: LA CRIPTA
-  # ──────────────────────────────────────────────────────────────
+      - destino: 4_cripta
+        descripcion: El jugador entra en la cripta llevando la Llave mágica de la cripta
+        operador: all
+        reglas:
+          - tipo: item_en_inventario
+            item_id: llave_magica_cripta
+          - tipo: ubicacion_visitada
+            lugar: cripta_01
   - id: 4_cripta
-    nombre: "La Cripta"
+    nombre: La Cripta
     acto: 3
     objetivo: >
-      El jugador desciende a la cripta. Peligro real: espectros juramentados
-      en la Sala, y el espectro de Morath en la Cámara. Clímax de la aventura.
-      Aquí se decide el destino de la Corona.
+      El jugador desciende a la cripta. Peligro real: espectros juramentados en la Sala, y el
+      espectro de Morath en la Cámara. Clímax de la aventura. Aquí se decide el destino de la
+      Corona.
     intencion_dm_default:
       tension: maximo
       tono: oscuro_y_epico
       ritmo: intenso
       restricciones:
-        - "Los espectros son peligrosos — no regalar la supervivencia"
-        - "Morath intenta SEDUCIR antes que atacar"
-        - "La Corona brilla con una luz hipnótica"
-        - "Si el jugador tiene la oración de Eamon, los espectros se paralizan"
-
-    ubicaciones_activas: [cripta_01, cripta_sala, cripta_camara]
+        - Los espectros son peligrosos — no regalar la supervivencia
+        - Morath intenta SEDUCIR antes que atacar
+        - La Corona brilla con una luz hipnótica
+        - >-
+          La Corona puede convocar a tres Espectros Juramentados solo si el PJ posee o porta
+          `corona_perdida`; cada uso aumenta `corrupcion_corona`
+        - No permitir usos ilimitados del poder de la Corona ni espectros alternativos inventados
+        - Si el jugador tiene la oración de Eamon, los espectros se paralizan
+    ubicaciones_activas:
+      - cripta_01
+      - cripta_02
+      - cripta_sala
+      - cripta_camara
     npcs_activos: []
-
     info_visible:
       mundo: completo
       localizaciones: completo
       npcs: completo
       historia: completo
-      bestiario: [espectro_juramentado, espectro_morath, ratas_velo]
-
+      bestiario:
+        - espectro_juramentado
+        - espectro_morath
+        - ratas_velo
     info_oculta: []
-
     eventos_opcionales:
       - id: morath_habla
         descripcion: >
-          Morath intenta convencer al jugador: "Tómala. Es tu derecho."
-          Tentación narrativa antes del combate o la decisión.
+          Morath intenta convencer al jugador: "Tómala. Es tu derecho." Tentación narrativa antes
+          del combate o la decisión.
         probabilidad: alta
         avanza_trama: true
       - id: relieves_historia
         descripcion: >
-          Los relieves de la Antecámara cuentan la historia de Aldaron III.
-          Pista visual para quien observe con atención.
+          Los relieves de la Antecámara cuentan la historia de Aldaron III. Pista visual para quien
+          observe con atención.
         probabilidad: media
         avanza_trama: false
-
     condiciones_avance:
       - destino: 5_decision
-        descripcion: "El jugador llega a la Cámara de la Corona"
+        descripcion: El jugador llega a la Cámara de la Corona
         operador: any
         reglas:
           - tipo: evento
             evento: alcanzar_camara_corona
-            descripcion_humana: "El jugador supera los espectros y llega ante la Corona"
+            descripcion_humana: El jugador supera los espectros y llega ante la Corona
           - tipo: ubicacion_visitada
             lugar: cripta_camara
-
-  # ──────────────────────────────────────────────────────────────
-  # ESCENA 5: LA DECISIÓN
-  # ──────────────────────────────────────────────────────────────
   - id: 5_decision
-    nombre: "La Decisión"
+    nombre: La Decisión
     acto: 3
     objetivo: >
-      El momento de la verdad. El jugador tiene (o no) la Corona.
-      ¿Qué hace con ella? Los cuatro finales posibles se despliegan
-      según las acciones del jugador.
+      El momento de la verdad. El jugador tiene (o no) la Corona. ¿Qué hace con ella? Los cuatro
+      finales posibles se despliegan según las acciones del jugador.
     intencion_dm_default:
       tension: maximo
       tono: epico_y_solemne
       ritmo: climax
       restricciones:
-        - "NO presionar hacia un final concreto"
-        - "Dejar que el jugador tome su decisión libremente"
-        - "Si porta la Corona, describir el poder Y el dolor"
-        - "Los aliados reclutados pueden influir (Syla, Eamon)"
-
+        - NO presionar hacia un final concreto
+        - Dejar que el jugador tome su decisión libremente
+        - Si porta la Corona, describir el poder Y el dolor
+        - >-
+          Si usa el poder `convocar_juramentados`, aumentar `corrupcion_corona` y describir que los
+          espectros obedecen a la Corona tanto como al portador
+        - Los aliados reclutados pueden influir (Syla, Eamon)
     ubicaciones_activas:
       - cripta_camara
       - mina_veta
       - iglesia
       - cuartel
-    npcs_activos: [eamon, aldric]
-
+    npcs_activos:
+      - eamon
+      - aldric
     info_visible:
       mundo: completo
       localizaciones: completo
       npcs: completo
       historia: completo
       bestiario: completo
-
     info_oculta: []
-
     condiciones_final:
       - final: destruir_corona
-        descripcion: "Llevar la Corona a la Veta del Corazón y destruirla"
+        descripcion: Llevar la Corona a la Veta del Corazón y destruirla
         operador: all
         reglas:
           - tipo: evento
             evento: destruir_corona
-            descripcion_humana: "El jugador funde la Corona en la fragua original"
+            descripcion_humana: El jugador funde la Corona en la fragua original
           - tipo: ubicacion_visitada
             lugar: mina_veta
-
       - final: entregar_baron
-        descripcion: "Entregar la Corona a Aldric o ir hacia la capital"
+        descripcion: Entregar la Corona a Aldric o ir hacia la capital
         operador: all
         reglas:
           - tipo: evento
             evento: entregar_corona
-            descripcion_humana: "El jugador entrega la Corona a Aldric o al barón"
-
+            descripcion_humana: El jugador entrega la Corona a Aldric o al barón
       - final: sellar_cripta
-        descripcion: "Convencer a Eamon de sellar la cripta con el ritual"
+        descripcion: Convencer a Eamon de sellar la cripta con el ritual
         operador: all
         reglas:
           - tipo: evento
             evento: sellar_cripta
-            descripcion_humana: "Eamon realiza el ritual de sellado con ayuda del jugador"
+            descripcion_humana: Eamon realiza el ritual de sellado con ayuda del jugador
           - tipo: actitud_npc
             npc: eamon
             valor: confiada
-
       - final: portar_corona
-        descripcion: "El jugador se pone la Corona"
+        descripcion: El jugador se pone la Corona
         operador: all
         reglas:
           - tipo: evento
             evento: portar_corona
-            descripcion_humana: "El jugador decide ponerse la Corona"
-
-# ============================================================================
-# EVENTOS DEFINIDOS EN ESTA AVENTURA
-# ============================================================================
+            descripcion_humana: El jugador decide ponerse la Corona
 eventos_definidos:
-  # Eventos de progresión
   - id: investigar_herrero
-    descripcion: "El jugador investiga la desaparición de Gorin"
+    descripcion: El jugador investiga la desaparición de Gorin
   - id: salir_pueblo
-    descripcion: "El jugador sale de Valdecanto"
+    descripcion: El jugador sale de Valdecanto
   - id: volver_pueblo
-    descripcion: "El jugador regresa al pueblo desde los alrededores"
+    descripcion: El jugador regresa al pueblo desde los alrededores
+  - id: obtener_llave_cripta
+    descripcion: El grupo obtiene la Llave mágica de la cripta.
+    deteccion_automatica:
+      tipo: item_en_inventario
+      item_id: llave_magica_cripta
   - id: obtener_llave
-    descripcion: "El jugador recibe la llave de la cripta de Gorin"
+    descripcion: "Alias legado: el jugador recibe la Llave mágica de la cripta de Gorin"
+    alias_de: obtener_llave_cripta
     deteccion_automatica:
       tipo: item_en_inventario
-      item_patron: "llave|key"
+      item_id: llave_magica_cripta
   - id: descubrir_cripta
-    descripcion: "El jugador descubre la existencia de la cripta bajo la iglesia"
+    descripcion: El jugador descubre la existencia de la cripta bajo la iglesia
   - id: descubrir_corona_exterior
-    descripcion: "El jugador descubre la Corona por fuentes externas (Hilda, Bertram)"
+    descripcion: El jugador descubre la Corona por fuentes externas (Hilda, Bertram)
   - id: entrar_cripta
-    descripcion: "El jugador desciende a la cripta"
+    descripcion: El jugador desciende a la cripta
   - id: alcanzar_camara_corona
-    descripcion: "El jugador supera los espectros y llega ante la Corona"
+    descripcion: El jugador supera los espectros y llega ante la Corona
   - id: tomar_corona
-    descripcion: "El jugador coge la Corona"
+    descripcion: El jugador coge la Corona
     deteccion_automatica:
       tipo: item_en_inventario
-      item_patron: "corona|crown"
-  # Eventos de NPC (auto-detectados al conocerlos)
+      item_id: corona_perdida
+  - id: usar_poder_corona
+    descripcion: El portador usa un poder de la Corona Perdida
+  - id: convocar_juramentados
+    descripcion: La Corona convoca a tres Espectros Juramentados aliados temporales
+  - id: aumentar_corrupcion_corona
+    descripcion: La corrupción de la Corona aumenta tras usar su poder
+  - id: trabajo_marta_completado
+    descripcion: El PJ completa un trabajo modesto ayudando a Marta en la taberna
+  - id: encargo_eamon_completado
+    descripcion: El PJ completa un encargo menor para Padre Eamon ayudando con enfermos o medicinas
+  - id: ayuda_gorin_completada
+    descripcion: El PJ completa una ayuda práctica para Gorin en la herrería
+  - id: encargo_bertram_completado
+    descripcion: El PJ completa un encargo discreto de información para Bertram
   - id: conocer_marta
-    descripcion: "El jugador conoce a Marta la Tabernera"
+    descripcion: El jugador conoce a Marta la Tabernera
+  - id: pelea_taberna_estalla
+    descripcion: La discusión en la taberna escala a pelea abierta
+  - id: pelea_taberna_apaciguada
+    descripcion: El jugador logra cortar la pelea en la taberna sin bajas
+  - id: guardias_irrumpen_taberna
+    descripcion: Guardias entran en la taberna para restaurar el orden
   - id: conocer_gorin
-    descripcion: "El jugador conoce a Gorin el Herrero"
+    descripcion: El jugador conoce a Gorin el Herrero
   - id: conocer_aldric
-    descripcion: "El jugador conoce al Capitán Aldric"
+    descripcion: El jugador conoce al Capitán Aldric
   - id: conocer_eamon
-    descripcion: "El jugador conoce al Padre Eamon"
+    descripcion: El jugador conoce al Padre Eamon
   - id: conocer_syla
-    descripcion: "El jugador conoce a Syla la Bandida"
+    descripcion: El jugador conoce a Syla la Bandida
   - id: conocer_bertram
-    descripcion: "El jugador conoce a Bertram el Posadero"
+    descripcion: El jugador conoce a Bertram el Posadero
   - id: conocer_hilda
-    descripcion: "El jugador conoce a la Vieja Hilda"
+    descripcion: El jugador conoce a la Vieja Hilda
   - id: conocer_baron_renard
-    descripcion: "El jugador conoce al Barón Renard"
-  # Eventos de final (acciones terminales irreversibles)
+    descripcion: El jugador conoce al Barón Renard
   - id: destruir_corona
-    descripcion: "La Corona es fundida en la Veta del Corazón"
+    descripcion: La Corona es fundida en la Veta del Corazón
   - id: entregar_corona
-    descripcion: "La Corona es entregada al barón o a Aldric"
+    descripcion: La Corona es entregada al barón o a Aldric
   - id: sellar_cripta
-    descripcion: "Eamon realiza el ritual de sellado"
+    descripcion: Eamon realiza el ritual de sellado
   - id: portar_corona
-    descripcion: "El jugador se pone la Corona"
-
-# ============================================================================
-# TIPOS DE REGLA (referencia para el GestorEscenas)
-# ============================================================================
-# tipo: evento                → hecho discreto registrado en el set de eventos
-#   evento: id_del_evento
-#   descripcion_humana: (opcional) texto legible para el DM
-#
-# tipo: keyword_en_historial  → busca palabras en el historial de chat (fallback)
-#   palabras: [lista de strings, solo en español]
-#
-# tipo: npc_conocido           → el NPC ha sido revelado/encontrado
-#   npc: id_del_npc
-#
-# tipo: actitud_npc            → la actitud del NPC ha cambiado
-#   npc: id_del_npc
-#   valor: amistosa|confiada|hostil|neutral|desconfiada
-#
-# tipo: ubicacion_visitada     → el jugador ha visitado esa ubicación
-#   lugar: id_de_localizacion
-#
-# tipo: item_en_inventario     → el jugador tiene un item que matchea el patrón
-#   item_patron: regex o string
-#   cantidad_minima: (opcional) número mínimo
-#
-# operador: any → al menos una regla se cumple (OR)
-# operador: all → todas las reglas se cumplen (AND)
-# ============================================================================
+    descripcion: El jugador se pone la Corona
+assets_tacticos:
+  - id: escalera_bajando_01
+    categoria: escaleras
+    imagen: assets/tacticos/escaleras/escalera_bajando_01.png
+    ocupa:
+      - - 0
+        - 0
+      - - 1
+        - 0
+      - - 0
+        - 1
+      - - 1
+        - 1
+    pisable: true
+    bloquea_vision: false
+    offset_px:
+      - 0
+      - -20
+    estado_default: bajar
+    escala_visual: 2.2
+  - id: columna_01
+    categoria: paredes
+    imagen: assets/tacticos/paredes/columna_01.png
+    ocupa:
+      - - 0
+        - 0
+    pisable: false
+    bloquea_vision: true
+    offset_px:
+      - 0
+      - 0
+  - id: suelo_piedra_musgo
+    categoria: suelos
+    imagen: assets/tacticos/suelos/suelo_piedra_musgo.png
+    ocupa:
+      - - 0
+        - 0
+    pisable: true
+    bloquea_vision: false
+    offset_px:
+      - 0
+      - 0
+  - id: puerta_cerrada
+    categoria: puertas
+    imagen: assets/tacticos/puertas/puerta_cerrada.png
+    ocupa:
+      - - 0
+        - 0
+    pisable: false
+    bloquea_vision: true
+    offset_px:
+      - 0
+      - 0
+    estado_default: cerrada
+  - id: puerta_abierta
+    categoria: puertas
+    imagen: assets/tacticos/puertas/puerta_abierta.png
+    ocupa:
+      - - 0
+        - 0
+    pisable: true
+    bloquea_vision: false
+    offset_px:
+      - 0
+      - 0
+    estado_default: abierta
+  - id: columna_01_2
+    categoria: paredes
+    imagen: assets/tacticos/paredes/columna_01.png
+    ocupa:
+      - - 0
+        - 0
+    pisable: true
+    bloquea_vision: true
+    offset_px:
+      - 0
+      - 0
+  - id: sarcofago_01
+    categoria: props
+    imagen: assets/tacticos/props/sarcofago_01.png
+    ocupa:
+      - - 0
+        - 0
+      - - 1
+        - 0
+    pisable: false
+    bloquea_vision: false
+    offset_px:
+      - 0
+      - 0
