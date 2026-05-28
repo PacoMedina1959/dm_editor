@@ -14,7 +14,6 @@ import {
 import { formatPrecioUi, nombreVisible } from '../utils/catalogoUi.js'
 
 const LANG = 'es'
-const SAMPLE_URL = `${import.meta.env.BASE_URL}samples/catalogo-ejemplo.json`
 
 export default function CatalogoPage() {
   const [globalCatalog, setGlobalCatalog] = useState(null)
@@ -135,27 +134,6 @@ export default function CatalogoPage() {
     }
   }
 
-  const cargarEjemplo = async () => {
-    try {
-      const res = await fetch(SAMPLE_URL)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const text = await res.text()
-      const p = parseCatalogoJsonText(text)
-      if (!p.ok) {
-        setLoadError(p.message)
-        return
-      }
-      setLocalCatalog(p.catalog)
-      setSourceLabel('Ejemplo cargado como catálogo local')
-      setLoadError(null)
-      setSelectedId(null)
-      setIsNew(false)
-      vaciarFormulario()
-    } catch (e) {
-      setLoadError(e instanceof Error ? e.message : String(e))
-    }
-  }
-
   const onPickFile = async (e) => {
     const f = e.target.files?.[0]
     e.target.value = ''
@@ -204,6 +182,36 @@ export default function CatalogoPage() {
     setStatsText(JSON.stringify(row.stats && typeof row.stats === 'object' ? row.stats : {}, null, 2))
     setEfectosText(JSON.stringify(row.efectos && typeof row.efectos === 'object' ? row.efectos : {}, null, 2))
     setEditorError(null)
+  }
+
+  const crearOverrideDesdeGlobal = (id) => {
+    const row = (globalCatalog || {})[id]
+    if (!row) return
+    const entry = {
+      ...row,
+      id,
+      override: true,
+    }
+    setLocalCatalog((prev) => ({
+      ...(prev || {}),
+      [id]: entry,
+    }))
+    setIsNew(false)
+    setSelectedId(id)
+    setIdEdit(String(entry.id ?? ''))
+    setNombre(String(entry.nombre ?? ''))
+    setNombreEn(String(entry.nombre_en ?? ''))
+    setCategoria(String(entry.categoria ?? ''))
+    setSubtipo(String(entry.subtipo ?? ''))
+    setPrecioStr(String(entry.precio ?? 0))
+    setUsableCombate(Boolean(entry.usable_en_combate))
+    setOverrideGlobal(true)
+    setDescripcion(String(entry.descripcion ?? ''))
+    setStatsText(JSON.stringify(entry.stats && typeof entry.stats === 'object' ? entry.stats : {}, null, 2))
+    setEfectosText(JSON.stringify(entry.efectos && typeof entry.efectos === 'object' ? entry.efectos : {}, null, 2))
+    setEditorError(null)
+    setLoadError(null)
+    setServerMsg(`Override local creado para «${id}». Edita sus campos y guarda el catálogo local.`)
   }
 
   const nuevoItem = () => {
@@ -368,7 +376,6 @@ export default function CatalogoPage() {
         <button type="button" className="btn-primary" onClick={guardarLocalServidor}>Guardar local</button>
         <button type="button" className="btn-secondary" onClick={nuevoItem}>Nuevo ítem local</button>
         <button type="button" className="btn-secondary" onClick={exportarJson}>Exportar objetos.json</button>
-        <button type="button" className="btn-secondary" onClick={cargarEjemplo}>Cargar ejemplo local</button>
         <label className="btn-file">
           <input type="file" accept=".json,application/json" className="sr-only" onChange={onPickFile} />
           Abrir local…
@@ -464,12 +471,12 @@ export default function CatalogoPage() {
         </div>
         <div className="catalogo-table-wrap">
           <table className="catalogo-table">
-            <thead><tr><th>Id</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Combate</th></tr></thead>
+            <thead><tr><th>Id</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Combate</th><th>Acción</th></tr></thead>
             <tbody>
               {!globalCatalog ? (
-                <tr><td colSpan={5} className="catalogo-table-empty">Carga el catálogo global para consultarlo.</td></tr>
+                <tr><td colSpan={6} className="catalogo-table-empty">Carga el catálogo global para consultarlo.</td></tr>
               ) : globalRows.length === 0 ? (
-                <tr><td colSpan={5} className="catalogo-table-empty">Sin resultados.</td></tr>
+                <tr><td colSpan={6} className="catalogo-table-empty">Sin resultados.</td></tr>
               ) : globalRows.slice(0, 200).map((row) => (
                 <tr key={row.id}>
                   <td><code>{row.id}</code></td>
@@ -477,6 +484,11 @@ export default function CatalogoPage() {
                   <td>{row.categoria}{row.subtipo ? <span className="muted"> / {row.subtipo}</span> : null}</td>
                   <td>{formatPrecioUi(row.precio, LANG)}</td>
                   <td>{row.usable_en_combate ? 'Sí' : '—'}</td>
+                  <td>
+                    <button type="button" className="btn-secondary av-btn-small" onClick={() => crearOverrideDesdeGlobal(row.id)}>
+                      Crear override
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -20,7 +20,8 @@ Ruta **`/ayuda`**: misma idea que en el frontend del motor — Markdown renderiz
 
 ## Catálogo de objetos (`/catalogo`)
 
-- **Cargar ejemplo**: copia empaquetada de `dm_virtual/backend/data/objetos/catalogo_objetos.json` (`public/samples/catalogo-ejemplo.json`).
+- **Cargar global**: consulta el catálogo de sistema como referencia de solo lectura.
+- **Crear override**: copia una entrada global concreta al catálogo local con `override: true` para ajustar solo ese objeto en la aventura.
 - **Abrir JSON**: fichero con el mismo esquema (clave = `id` de cada ficha).
 - **Edición**: tabla + formulario; **stats** y **efectos** como JSON objeto.
 - **Exportar JSON**: descarga para sustituir o comparar con `catalogo_objetos.json` del motor.

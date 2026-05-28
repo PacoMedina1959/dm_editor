@@ -18,6 +18,23 @@ async function _json(res) {
     if (hint) throw new Error(hint)
     let data
     try { data = JSON.parse(text) } catch { throw new Error(text || `HTTP ${res.status}`) }
+    if (typeof data?.detail === 'string') {
+      throw new Error(data.detail)
+    }
+    if (data?.detail && typeof data.detail === 'object') {
+      const detail = data.detail
+      const lines = []
+      if (detail.message) lines.push(String(detail.message))
+      if (Array.isArray(detail.issues)) {
+        lines.push(...detail.issues.map((issue) => {
+          const code = issue?.code ? `[${issue.code}] ` : ''
+          const path = issue?.path ? `${issue.path}: ` : ''
+          const message = issue?.message || JSON.stringify(issue)
+          return `${code}${path}${message}`
+        }))
+      }
+      throw new Error(lines.length ? lines.join('\n') : JSON.stringify(detail))
+    }
     throw new Error(data?.detail || `HTTP ${res.status}`)
   }
   try { return JSON.parse(text) } catch { throw new Error('Respuesta no JSON') }
