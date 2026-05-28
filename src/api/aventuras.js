@@ -45,6 +45,29 @@ export async function guardarAventura(slug, yamlText) {
   return _json(res)
 }
 
+
+/** @returns {Promise<{ catalogo: Record<string, object> }>} */
+export async function cargarCatalogoObjetosGlobal() {
+  const res = await fetch(apiUrl('/api/editor/catalogo-objetos-global'))
+  return _json(res)
+}
+
+/** @returns {Promise<{ slug: string, catalogo: Record<string, object> }>} */
+export async function cargarCatalogoObjetos(slug) {
+  const res = await fetch(apiUrl(`/api/editor/aventuras/${encodeURIComponent(slug)}/catalogo-objetos`))
+  return _json(res)
+}
+
+/** @returns {Promise<{ ok: boolean, slug: string, catalogo: Record<string, object>, issues?: Array<object> }>} */
+export async function guardarCatalogoObjetos(slug, catalogo) {
+  const res = await fetch(apiUrl(`/api/editor/aventuras/${encodeURIComponent(slug)}/catalogo-objetos`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ catalogo: catalogo || {} }),
+  })
+  return _json(res)
+}
+
 /** @returns {Promise<{ ok: boolean, slug: string }>} */
 export async function borrarAventura(slug) {
   const res = await fetch(apiUrl(`/api/editor/aventuras/${encodeURIComponent(slug)}`), {

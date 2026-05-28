@@ -2,24 +2,31 @@ import { useMemo, useRef, useState } from 'react'
 import {
   catalogoAString,
   entradasOrdenadas,
+  idsLocalesConColisionGlobal,
   parseCatalogoJsonText,
   plantillaItem,
 } from '../domain/catalogo.js'
+import {
+  cargarCatalogoObjetos,
+  cargarCatalogoObjetosGlobal,
+  guardarCatalogoObjetos,
+} from '../api/aventuras.js'
 import { formatPrecioUi, nombreVisible } from '../utils/catalogoUi.js'
 
 const LANG = 'es'
 const SAMPLE_URL = `${import.meta.env.BASE_URL}samples/catalogo-ejemplo.json`
 
 export default function CatalogoPage() {
-  /** @type {[Record<string, object>|null, function]} */
-  const [catalog, setCatalog] = useState(null)
-  const [sourceLabel, setSourceLabel] = useState('')
+  const [globalCatalog, setGlobalCatalog] = useState(null)
+  const [localCatalog, setLocalCatalog] = useState({})
+  const [slug, setSlug] = useState('ejemplo')
+  const [sourceLabel, setSourceLabel] = useState('Local sin guardar')
   const [loadError, setLoadError] = useState(null)
+  const [serverMsg, setServerMsg] = useState(null)
   const [busqueda, setBusqueda] = useState('')
+  const [globalBusqueda, setGlobalBusqueda] = useState('')
 
-  /** id seleccionado en catálogo existente; null si modo «nuevo» o nada */
   const [selectedId, setSelectedId] = useState(null)
-  /** true: formulario es alta nueva (aún no hay clave en catalog) */
   const [isNew, setIsNew] = useState(false)
 
   const [idEdit, setIdEdit] = useState('')
@@ -29,15 +36,27 @@ export default function CatalogoPage() {
   const [subtipo, setSubtipo] = useState('')
   const [precioStr, setPrecioStr] = useState('0')
   const [usableCombate, setUsableCombate] = useState(false)
+  const [overrideGlobal, setOverrideGlobal] = useState(false)
   const [descripcion, setDescripcion] = useState('')
   const [statsText, setStatsText] = useState('{}')
   const [efectosText, setEfectosText] = useState('{}')
   const [editorError, setEditorError] = useState(null)
   const idInputRef = useRef(null)
 
-  const filas = useMemo(() => {
-    if (!catalog) return []
-    const rows = entradasOrdenadas(catalog)
+  const globalRows = useMemo(() => {
+    const rows = entradasOrdenadas(globalCatalog || {})
+    const q = globalBusqueda.trim().toLowerCase()
+    if (!q) return rows
+    return rows.filter((row) => {
+      const id = String(row.id || '').toLowerCase()
+      const nom = String(row.nombre || '').toLowerCase()
+      const cat = String(row.categoria || '').toLowerCase()
+      return id.includes(q) || nom.includes(q) || cat.includes(q)
+    })
+  }, [globalCatalog, globalBusqueda])
+
+  const localRows = useMemo(() => {
+    const rows = entradasOrdenadas(localCatalog || {})
     const q = busqueda.trim().toLowerCase()
     if (!q) return rows
     return rows.filter((row) => {
@@ -46,7 +65,12 @@ export default function CatalogoPage() {
       const cat = String(row.categoria || '').toLowerCase()
       return id.includes(q) || nom.includes(q) || cat.includes(q)
     })
-  }, [catalog, busqueda])
+  }, [localCatalog, busqueda])
+
+  const colisiones = useMemo(
+    () => idsLocalesConColisionGlobal(localCatalog, globalCatalog),
+    [localCatalog, globalCatalog],
+  )
 
   const vaciarFormulario = () => {
     setIdEdit('')
@@ -56,10 +80,59 @@ export default function CatalogoPage() {
     setSubtipo('')
     setPrecioStr('0')
     setUsableCombate(false)
+    setOverrideGlobal(false)
     setDescripcion('')
     setStatsText('{}')
     setEfectosText('{}')
     setEditorError(null)
+  }
+
+  const cargarGlobal = async () => {
+    setLoadError(null)
+    setServerMsg(null)
+    try {
+      const data = await cargarCatalogoObjetosGlobal()
+      setGlobalCatalog(data.catalogo || {})
+      setServerMsg('Catálogo global cargado como referencia de solo lectura.')
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  const cargarLocalServidor = async () => {
+    const s = slug.trim()
+    if (!s) return
+    setLoadError(null)
+    setServerMsg(null)
+    try {
+      const data = await cargarCatalogoObjetos(s)
+      setLocalCatalog(data.catalogo || {})
+      setSourceLabel(`Servidor: ${s}/catalogos/objetos.json`)
+      setSelectedId(null)
+      setIsNew(false)
+      vaciarFormulario()
+      setServerMsg('Catálogo local cargado.')
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  const guardarLocalServidor = async () => {
+    const s = slug.trim()
+    if (!s) return
+    if (colisiones.length) {
+      setEditorError(`Colisión con global sin override: ${colisiones.join(', ')}`)
+      return
+    }
+    setLoadError(null)
+    setServerMsg(null)
+    try {
+      await guardarCatalogoObjetos(s, localCatalog || {})
+      setSourceLabel(`Servidor: ${s}/catalogos/objetos.json`)
+      setServerMsg('Catálogo local guardado en el paquete de aventura.')
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : String(e))
+    }
   }
 
   const cargarEjemplo = async () => {
@@ -72,8 +145,8 @@ export default function CatalogoPage() {
         setLoadError(p.message)
         return
       }
-      setCatalog(p.catalog)
-      setSourceLabel('Ejemplo (DM Virtual)')
+      setLocalCatalog(p.catalog)
+      setSourceLabel('Ejemplo cargado como catálogo local')
       setLoadError(null)
       setSelectedId(null)
       setIsNew(false)
@@ -94,8 +167,8 @@ export default function CatalogoPage() {
         setLoadError(p.message)
         return
       }
-      setCatalog(p.catalog)
-      setSourceLabel(f.name)
+      setLocalCatalog(p.catalog)
+      setSourceLabel(`${f.name} cargado como catálogo local`)
       setLoadError(null)
       setSelectedId(null)
       setIsNew(false)
@@ -106,18 +179,17 @@ export default function CatalogoPage() {
   }
 
   const exportarJson = () => {
-    if (!catalog) return
-    const blob = new Blob([catalogoAString(catalog)], { type: 'application/json;charset=utf-8' })
+    const blob = new Blob([catalogoAString(localCatalog || {})], { type: 'application/json;charset=utf-8' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = sourceLabel?.endsWith('.json') ? sourceLabel : 'catalogo_objetos.json'
+    a.download = 'objetos.json'
     a.click()
     URL.revokeObjectURL(a.href)
   }
 
   const seleccionarFila = (id) => {
-    if (!catalog || !catalog[id]) return
-    const row = catalog[id]
+    if (!localCatalog || !localCatalog[id]) return
+    const row = localCatalog[id]
     setIsNew(false)
     setSelectedId(id)
     setIdEdit(String(row.id ?? ''))
@@ -127,19 +199,14 @@ export default function CatalogoPage() {
     setSubtipo(String(row.subtipo ?? ''))
     setPrecioStr(String(row.precio ?? 0))
     setUsableCombate(Boolean(row.usable_en_combate))
+    setOverrideGlobal(Boolean(row.override))
     setDescripcion(String(row.descripcion ?? ''))
     setStatsText(JSON.stringify(row.stats && typeof row.stats === 'object' ? row.stats : {}, null, 2))
-    setEfectosText(
-      JSON.stringify(row.efectos && typeof row.efectos === 'object' ? row.efectos : {}, null, 2),
-    )
+    setEfectosText(JSON.stringify(row.efectos && typeof row.efectos === 'object' ? row.efectos : {}, null, 2))
     setEditorError(null)
   }
 
   const nuevoItem = () => {
-    if (!catalog) {
-      setCatalog({})
-      setSourceLabel('Sin guardar (nuevo)')
-    }
     const baseId = `item_nuevo_${Date.now()}`
     setIsNew(true)
     setSelectedId(null)
@@ -151,14 +218,15 @@ export default function CatalogoPage() {
     setSubtipo(tpl.subtipo)
     setPrecioStr(String(tpl.precio))
     setUsableCombate(tpl.usable_en_combate)
+    setOverrideGlobal(false)
     setDescripcion(tpl.descripcion)
     setStatsText(JSON.stringify(tpl.stats, null, 2))
     setEfectosText(JSON.stringify(tpl.efectos, null, 2))
     setEditorError(null)
+    requestAnimationFrame(() => idInputRef.current?.focus?.())
   }
 
   const guardarItem = () => {
-    if (!catalog) return
     const id = idEdit.trim()
     if (!id) {
       setEditorError('El id no puede estar vacío.')
@@ -166,6 +234,10 @@ export default function CatalogoPage() {
     }
     if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
       setEditorError('Usa solo letras, números, guiones y guión bajo en el id.')
+      return
+    }
+    if ((globalCatalog || {})[id] && !overrideGlobal) {
+      setEditorError(`«${id}» existe en el catálogo global. Activa override explícito o usa otro id.`)
       return
     }
     let stats
@@ -198,6 +270,7 @@ export default function CatalogoPage() {
 
     const entry = {
       id,
+      ...(overrideGlobal ? { override: true } : {}),
       nombre: nombre.trim(),
       nombre_en: nombreEn.trim(),
       categoria: categoria.trim(),
@@ -209,15 +282,15 @@ export default function CatalogoPage() {
       descripcion: descripcion.trim(),
     }
 
-    const base = { ...catalog }
+    const base = { ...(localCatalog || {}) }
 
     if (isNew) {
       if (base[id]) {
-        setEditorError(`Ya existe el id «${id}».`)
+        setEditorError(`Ya existe el id local «${id}».`)
         return
       }
       base[id] = entry
-      setCatalog(base)
+      setLocalCatalog(base)
       setEditorError(null)
       setIsNew(false)
       setSelectedId(id)
@@ -225,45 +298,38 @@ export default function CatalogoPage() {
     }
 
     if (!selectedId) {
-      setEditorError('Selecciona un ítem o usa «Nuevo ítem».')
+      setEditorError('Selecciona un ítem local o usa «Nuevo ítem local».')
       return
     }
     if (selectedId !== id && base[id]) {
-      setEditorError(`El id «${id}» ya está en uso por otra ficha.`)
+      setEditorError(`El id local «${id}» ya está en uso por otra ficha.`)
       return
     }
     if (selectedId !== id) delete base[selectedId]
     base[id] = entry
-    setCatalog(base)
+    setLocalCatalog(base)
     setEditorError(null)
     setSelectedId(id)
   }
 
-  /** Id sugerido al duplicar: `<base>_copia`, `<base>_copia2`, … sin colisión en catálogo. */
   const sugerirIdDuplicado = (baseRaw) => {
-    if (!catalog) return `item_copia_${Date.now()}`
     const base = (baseRaw || '').trim() || 'item'
     let candidate = `${base}_copia`
     let i = 2
-    while (catalog[candidate]) {
+    while ((localCatalog || {})[candidate]) {
       candidate = `${base}_copia${i}`
       i += 1
     }
     return candidate
   }
 
-  /**
-   * Copia los valores actuales del formulario (incl. cambios sin guardar) a un ítem nuevo.
-   * El usuario puede renombrar el id (p. ej. guiso_pescado) antes de «Guardar ítem».
-   */
   const duplicarItem = () => {
-    if (!catalog) return
     if (!isNew && !selectedId) return
-    const baseForId = idEdit.trim() || selectedId || 'item'
-    const nuevoId = sugerirIdDuplicado(baseForId)
+    const nuevoId = sugerirIdDuplicado(idEdit.trim() || selectedId || 'item')
     setIsNew(true)
     setSelectedId(null)
     setIdEdit(nuevoId)
+    setOverrideGlobal(false)
     setEditorError(null)
     requestAnimationFrame(() => {
       idInputRef.current?.focus?.()
@@ -272,12 +338,12 @@ export default function CatalogoPage() {
   }
 
   const eliminarItem = () => {
-    if (!catalog || !selectedId || isNew) return
-    if (!globalThis.confirm(`¿Eliminar del catálogo la entrada «${selectedId}»?`)) return
-    setCatalog((prev) => {
-      const next = { ...prev }
+    if (!selectedId || isNew) return
+    if (!globalThis.confirm(`¿Eliminar del catálogo local la entrada «${selectedId}»?`)) return
+    setLocalCatalog((prev) => {
+      const next = { ...(prev || {}) }
       delete next[selectedId]
-      return Object.keys(next).length ? next : null
+      return next
     })
     setSelectedId(null)
     setIsNew(false)
@@ -288,239 +354,135 @@ export default function CatalogoPage() {
     <div className="page catalogo-page">
       <h1 className="page-title">Catálogo de objetos</h1>
       <p className="page-lead">
-        Formato canónico: un objeto JSON cuyas claves son los <code className="kbd">id</code> y coinciden
-        con el campo <code className="kbd">id</code> de cada ficha (como en el motor DM Virtual).
+        El catálogo global es referencia de sistema. Los objetos propios se editan en el catálogo local de la aventura
+        y se guardan como <code className="kbd">catalogos/objetos.json</code>.
       </p>
 
       <div className="validar-toolbar catalogo-toolbar">
-        <button type="button" className="btn-secondary" onClick={cargarEjemplo}>
-          Cargar ejemplo
-        </button>
+        <label className="field field-grow">
+          <span className="field-label">Slug aventura</span>
+          <input className="catalogo-input" value={slug} onChange={(e) => setSlug(e.target.value)} />
+        </label>
+        <button type="button" className="btn-secondary" onClick={cargarGlobal}>Cargar global</button>
+        <button type="button" className="btn-secondary" onClick={cargarLocalServidor}>Cargar local</button>
+        <button type="button" className="btn-primary" onClick={guardarLocalServidor}>Guardar local</button>
+        <button type="button" className="btn-secondary" onClick={nuevoItem}>Nuevo ítem local</button>
+        <button type="button" className="btn-secondary" onClick={exportarJson}>Exportar objetos.json</button>
+        <button type="button" className="btn-secondary" onClick={cargarEjemplo}>Cargar ejemplo local</button>
         <label className="btn-file">
           <input type="file" accept=".json,application/json" className="sr-only" onChange={onPickFile} />
-          Abrir JSON…
+          Abrir local…
         </label>
-        <button type="button" className="btn-secondary" onClick={nuevoItem}>
-          Nuevo ítem
-        </button>
-        <button type="button" className="btn-primary" onClick={exportarJson} disabled={!catalog}>
-          Exportar JSON
-        </button>
       </div>
 
-      {sourceLabel && (
-        <p className="catalogo-source">
-          Origen: <strong>{sourceLabel}</strong> · {catalog ? Object.keys(catalog).length : 0} entradas
-        </p>
-      )}
+      {sourceLabel && <p className="catalogo-source">Local: <strong>{sourceLabel}</strong> · {Object.keys(localCatalog || {}).length} entradas</p>}
+      {globalCatalog && <p className="catalogo-source">Global: <strong>solo lectura</strong> · {Object.keys(globalCatalog).length} entradas</p>}
 
+      {serverMsg && <div className="alert alert-ok" role="status">{serverMsg}</div>}
       {loadError && (
         <div className="alert alert-error" role="alert">
-          <strong>Error al cargar</strong>
+          <strong>Error</strong>
           <pre className="alert-pre">{loadError}</pre>
         </div>
       )}
-
-      {!catalog && !loadError && (
-        <p className="catalogo-empty-hint">Carga un fichero o el ejemplo para empezar.</p>
-      )}
-
-      {catalog && (
-        <div className="catalogo-grid">
-          <div className="catalogo-lista">
-            <div className="catalogo-filtro">
-              <label className="field-label" htmlFor="cat-busq">
-                Buscar
-              </label>
-              <input
-                id="cat-busq"
-                type="search"
-                className="catalogo-search"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="id, nombre o categoría…"
-                autoComplete="off"
-              />
-            </div>
-            <div className="catalogo-table-wrap">
-              <table className="catalogo-table">
-                <thead>
-                  <tr>
-                    <th>Id</th>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Combate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filas.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="catalogo-table-empty">
-                        Sin resultados.
-                      </td>
-                    </tr>
-                  ) : (
-                    filas.map((row) => (
-                      <tr
-                        key={row.id}
-                        className={selectedId === row.id && !isNew ? 'row-selected' : undefined}
-                      >
-                        <td>
-                          <button type="button" className="btn-link-id" onClick={() => seleccionarFila(row.id)}>
-                            <code>{row.id}</code>
-                          </button>
-                        </td>
-                        <td>{nombreVisible(row, LANG)}</td>
-                        <td>
-                          {row.categoria}
-                          {row.subtipo ? (
-                            <>
-                              {' '}
-                              <span className="muted">/ {row.subtipo}</span>
-                            </>
-                          ) : null}
-                        </td>
-                        <td>{formatPrecioUi(row.precio, LANG)}</td>
-                        <td>{row.usable_en_combate ? 'Sí' : '—'}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="catalogo-editor card">
-            <h2 className="catalogo-editor-title">
-              {isNew ? 'Nuevo ítem' : selectedId ? `Editar: ${selectedId}` : 'Selecciona un ítem'}
-            </h2>
-
-            {editorError && (
-              <div className="alert alert-error catalogo-editor-alert" role="alert">
-                {editorError}
-              </div>
-            )}
-
-            <div className="catalogo-form">
-              <label className="field">
-                <span className="field-label">id</span>
-                <input
-                  ref={idInputRef}
-                  className="catalogo-input"
-                  value={idEdit}
-                  onChange={(e) => setIdEdit(e.target.value)}
-                  disabled={!catalog}
-                  spellCheck={false}
-                />
-              </label>
-              <label className="field">
-                <span className="field-label">nombre</span>
-                <input className="catalogo-input" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-              </label>
-              <label className="field">
-                <span className="field-label">nombre_en</span>
-                <input
-                  className="catalogo-input"
-                  value={nombreEn}
-                  onChange={(e) => setNombreEn(e.target.value)}
-                />
-              </label>
-              <div className="catalogo-form-row">
-                <label className="field field-grow">
-                  <span className="field-label">categoría</span>
-                  <input
-                    className="catalogo-input"
-                    value={categoria}
-                    onChange={(e) => setCategoria(e.target.value)}
-                  />
-                </label>
-                <label className="field field-grow">
-                  <span className="field-label">subtipo</span>
-                  <input
-                    className="catalogo-input"
-                    value={subtipo}
-                    onChange={(e) => setSubtipo(e.target.value)}
-                  />
-                </label>
-              </div>
-              <div className="catalogo-form-row">
-                <label className="field field-grow">
-                  <span className="field-label">precio</span>
-                  <input
-                    className="catalogo-input"
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={precioStr}
-                    onChange={(e) => setPrecioStr(e.target.value)}
-                  />
-                </label>
-                <label className="field field-check">
-                  <input
-                    type="checkbox"
-                    checked={usableCombate}
-                    onChange={(e) => setUsableCombate(e.target.checked)}
-                  />
-                  <span className="field-label">usable_en_combate</span>
-                </label>
-              </div>
-              <label className="field">
-                <span className="field-label">descripcion</span>
-                <textarea
-                  className="catalogo-textarea"
-                  rows={3}
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                />
-              </label>
-              <label className="field">
-                <span className="field-label">stats (JSON objeto)</span>
-                <textarea
-                  className="catalogo-textarea catalogo-textarea-mono"
-                  rows={5}
-                  value={statsText}
-                  onChange={(e) => setStatsText(e.target.value)}
-                  spellCheck={false}
-                />
-              </label>
-              <label className="field">
-                <span className="field-label">efectos (JSON objeto)</span>
-                <textarea
-                  className="catalogo-textarea catalogo-textarea-mono"
-                  rows={4}
-                  value={efectosText}
-                  onChange={(e) => setEfectosText(e.target.value)}
-                  spellCheck={false}
-                />
-              </label>
-            </div>
-
-            <div className="catalogo-actions">
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={guardarItem}
-                disabled={!catalog || (!isNew && !selectedId)}
-              >
-                Guardar ítem
-              </button>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={duplicarItem}
-                disabled={!catalog || (!isNew && !selectedId)}
-                title="Copia el formulario actual (aunque no esté guardado) a un ítem nuevo; ajusta el id y guarda."
-              >
-                Duplicar
-              </button>
-              <button type="button" className="btn-secondary" onClick={eliminarItem} disabled={!selectedId || isNew}>
-                Eliminar
-              </button>
-            </div>
-          </div>
+      {colisiones.length > 0 && (
+        <div className="alert alert-error" role="alert">
+          Colisiones con global sin override: {colisiones.join(', ')}
         </div>
       )}
+
+      <div className="catalogo-grid">
+        <div className="catalogo-lista">
+          <h2 className="catalogo-editor-title">Esta aventura</h2>
+          <div className="catalogo-filtro">
+            <label className="field-label" htmlFor="cat-busq">Buscar local</label>
+            <input
+              id="cat-busq"
+              type="search"
+              className="catalogo-search"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="id, nombre o categoría…"
+              autoComplete="off"
+            />
+          </div>
+          <div className="catalogo-table-wrap">
+            <table className="catalogo-table">
+              <thead><tr><th>Id</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Combate</th></tr></thead>
+              <tbody>
+                {localRows.length === 0 ? (
+                  <tr><td colSpan={5} className="catalogo-table-empty">Sin objetos locales.</td></tr>
+                ) : localRows.map((row) => (
+                  <tr key={row.id} className={selectedId === row.id && !isNew ? 'row-selected' : undefined}>
+                    <td><button type="button" className="btn-link-id" onClick={() => seleccionarFila(row.id)}><code>{row.id}</code></button></td>
+                    <td>{nombreVisible(row, LANG)} {row.override ? <span className="muted">override</span> : null}</td>
+                    <td>{row.categoria}{row.subtipo ? <span className="muted"> / {row.subtipo}</span> : null}</td>
+                    <td>{formatPrecioUi(row.precio, LANG)}</td>
+                    <td>{row.usable_en_combate ? 'Sí' : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="catalogo-editor card">
+          <h2 className="catalogo-editor-title">{isNew ? 'Nuevo ítem local' : selectedId ? `Editar local: ${selectedId}` : 'Selecciona un ítem local'}</h2>
+          {editorError && <div className="alert alert-error catalogo-editor-alert" role="alert">{editorError}</div>}
+
+          <div className="catalogo-form">
+            <label className="field"><span className="field-label">id</span><input ref={idInputRef} className="catalogo-input" value={idEdit} onChange={(e) => setIdEdit(e.target.value)} spellCheck={false} /></label>
+            <label className="field field-check"><input type="checkbox" checked={overrideGlobal} onChange={(e) => setOverrideGlobal(e.target.checked)} /><span className="field-label">override global explícito</span></label>
+            <label className="field"><span className="field-label">nombre</span><input className="catalogo-input" value={nombre} onChange={(e) => setNombre(e.target.value)} /></label>
+            <label className="field"><span className="field-label">nombre_en</span><input className="catalogo-input" value={nombreEn} onChange={(e) => setNombreEn(e.target.value)} /></label>
+            <div className="catalogo-form-row">
+              <label className="field field-grow"><span className="field-label">categoría</span><input className="catalogo-input" value={categoria} onChange={(e) => setCategoria(e.target.value)} /></label>
+              <label className="field field-grow"><span className="field-label">subtipo</span><input className="catalogo-input" value={subtipo} onChange={(e) => setSubtipo(e.target.value)} /></label>
+            </div>
+            <div className="catalogo-form-row">
+              <label className="field field-grow"><span className="field-label">precio</span><input className="catalogo-input" type="number" min={0} step={1} value={precioStr} onChange={(e) => setPrecioStr(e.target.value)} /></label>
+              <label className="field field-check"><input type="checkbox" checked={usableCombate} onChange={(e) => setUsableCombate(e.target.checked)} /><span className="field-label">usable_en_combate</span></label>
+            </div>
+            <label className="field"><span className="field-label">descripcion</span><textarea className="catalogo-textarea" rows={3} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></label>
+            <label className="field"><span className="field-label">stats (JSON objeto)</span><textarea className="catalogo-textarea catalogo-textarea-mono" rows={5} value={statsText} onChange={(e) => setStatsText(e.target.value)} spellCheck={false} /></label>
+            <label className="field"><span className="field-label">efectos (JSON objeto)</span><textarea className="catalogo-textarea catalogo-textarea-mono" rows={4} value={efectosText} onChange={(e) => setEfectosText(e.target.value)} spellCheck={false} /></label>
+          </div>
+
+          <div className="catalogo-actions">
+            <button type="button" className="btn-primary" onClick={guardarItem} disabled={!isNew && !selectedId}>Guardar ítem</button>
+            <button type="button" className="btn-secondary" onClick={duplicarItem} disabled={!isNew && !selectedId}>Duplicar</button>
+            <button type="button" className="btn-secondary" onClick={eliminarItem} disabled={!selectedId || isNew}>Eliminar</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="catalogo-lista card">
+        <h2 className="catalogo-editor-title">Global / sistema</h2>
+        <div className="catalogo-filtro">
+          <label className="field-label" htmlFor="cat-global-busq">Buscar global</label>
+          <input id="cat-global-busq" type="search" className="catalogo-search" value={globalBusqueda} onChange={(e) => setGlobalBusqueda(e.target.value)} placeholder="id, nombre o categoría…" autoComplete="off" />
+        </div>
+        <div className="catalogo-table-wrap">
+          <table className="catalogo-table">
+            <thead><tr><th>Id</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Combate</th></tr></thead>
+            <tbody>
+              {!globalCatalog ? (
+                <tr><td colSpan={5} className="catalogo-table-empty">Carga el catálogo global para consultarlo.</td></tr>
+              ) : globalRows.length === 0 ? (
+                <tr><td colSpan={5} className="catalogo-table-empty">Sin resultados.</td></tr>
+              ) : globalRows.slice(0, 200).map((row) => (
+                <tr key={row.id}>
+                  <td><code>{row.id}</code></td>
+                  <td>{nombreVisible(row, LANG)}</td>
+                  <td>{row.categoria}{row.subtipo ? <span className="muted"> / {row.subtipo}</span> : null}</td>
+                  <td>{formatPrecioUi(row.precio, LANG)}</td>
+                  <td>{row.usable_en_combate ? 'Sí' : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

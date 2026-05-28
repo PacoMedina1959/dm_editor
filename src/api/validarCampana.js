@@ -34,16 +34,20 @@ function mensajeProxyBackend(status) {
 
 /**
  * @param {string} yamlText
+ * @param {string} [catalogoObjetosText]
  * @returns {Promise<ResultadoValidacionJson>}
  */
-export async function postValidarCampana(yamlText) {
+export async function postValidarCampana(yamlText, catalogoObjetosText = '') {
   const url = apiUrl('/api/editor/validar-campana')
   let res
   try {
     res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ yaml_text: yamlText }),
+      body: JSON.stringify({
+        yaml_text: yamlText,
+        ...(catalogoObjetosText?.trim() ? { catalogo_objetos_text: catalogoObjetosText } : {}),
+      }),
     })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)

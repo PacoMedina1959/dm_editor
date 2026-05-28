@@ -1,5 +1,5 @@
 /**
- * Modelo mínimo del catálogo global (`catalogo_objetos.json`): objeto raíz id → ficha.
+ * Modelo mínimo del catálogo de objetos: objeto raíz id → ficha.
  */
 
 /**
@@ -83,4 +83,26 @@ export function plantillaItem(id) {
  */
 export function catalogoAString(catalog) {
   return `${JSON.stringify(catalog, null, 2)}\n`
+}
+
+
+/**
+ * @param {Record<string, object>|null|undefined} localCatalog
+ * @param {Record<string, object>|null|undefined} globalCatalog
+ * @returns {string[]}
+ */
+export function idsLocalesConColisionGlobal(localCatalog, globalCatalog) {
+  const globalIds = new Set(Object.keys(globalCatalog || {}))
+  return Object.entries(localCatalog || {})
+    .filter(([id, row]) => globalIds.has(id) && row?.override !== true)
+    .map(([id]) => id)
+    .sort((a, b) => a.localeCompare(b, 'es'))
+}
+
+/**
+ * @param {Record<string, object>|null|undefined} globalCatalog
+ * @param {Record<string, object>|null|undefined} localCatalog
+ */
+export function catalogoResueltoPreview(globalCatalog, localCatalog) {
+  return { ...(globalCatalog || {}), ...(localCatalog || {}) }
 }

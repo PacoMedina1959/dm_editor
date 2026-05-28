@@ -8,6 +8,7 @@ const YAML_EJEMPLO_URL = `${import.meta.env.BASE_URL}samples/aventura-ejemplo.ya
 
 export default function ValidarYamlPage() {
   const [yamlText, setYamlText] = useState('')
+  const [catalogoText, setCatalogoText] = useState('')
   const [busy, setBusy] = useState(false)
   const [fetchError, setFetchError] = useState(null)
   /** @type {import('../api/validarCampana.js').ResultadoValidacionJson | null} */
@@ -19,7 +20,7 @@ export default function ValidarYamlPage() {
     setBusy(true)
     setFetchError(null)
     try {
-      const data = await postValidarCampana(yamlText)
+      const data = await postValidarCampana(yamlText, catalogoText)
       setResultado(data)
     } catch (e) {
       setFetchError(e instanceof Error ? e.message : String(e))
@@ -36,6 +37,20 @@ export default function ValidarYamlPage() {
     try {
       const text = await f.text()
       setYamlText(text)
+      setFetchError(null)
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
+
+
+  const onPickCatalogoFile = async (e) => {
+    const f = e.target.files?.[0]
+    e.target.value = ''
+    if (!f) return
+    try {
+      setCatalogoText(await f.text())
       setFetchError(null)
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : String(err))
@@ -80,6 +95,16 @@ export default function ValidarYamlPage() {
           />
           Cargar archivo .yaml
         </label>
+
+        <label className="btn-file">
+          <input
+            type="file"
+            accept=".json,application/json"
+            className="sr-only"
+            onChange={onPickCatalogoFile}
+          />
+          Cargar catálogo local
+        </label>
         <button
           type="button"
           className="btn-primary"
@@ -99,6 +124,19 @@ export default function ValidarYamlPage() {
           spellCheck={false}
           autoComplete="off"
           placeholder="Pega aquí el aventura.yaml o carga un fichero…"
+        />
+      </label>
+
+
+      <label className="field">
+        <span className="field-label">Catálogo local opcional (JSON)</span>
+        <textarea
+          className="yaml-input"
+          value={catalogoText}
+          onChange={(e) => setCatalogoText(e.target.value)}
+          spellCheck={false}
+          autoComplete="off"
+          placeholder="Pega catalogos/objetos.json para validar vende[] contra global + local…"
         />
       </label>
 
