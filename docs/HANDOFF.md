@@ -18,7 +18,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 **F15 cerrada** (`a3e4e0e`): samples, validación canónica en guardado/export, issues MAPA_* por localización, lint sin errores. SPEC: `cerrada` — ver `docs/specs/F15_Coherencia_Validacion_Samples_dm_editor.md`.
 
-**Siguiente en editor:** colocador visual `objeto_canonico` (SPEC F15 §8 / F15b), no reintroducir UI táctica archivada.
+**F15b validada** (`426ccef`): colocador visual `puntos_interes` — SPEC `docs/specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md`. **Siguiente:** F15b-A (lectura/render + normalización Opción B).
 
 **Paralelo en motor:** **F4.h cerrada** (`7d05fee`/`daa9643`) — `objeto_canonico` en mapa (corona en `cripta_sala`).
 
@@ -62,7 +62,8 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 | `dm_editor/src/pages/AventuraPage.jsx` | Guardar/export + validación B; cablear issues → localizaciones (C) |
 | `dm_editor/src/pages/ValidarYamlPage.jsx` | Patrón correcto `postValidarCampana` |
 | `dm_editor/src/api/validarCampana.js` | Cliente HTTP validación |
-| `dm_editor/src/domain/aventura.js` | `validarMapaRuntimeLocalizacion` (débil); añadir `issuesMapaParaLocalizacion` |
+| `dm_editor/docs/specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md` | Colocador mapa libre; Opción B coords |
+| `dm_editor/src/domain/aventura.js` | `issuesMapaParaLocalizacion`; helpers F15b |
 | `dm_editor/src/components/aventura/SeccionLocalizaciones.jsx` | Panel salud mapa (C) |
 | `dm_editor/tools/sync_samples_from_dm_virtual.sh` | Sync samples (A) |
 | `dm_virtual/backend/app/core/validar_campana.py` | Códigos `MAPA_*`, `MAPA_PI_*` |
@@ -86,7 +87,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 ## Trabajo pendiente (prioridad)
 
-1. **F15b / F4.h-editor** — colocador visual `objeto_canonico` en mapa libre (tras F15 cerrada). Borrador de SPEC: [`docs/specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md`](specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md) — autoría sobre `puntos_interes` existente (coords libres `0..100`), sin tocar `dm_virtual`.
+1. **F15b-A en curso** — `ColocadorPuntosDialog` + `normalizarMapaACoordenadasLibres` (4 campos `celda`); luego B/C/D.
 2. **Pulido Guardian** en editor (plantillas, validadores) — backlog `dm_virtual/docs/00_ESTADO_ACTUAL.md`.
 3. **Verificación manual** checklist F15 §5 si cambia el motor o los samples.
 4. **Post-F15 / mesa:** bugs producto en `dm_virtual` (finales Control, `ENDING.LABEL`, destruir corona).
@@ -107,7 +108,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 ## Cómo continuar
 
-1. Leer `docs/specs/F15_Coherencia_Validacion_Samples_dm_editor.md` (cerrada; §8 SPEC posterior).
+1. Leer `docs/specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md` (validada; §1.bis normalización).
 2. `cd dm_editor && git status` — **no** `git stash pop` sin orden.
-3. Motor :8000 + editor :5180 para autoría; resincronizar samples tras cambios en `dm_virtual`: `tools/sync_samples_from_dm_virtual.sh`.
-4. Abrir nueva SPEC antes de colocador visual `objeto_canonico` o reintroducir UI táctica.
+3. Motor :8000 + editor :5180; implementar F15b-A→D sin tocar `dm_virtual`.
+4. Tras F15b cerrada: resincronizar samples si cambia el YAML ejemplo en motor.
