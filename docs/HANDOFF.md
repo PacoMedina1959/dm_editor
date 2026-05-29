@@ -22,7 +22,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 **Paralelo en motor:** **F4.h cerrada** — `objeto_canonico` en mapa (runtime recoger; corona en `cripta_sala`).
 
-**Siguiente sugerido (editor):** backlog Guardian / plantillas; deuda UX colocador (`ResizeObserver` en `ColocadorPuntosDialog` si molesta el zoom).
+**Siguiente sugerido (editor):** backlog Guardian / plantillas.
 
 **Fuera de F15/F15b (mesa/producto, no implementado):** destruir corona vía evento, UX finales en Control/DM, i18n `ENDING.LABEL`, pintar `transicion` en lienzo del jugador.
 
@@ -78,7 +78,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 ## Trabajo pendiente (prioridad)
 
 1. **Push / coordinación** si `main` local lleva commits sin remoto.
-2. **Opcional UX:** `ResizeObserver` + remediar `mapBox` al abrir panel de edición en colocador.
+2. ~~ResizeObserver colocador~~ — hecho (remide con zoom/panel).
 3. **Pulido Guardian** en editor — backlog motor `00_ESTADO_ACTUAL.md`.
 4. **Mesa/motor:** transiciones en lienzo PJ, portales DM, finales Control.
 

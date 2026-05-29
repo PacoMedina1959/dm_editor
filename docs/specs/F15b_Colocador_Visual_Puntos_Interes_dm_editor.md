@@ -238,7 +238,7 @@ Entrada: `SeccionLocalizaciones` → `MapaBloque` → botón **"Editar puntos de
 
 Al aplicar: `onApply(mapa)` entrega el mapa ya normalizado en **un solo commit** (`updateMapa(..., { replace: true })`), sin estados intermedios con puntos en % y mapa aún con `cols`. El guardado en servidor pasa por la puerta canónica F15-B.
 
-**Deuda UX conocida (fuera de cierre):** los marcadores pueden desalinearse con zoom del navegador o al abrir el panel de edición (`mapBox` no se remide). Los campos numéricos x/y % y «Aplicar» + «Guardar en servidor» son la fuente de verdad.
+**Medición del lienzo:** `ResizeObserver` en contenedor e imagen, `visualViewport` (zoom) y remediación al cambiar `selIdx` (panel lateral). Los campos x/y % siguen siendo alternativa precisa.
 
 ---
 
@@ -303,4 +303,4 @@ Al aplicar: `onApply(mapa)` entrega el mapa ya normalizado en **un solo commit**
 - [x] HANDOFF actualizado (colocador disponible; autoría F4.h en mapa libre cubierta en editor).
 - [x] Sin cambios en `dm_virtual` ni reglas de validación duplicadas en JS.
 
-**Fuera de alcance F15b (backlog motor/mesa):** pintar `transicion` en lienzo del jugador; portales DM automáticos en bordes; fix `ResizeObserver` del colocador (deuda UX §7).
+**Fuera de alcance F15b (backlog motor/mesa):** pintar `transicion` en lienzo del jugador; portales DM automáticos en bordes.

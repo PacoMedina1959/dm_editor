@@ -117,11 +117,51 @@ export default function ColocadorPuntosDialog({
     })
   }, [urlImagen])
 
+  // Remedir mapBox: zoom del navegador, redimensionar ventana, panel lateral, object-fit.
   useEffect(() => {
-    const onResize = () => medirImagen()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [medirImagen])
+    if (!urlImagen) return undefined
+    const container = containerRef.current
+    const img = imgRef.current
+    if (!container) return undefined
+
+    const schedule = () => {
+      requestAnimationFrame(() => medirImagen())
+    }
+
+    schedule()
+
+    let ro = null
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(schedule)
+      ro.observe(container)
+      if (img) ro.observe(img)
+    }
+
+    window.addEventListener('resize', schedule)
+    const vv = window.visualViewport
+    if (vv) {
+      vv.addEventListener('resize', schedule)
+      vv.addEventListener('scroll', schedule)
+    }
+
+    return () => {
+      ro?.disconnect()
+      window.removeEventListener('resize', schedule)
+      if (vv) {
+        vv.removeEventListener('resize', schedule)
+        vv.removeEventListener('scroll', schedule)
+      }
+    }
+  }, [medirImagen, urlImagen])
+
+  // Al abrir/cerrar el panel de edición el lienzo cambia de ancho.
+  useEffect(() => {
+    if (!urlImagen) return undefined
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => medirImagen())
+    })
+    return () => cancelAnimationFrame(id)
+  }, [selIdx, urlImagen, medirImagen])
 
   // ---- Mutaciones sobre la copia de trabajo ----
   const setPuntos = useCallback((updater) => {
