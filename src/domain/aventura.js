@@ -90,6 +90,18 @@ function localizacionTieneMapaTacticoListo(loc, localizaciones) {
 }
 
 /**
+ * Filtra los issues canónicos del motor pertenecientes al mapa de una localización.
+ * @param {Array<{path:string,code:string,message:string,severity:string}>} issues
+ * @param {string} locId
+ * @returns {Array} subconjunto de issues cuyo path empieza por `localizaciones:{locId}.mapa`
+ */
+export function issuesMapaParaLocalizacion(issues, locId) {
+  if (!Array.isArray(issues) || !locId) return []
+  const prefijo = `localizaciones:${locId}.mapa`
+  return issues.filter(i => typeof i?.path === 'string' && i.path.startsWith(prefijo))
+}
+
+/**
  * Valida si el mapa de una localizacion esta listo para runtime (Owlbear style).
  *
  * @param {object} loc

@@ -496,6 +496,7 @@ export default function AventuraPage() {
               onOpenIA={() => openIA('localizaciones')}
               serverSlug={serverSlug}
               dirty={dirty}
+              validacionCanonica={validacionCanonica}
             />
           )}
           {visibles.has('npcs') && (

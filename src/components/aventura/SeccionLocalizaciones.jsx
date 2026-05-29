@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import FilterInput from './FilterInput.jsx'
 import MapaIADialog from './MapaIADialog.jsx'
 
 import { urlMapaPublico } from '../../api/mapaIA.js'
-import { validarMapaRuntimeLocalizacion, validarMapaRuntimeLocalizacionAsync } from '../../domain/aventura.js'
+import { issuesMapaParaLocalizacion } from '../../domain/aventura.js'
 
 const EMPTY = {
   id: '', nombre: '', nombre_en: '', zona: '', conexiones: [],
@@ -19,7 +19,12 @@ export default function SeccionLocalizaciones({
   onOpenIA,
   serverSlug,
   dirty,
+  validacionCanonica,
 }) {
+  const issuesCanonicos = validacionCanonica
+    ? (Array.isArray(validacionCanonica.issues) ? validacionCanonica.issues : [])
+    : null
+
   const [editIdx, setEditIdx] = useState(null)
   const [mapaIdx, setMapaIdx] = useState(null)
 
@@ -217,6 +222,7 @@ export default function SeccionLocalizaciones({
                     editable={editable}
                     serverSlug={serverSlug}
                     dirty={dirty}
+                    issuesCanonicos={issuesCanonicos}
                     onEdit={() => startEdit(realIdx)}
                     onDuplicate={() => duplicate(realIdx)}
                     onMoveUp={() => move(realIdx, -1)}
@@ -270,6 +276,7 @@ function LocRow({
 
   assetsTacticos,
   avisoMapa,
+  issuesCanonicos,
   isFirst,
   isLast,
 }) {
@@ -311,9 +318,7 @@ function LocRow({
 
               assetsTacticos={assetsTacticos}
               avisoMapa={avisoMapa}
-              localizaciones={localizaciones}
-              npcs={npcs}
-              bestiario={bestiario}
+              issuesCanonicos={issuesCanonicos}
             />
           )}
         </div>
@@ -361,71 +366,51 @@ function MapaBloque({
 
   assetsTacticos = [],
   avisoMapa,
-  localizaciones = [],
-  npcs = [],
-  bestiario = [],
+  issuesCanonicos = null,
 }) {
   const tieneMapa = !!loc.mapa?.imagen || loc.mapa?.modo_render === 'piezas'
   const puede = !!serverSlug
   const urlThumb = tieneMapa && serverSlug
     ? urlMapaPublico(serverSlug, loc.mapa.imagen)
     : null
-  const [salud, setSalud] = useState(() => (
-    tieneMapa
-      ? validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario })
-      : null
-  ))
-  useEffect(() => {
-    let cancelado = false
-    if (!tieneMapa) {
-      setSalud(null)
-      return undefined
+
+  const issuesMapa = issuesCanonicos !== null
+    ? issuesMapaParaLocalizacion(issuesCanonicos, loc.id)
+    : null
+
+  const issuesMinimos = []
+  if (tieneMapa && !String(loc.mapa?.imagen || '').trim() && loc.mapa?.modo_render !== 'piezas') {
+    issuesMinimos.push({ severity: 'error', message: 'Falta imagen de fondo.' })
+  }
+
+  let estadoLabel = 'Mapa incompleto'
+  let estadoColor = '#fca5a5'
+  let issuesMostrar = []
+
+  if (!tieneMapa) {
+    estadoLabel = ''
+    estadoColor = '#94a3b8'
+  } else if (issuesMapa === null) {
+    estadoLabel = 'Validación de mapa requiere motor (Guardar/Validar)'
+    estadoColor = '#fbbf24'
+    issuesMostrar = issuesMinimos
+  } else {
+    const errores = issuesMapa.filter(i => i.severity === 'error')
+    const avisos = issuesMapa.filter(i => i.severity === 'warning')
+    if (errores.length > 0) {
+      estadoLabel = 'Mapa con errores'
+      estadoColor = '#fca5a5'
+      issuesMostrar = issuesMapa
+    } else if (avisos.length > 0) {
+      estadoLabel = 'Mapa con avisos'
+      estadoColor = '#fbbf24'
+      issuesMostrar = issuesMapa
+    } else {
+      estadoLabel = 'Mapa validado por el motor'
+      estadoColor = '#86efac'
+      issuesMostrar = []
     }
-    if (!serverSlug) {
-      setSalud(validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario }))
-      return undefined
-    }
-    validarMapaRuntimeLocalizacionAsync(serverSlug, loc, localizaciones, { npcs, bestiario })
-      .then((r) => {
-        if (!cancelado) setSalud(r)
-      })
-      .catch(() => {
-        if (!cancelado) {
-          setSalud(validarMapaRuntimeLocalizacion(loc, localizaciones, { npcs, bestiario }))
-        }
-      })
-    return () => { cancelado = true }
-  }, [
-    tieneMapa,
-    serverSlug,
-    loc?.id,
-    loc?.mapa?.imagen,
-    loc?.mapa?.cols,
-    loc?.mapa?.rows,
-    loc?.mapa?.tile_w,
-    loc?.mapa?.tile_h,
-    loc?.mapa?.origen_px,
-    loc?.mapa?.pisable,
-    loc?.mapa?.tiled,
-    loc?.mapa?.spawn_entrada,
-    loc?.mapa?.puntos_interes,
-    loc?.mapa?.spawns_npc,
-    loc?.mapa?.presencias_tacticas,
-    loc?.conexiones,
-    localizaciones,
-    npcs,
-    bestiario,
-  ])
-  const estadoLabel = salud?.estado === 'ok'
-    ? 'Mapa listo'
-    : salud?.estado === 'warning'
-      ? 'Mapa con avisos'
-      : 'Mapa incompleto'
-  const estadoColor = salud?.estado === 'ok'
-    ? '#86efac'
-    : salud?.estado === 'warning'
-      ? '#fbbf24'
-      : '#fca5a5'
+  }
 
   return (
     <div
@@ -463,18 +448,23 @@ function MapaBloque({
         </span>
       )}
 
-      {tieneMapa && salud && (
-        <details style={{ flexBasis: '100%', fontSize: 12 }}>
+      {tieneMapa && estadoLabel && (
+        <details style={{ flexBasis: '100%', fontSize: 12 }} open={issuesMostrar.length > 0}>
           <summary style={{ cursor: 'pointer', color: estadoColor, fontWeight: 700 }}>
             {estadoLabel}
           </summary>
-          <ul style={{ margin: '6px 0 0', paddingLeft: 18, color: '#cbd5e1' }}>
-            {salud.issues.map(issue => (
-              <li key={`${issue.code}-${issue.message}`} style={{ color: issue.severity === 'error' ? '#fca5a5' : issue.severity === 'warning' ? '#fbbf24' : '#86efac' }}>
-                {issue.message}
-              </li>
-            ))}
-          </ul>
+          {issuesMostrar.length > 0 && (
+            <ul style={{ margin: '6px 0 0', paddingLeft: 18, color: '#cbd5e1' }}>
+              {issuesMostrar.map(issue => (
+                <li
+                  key={`${issue.code || 'issue'}-${issue.path || ''}-${issue.message}`}
+                  style={{ color: issue.severity === 'error' ? '#fca5a5' : issue.severity === 'warning' ? '#fbbf24' : '#cbd5e1' }}
+                >
+                  {issue.message}
+                </li>
+              ))}
+            </ul>
+          )}
         </details>
       )}
 
