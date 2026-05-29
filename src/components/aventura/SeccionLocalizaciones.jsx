@@ -137,7 +137,7 @@ export default function SeccionLocalizaciones({
    * commit otros campos de la loc (por ejemplo `hora_del_dia` cuando
    * el DM ha hecho override en el dialogo).
    */
-  const updateMapa = (i, mapa, locPatch = null) => {
+  const updateMapa = (i, mapa, locPatch = null, opts = {}) => {
     if (!editable) return
     const copy = [...items]
     const loc = { ...copy[i] }
@@ -145,12 +145,15 @@ export default function SeccionLocalizaciones({
       delete loc.mapa
     } else {
       const prevMapa = loc.mapa || {}
-      loc.mapa = normalizarMapaTactico({
-        ...(loc.mapa || {}),
-        ...mapa,
-      })
+      // `replace`: el mapa entrante ya es completo (p. ej. la normalización
+      // Opción B del colocador, que elimina cols/rows). NO fusionar con el
+      // previo: si no, los campos de rejilla reaparecerían y el runtime volvería
+      // a modo grid, re-interpretando las celdas ya pasadas a % (desplazamiento).
+      loc.mapa = normalizarMapaTactico(
+        opts.replace ? { ...mapa } : { ...(loc.mapa || {}), ...mapa },
+      )
       loc.mapa = enlazarTiledRasterHermanoSiFalta(loc.mapa)
-      if (cambioRiesgosoDeMapa(prevMapa, loc.mapa)) {
+      if (!opts.replace && cambioRiesgosoDeMapa(prevMapa, loc.mapa)) {
         setMapaAvisos(prev => ({
           ...prev,
           [loc.id]: 'Has cambiado la imagen o calibración. Revisa spawn, walkmask y transiciones antes de jugar.',
@@ -257,7 +260,7 @@ export default function SeccionLocalizaciones({
         readOnly
         onClose={() => setColocadorIdx(null)}
         onApply={(mapa) => {
-          if (colocadorIdx !== null) updateMapa(colocadorIdx, mapa)
+          if (colocadorIdx !== null) updateMapa(colocadorIdx, mapa, null, { replace: true })
         }}
       />
 

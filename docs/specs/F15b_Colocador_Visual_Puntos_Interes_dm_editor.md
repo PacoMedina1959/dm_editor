@@ -200,7 +200,7 @@ A (leer/render/normalizar) → B (editar) → C (integración guardado) → D (p
 | Ruta | Rol |
 | --- | --- |
 | `src/components/aventura/ColocadorPuntosDialog.jsx` (nuevo) | Lienzo modal: imagen + marcadores + panel lateral. Props: `loc`, `serverSlug`, `validacionCanonica` (issues por `path`), `onApply(puntosInteres, mapaPatch)`, `onClose` |
-| `src/components/aventura/SeccionLocalizaciones.jsx` | Botón "Editar puntos del mapa" (gating por `mapa.imagen`) + wiring; pasar `validacionCanonica` |
+| `src/components/aventura/SeccionLocalizaciones.jsx` | Botón "Editar puntos del mapa" (gating por `mapa.imagen`) + wiring; pasar `validacionCanonica`. **`updateMapa` debe REEMPLAZAR el mapa al aplicar el colocador (`{ replace: true }`), no fusionar** — ver nota crítica abajo |
 | `src/domain/aventura.js` | Helpers **puros**: `nuevoPuntoInteres(tipo)`, `normalizarMapaACoordenadasLibres(mapa)` (Opción B — convierte `puntos_interes` + `spawn_entrada` + `spawns_npc` [+ `presencias_tacticas` defensivo] y **luego** borra `cols/rows/tile_*/origen_px/pisable`; idempotente), `parseIndicePunto(path)`, merge seguro de punto |
 | `src/api/aventuras.js` / `src/api/mapaIA.js` | Reutilizar `cargarCatalogoObjetos` (picker) y `urlMapaPublico(slug, mapa.imagen)` (fondo del lienzo, como `MapaBloque`). **Sin endpoints nuevos** |
 | `public/ayuda/GUIA_EDITOR_DM.md` (+ espejo EN si aplica) | Nota de uso del colocador y de la normalización a coords libres |
@@ -215,7 +215,9 @@ export function parseIndicePunto(path) {
 }
 ```
 
-**Anti-patrones:** no copiar reglas de `objeto_canonico`/`transicion` a `domain/aventura.js`; no revalidar `item_id`/`destino`/conectividad en JS; no añadir campos que el motor ignore; no hacer snap a rejilla.
+**Nota crítica — aplicar = REEMPLAZAR, no fusionar (corrección F15b-A):** el `mapa` que entrega el colocador es un objeto **completo** ya normalizado (con `cols/rows/tile_*/origen_px/pisable` **eliminados**). Si la persistencia fusiona con el mapa previo (`{ ...loc.mapa, ...mapa }`), los campos de rejilla del mapa antiguo **reaparecen** y el runtime vuelve a `usaGrid=true`, re-interpretando como rejilla toda celda `< cols` (incluidos los spawns) → **desplazamiento silencioso**. `updateMapa` ofrece `{ replace: true }`: usa `{ ...mapa }` (sin spread del previo) y omite el aviso de "cambio riesgoso". Verificado: sin esta opción, `cols/rows` no desaparecían tras Guardar y los spawns se movían.
+
+**Anti-patrones:** no copiar reglas de `objeto_canonico`/`transicion` a `domain/aventura.js`; no revalidar `item_id`/`destino`/conectividad en JS; no añadir campos que el motor ignore; no hacer snap a rejilla; **no fusionar el mapa normalizado con el previo al persistir**.
 
 ---
 
