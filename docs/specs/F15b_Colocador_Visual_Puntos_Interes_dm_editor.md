@@ -199,7 +199,7 @@ A (leer/render/normalizar) → B (editar) → C (integración guardado) → D (p
 
 | Ruta | Rol |
 | --- | --- |
-| `src/components/aventura/ColocadorPuntosDialog.jsx` (nuevo) | Lienzo modal: imagen + marcadores + panel lateral. Props: `loc`, `serverSlug`, `validacionCanonica` (issues por `path`), `onApply(puntosInteres, mapaPatch)`, `onClose` |
+| `src/components/aventura/ColocadorPuntosDialog.jsx` (nuevo) | Lienzo modal: imagen + marcadores + panel lateral. Props: `loc`, `serverSlug`, `validacionCanonica` (issues por `path`), `readOnly`, `onApply(mapa)` (mapa **completo** normalizado — ver nota crítica), `onClose` |
 | `src/components/aventura/SeccionLocalizaciones.jsx` | Botón "Editar puntos del mapa" (gating por `mapa.imagen`) + wiring; pasar `validacionCanonica`. **`updateMapa` debe REEMPLAZAR el mapa al aplicar el colocador (`{ replace: true }`), no fusionar** — ver nota crítica abajo |
 | `src/domain/aventura.js` | Helpers **puros**: `nuevoPuntoInteres(tipo)`, `normalizarMapaACoordenadasLibres(mapa)` (Opción B — convierte `puntos_interes` + `spawn_entrada` + `spawns_npc` [+ `presencias_tacticas` defensivo] y **luego** borra `cols/rows/tile_*/origen_px/pisable`; idempotente), `parseIndicePunto(path)`, merge seguro de punto |
 | `src/api/aventuras.js` / `src/api/mapaIA.js` | Reutilizar `cargarCatalogoObjetos` (picker) y `urlMapaPublico(slug, mapa.imagen)` (fondo del lienzo, como `MapaBloque`). **Sin endpoints nuevos** |
