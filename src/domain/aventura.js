@@ -62,10 +62,6 @@ function asArray(v) {
   return [v]
 }
 
-function esEnteroPositivo(v) {
-  return Number.isInteger(v) && v > 0
-}
-
 function esListaParesEnteros(arr) {
   if (!Array.isArray(arr)) return false
   return arr.every(pair => Array.isArray(pair) && pair.length === 2 && Number.isInteger(pair[0]) && Number.isInteger(pair[1]))
@@ -85,10 +81,6 @@ function normalizarNumero(v) {
   return Number.isFinite(n) ? n : null
 }
 
-function localizacionTieneMapaTacticoListo(loc, localizaciones) {
-  return validarMapaRuntimeLocalizacion(loc, localizaciones, { validarDestinoListo: false }).estado !== 'error'
-}
-
 /**
  * Filtra los issues canónicos del motor pertenecientes al mapa de una localización.
  * @param {Array<{path:string,code:string,message:string,severity:string}>} issues
@@ -105,11 +97,9 @@ export function issuesMapaParaLocalizacion(issues, locId) {
  * Valida si el mapa de una localizacion esta listo para runtime (Owlbear style).
  *
  * @param {object} loc
- * @param {object[]} localizaciones
- * @param {object} opts
  * @returns {{ estado: 'ok'|'warning'|'error', issues: Array<{ severity: 'ok'|'warning'|'error', code: string, message: string }> }}
  */
-export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = {}) {
+export function validarMapaRuntimeLocalizacion(loc) {
   const mapa = loc?.mapa
   const issues = []
 
@@ -126,8 +116,8 @@ export function validarMapaRuntimeLocalizacion(loc, localizaciones = [], opts = 
   return { estado: 'ok', issues }
 }
 
-export async function validarMapaRuntimeLocalizacionAsync(slug, loc, localizaciones = [], opts = {}) {
-  return validarMapaRuntimeLocalizacion(loc, localizaciones, opts)
+export async function validarMapaRuntimeLocalizacionAsync(_slug, loc) {
+  return validarMapaRuntimeLocalizacion(loc)
 }
 
 /** Resumen compacto para la cabecera del visor. */

@@ -2,6 +2,13 @@ import { useCallback, useRef, useState } from 'react'
 
 const MAX_HISTORY = 50
 
+function flagsFromPtr(history, ptr) {
+  return {
+    canUndo: ptr > 0,
+    canRedo: ptr >= 0 && ptr < history.length - 1,
+  }
+}
+
 /**
  * Hook para undo/redo con historial de estados inmutables.
  *
@@ -13,7 +20,11 @@ export default function useUndoRedo(initial = null) {
   const [state, _setState] = useState(initial)
   const history = useRef([])
   const ptr = useRef(-1)
-  const [revision, setRevision] = useState(0)
+  const [navFlags, setNavFlags] = useState(() => flagsFromPtr([], -1))
+
+  const syncNavFlags = useCallback(() => {
+    setNavFlags(flagsFromPtr(history.current, ptr.current))
+  }, [])
 
   const pushState = useCallback((nextOrFn) => {
     _setState(prev => {
@@ -29,7 +40,7 @@ export default function useUndoRedo(initial = null) {
         history.current = history.current.slice(history.current.length - MAX_HISTORY)
       }
       ptr.current = history.current.length - 1
-      setRevision(r => r + 1)
+      setNavFlags(flagsFromPtr(history.current, ptr.current))
       return next
     })
   }, [])
@@ -38,7 +49,7 @@ export default function useUndoRedo(initial = null) {
     history.current = next != null ? [structuredClone(next)] : []
     ptr.current = next != null ? 0 : -1
     _setState(next)
-    setRevision(r => r + 1)
+    setNavFlags(flagsFromPtr(history.current, ptr.current))
   }, [])
 
   const undo = useCallback(() => {
@@ -46,21 +57,24 @@ export default function useUndoRedo(initial = null) {
     ptr.current -= 1
     const restored = structuredClone(history.current[ptr.current])
     _setState(restored)
-    setRevision(r => r + 1)
-  }, [])
+    syncNavFlags()
+  }, [syncNavFlags])
 
   const redo = useCallback(() => {
     if (ptr.current >= history.current.length - 1) return
     ptr.current += 1
     const restored = structuredClone(history.current[ptr.current])
     _setState(restored)
-    setRevision(r => r + 1)
-  }, [])
+    syncNavFlags()
+  }, [syncNavFlags])
 
-  const canUndo = ptr.current > 0
-  const canRedo = ptr.current < history.current.length - 1
-
-  void revision
-
-  return { state, pushState, resetState, undo, redo, canUndo, canRedo }
+  return {
+    state,
+    pushState,
+    resetState,
+    undo,
+    redo,
+    canUndo: navFlags.canUndo,
+    canRedo: navFlags.canRedo,
+  }
 }

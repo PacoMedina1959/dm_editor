@@ -30,18 +30,23 @@ export function useTacticalWalkmask(slug, loc, open) {
     let cancel = false
     const debeBuscarTiled = !!(slug && tieneDeclaracionTiledJson(mapa))
 
-    if (debeBuscarTiled) {
-      setCargandoTiled(true)
-      obtenerMatrizWalkmaskEfectiva(slug, mapa).then((m) => {
-        if (cancel) return
-        setMask(m)
+    const run = async () => {
+      if (debeBuscarTiled) {
+        setCargandoTiled(true)
+        try {
+          const m = await obtenerMatrizWalkmaskEfectiva(slug, mapa)
+          if (!cancel) setMask(m)
+        } finally {
+          if (!cancel) setCargandoTiled(false)
+        }
+      } else {
         setCargandoTiled(false)
-      })
-    } else {
-      setCargandoTiled(false)
-      const y = matrizWalkmaskDesdeYaml(mapa.pisable, cols, rows)
-      setMask(y ?? matrizTodoPisable(cols, rows))
+        const y = matrizWalkmaskDesdeYaml(mapa.pisable, cols, rows)
+        if (!cancel) setMask(y ?? matrizTodoPisable(cols, rows))
+      }
     }
+
+    void run()
 
     return () => { cancel = true }
   }, [

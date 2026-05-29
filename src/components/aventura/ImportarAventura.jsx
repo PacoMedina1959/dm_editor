@@ -15,7 +15,6 @@ export default function ImportarAventura({ open, onClose, onImport }) {
   const [loading, setLoading] = useState(false)
   const [progreso, setProgreso] = useState('')
   const [error, setError] = useState(null)
-  const [resultado, setResultado] = useState(null)
   const [yamlText, setYamlText] = useState('')
   const fileRef = useRef(null)
 
@@ -30,7 +29,6 @@ export default function ImportarAventura({ open, onClose, onImport }) {
     if (!canImport) return
     setLoading(true)
     setError(null)
-    setResultado(null)
     setYamlText('')
 
     const label =
@@ -71,7 +69,6 @@ export default function ImportarAventura({ open, onClose, onImport }) {
 
       const parsed = JSON.parse(data)
       setYamlText(parsed.yaml_text || '')
-      setResultado(parsed.parsed)
 
       const extraInfo = parsed.texto_extraido_len
         ? ` — ${(parsed.texto_extraido_len / 1000).toFixed(1)}k caracteres extraídos`
@@ -94,14 +91,12 @@ export default function ImportarAventura({ open, onClose, onImport }) {
     setTexto('')
     setUrl('')
     setPdfFile(null)
-    setResultado(null)
     setYamlText('')
     onClose()
   }
 
   const handleReset = () => {
     setYamlText('')
-    setResultado(null)
     setProgreso('')
     setError(null)
   }
@@ -207,10 +202,7 @@ export default function ImportarAventura({ open, onClose, onImport }) {
                   className="av-textarea av-ia-yaml"
                   rows={16}
                   value={yamlText}
-                  onChange={e => {
-                    setYamlText(e.target.value)
-                    setResultado(null)
-                  }}
+                  onChange={e => setYamlText(e.target.value)}
                 />
               </label>
             </div>

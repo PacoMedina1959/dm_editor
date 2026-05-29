@@ -12,9 +12,6 @@ const EMPTY = {
 
 export default function SeccionLocalizaciones({
   localizaciones,
-  npcs = [],
-  bestiario = [],
-  assetsTacticos = [],
   onUpdate,
   onOpenIA,
   serverSlug,
@@ -216,9 +213,6 @@ export default function SeccionLocalizaciones({
                   <LocRow
                     key={loc.id}
                     loc={loc}
-                    localizaciones={items}
-                    npcs={npcs}
-                    bestiario={bestiario}
                     editable={editable}
                     serverSlug={serverSlug}
                     dirty={dirty}
@@ -229,8 +223,6 @@ export default function SeccionLocalizaciones({
                     onMoveDown={() => move(realIdx, 1)}
                     onGenerarMapa={() => setMapaIdx(realIdx)}
                     onQuitarMapa={() => quitarMapa(realIdx)}
-
-                    assetsTacticos={assetsTacticos}
                     avisoMapa={mapaAvisos[loc.id]}
                     isFirst={realIdx === 0}
                     isLast={realIdx === items.length - 1}
@@ -261,9 +253,6 @@ export default function SeccionLocalizaciones({
 
 function LocRow({
   loc,
-  localizaciones,
-  npcs,
-  bestiario,
   editable,
   serverSlug,
   dirty,
@@ -273,8 +262,6 @@ function LocRow({
   onMoveDown,
   onGenerarMapa,
   onQuitarMapa,
-
-  assetsTacticos,
   avisoMapa,
   issuesCanonicos,
   isFirst,
@@ -315,8 +302,6 @@ function LocRow({
               dirty={dirty}
               onGenerar={onGenerarMapa}
               onQuitar={onQuitarMapa}
-
-              assetsTacticos={assetsTacticos}
               avisoMapa={avisoMapa}
               issuesCanonicos={issuesCanonicos}
             />
@@ -363,8 +348,6 @@ function MapaBloque({
   dirty,
   onGenerar,
   onQuitar,
-
-  assetsTacticos = [],
   avisoMapa,
   issuesCanonicos = null,
 }) {
