@@ -86,7 +86,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 ## Trabajo pendiente (prioridad)
 
-1. **F15b / F4.h-editor** — colocador visual `objeto_canonico` en mapa libre (tras F15 cerrada).
+1. **F15b / F4.h-editor** — colocador visual `objeto_canonico` en mapa libre (tras F15 cerrada). Borrador de SPEC: [`docs/specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md`](specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md) — autoría sobre `puntos_interes` existente (coords libres `0..100`), sin tocar `dm_virtual`.
 2. **Pulido Guardian** en editor (plantillas, validadores) — backlog `dm_virtual/docs/00_ESTADO_ACTUAL.md`.
 3. **Verificación manual** checklist F15 §5 si cambia el motor o los samples.
 4. **Post-F15 / mesa:** bugs producto en `dm_virtual` (finales Control, `ENDING.LABEL`, destruir corona).
