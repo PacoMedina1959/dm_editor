@@ -52,6 +52,7 @@ export default function ColocadorPuntosDialog({
   const [selIdx, setSelIdx] = useState(null)
   const [catalogo, setCatalogo] = useState(null)
   const [draggingIdx, setDraggingIdx] = useState(null)
+  const [modoAñadir, setModoAñadir] = useState(null) // null | 'objeto_canonico' | 'transicion'
 
   // Catálogo F14 para el picker `item_id` (solo con slug). setState solo en callback async.
   useEffect(() => {
@@ -146,14 +147,28 @@ export default function ColocadorPuntosDialog({
     setSelIdx(null)
   }, [setPuntos])
 
-  const añadirPunto = useCallback((tipo) => {
-    setMapaTrabajo((m) => {
-      if (!m) return m
-      const prev = Array.isArray(m.puntos_interes) ? m.puntos_interes : []
-      setSelIdx(prev.length)
-      return { ...m, puntos_interes: [...prev, nuevoPuntoInteres(tipo, prev)] }
-    })
-  }, [])
+  // Click-to-place: tras pulsar «+ …», el siguiente clic en el mapa fija la celda.
+  const colocarEn = useCallback((clientX, clientY) => {
+    if (!modoAñadir) return
+    const container = containerRef.current
+    if (!container) return
+    const rect = container.getBoundingClientRect()
+    const px = ((clientX - rect.left - mapBox.left) / Math.max(1, mapBox.width)) * 100
+    const py = ((clientY - rect.top - mapBox.top) / Math.max(1, mapBox.height)) * 100
+    const x = round2(Math.max(0, Math.min(100, px)))
+    const y = round2(Math.max(0, Math.min(100, py)))
+    setSelIdx(puntos.length)
+    setPuntos((prev) => [...prev, nuevoPuntoInteres(modoAñadir, prev, [x, y])])
+    setModoAñadir(null)
+  }, [modoAñadir, mapBox, puntos.length, setPuntos])
+
+  // Esc cancela el modo de colocación.
+  useEffect(() => {
+    if (!modoAñadir) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') setModoAñadir(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [modoAñadir])
 
   const pctDesdeEvento = useCallback((clientX, clientY) => {
     const container = containerRef.current
@@ -211,13 +226,25 @@ export default function ColocadorPuntosDialog({
           {!readOnly && (
             <div style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap', alignItems: 'center' }}>
               <strong style={{ fontSize: 12 }}>Añadir:</strong>
-              <button type="button" className="btn-secondary av-btn-small" onClick={() => añadirPunto('objeto_canonico')}>
+              <button
+                type="button"
+                className={modoAñadir === 'objeto_canonico' ? 'btn-primary av-btn-small' : 'btn-secondary av-btn-small'}
+                onClick={() => setModoAñadir(t => (t === 'objeto_canonico' ? null : 'objeto_canonico'))}
+              >
                 + Objeto canónico
               </button>
-              <button type="button" className="btn-secondary av-btn-small" onClick={() => añadirPunto('transicion')}>
+              <button
+                type="button"
+                className={modoAñadir === 'transicion' ? 'btn-primary av-btn-small' : 'btn-secondary av-btn-small'}
+                onClick={() => setModoAñadir(t => (t === 'transicion' ? null : 'transicion'))}
+              >
                 + Transición
               </button>
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>Arrastra los marcadores para moverlos.</span>
+              <span style={{ fontSize: 11, color: modoAñadir ? '#fbbf24' : '#94a3b8' }}>
+                {modoAñadir
+                  ? 'Haz clic en el mapa para colocar el nuevo punto (Esc cancela).'
+                  : 'Arrastra los marcadores para moverlos.'}
+              </span>
             </div>
           )}
 
@@ -278,6 +305,14 @@ export default function ColocadorPuntosDialog({
                   />
                 )
               })}
+
+              {urlImagen && modoAñadir && (
+                <div
+                  onClick={(e) => colocarEn(e.clientX, e.clientY)}
+                  title="Clic para colocar el nuevo punto"
+                  style={{ position: 'absolute', inset: 0, cursor: 'crosshair', zIndex: 4 }}
+                />
+              )}
             </div>
 
             <div style={{ flex: '1 1 260px', minWidth: 220, fontSize: 13 }}>
