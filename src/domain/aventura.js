@@ -93,6 +93,106 @@ export function issuesMapaParaLocalizacion(issues, locId) {
   return issues.filter(i => typeof i?.path === 'string' && i.path.startsWith(prefijo))
 }
 
+const CAMPOS_REJILLA_MAPA = ['cols', 'rows', 'tile_w', 'tile_h', 'origen_px', 'pisable']
+
+function redondearCoordPct(n) {
+  return Math.round(n * 100) / 100
+}
+
+function mapaUsaRejilla(mapa) {
+  if (!mapa || typeof mapa !== 'object') return false
+  const cols = Number(mapa.cols)
+  const rows = Number(mapa.rows)
+  return Number.isFinite(cols) && cols > 0 && Number.isFinite(rows) && rows > 0
+}
+
+/**
+ * Convierte celda de indice de rejilla a porcentaje (centro de celda), si aplica.
+ * @param {unknown} celda
+ * @param {number} cols
+ * @param {number} rows
+ * @param {{ inclusiveMax?: boolean }} opts — false = Lienzo (idx < cols); true = backend spawns
+ */
+function celdaRejillaAPorcentaje(celda, cols, rows, opts = {}) {
+  const inclusiveMax = opts.inclusiveMax === true
+  if (!Array.isArray(celda) || celda.length < 2) return celda
+  const x = Number(celda[0])
+  const y = Number(celda[1])
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return celda
+
+  const enRejillaX = inclusiveMax ? (x >= 0 && x <= cols) : (x >= 0 && x < cols)
+  const enRejillaY = inclusiveMax ? (y >= 0 && y <= rows) : (y >= 0 && y < rows)
+  if (!enRejillaX || !enRejillaY) {
+    return [redondearCoordPct(x), redondearCoordPct(y)]
+  }
+  return [
+    redondearCoordPct(((x + 0.5) / cols) * 100),
+    redondearCoordPct(((y + 0.5) / rows) * 100),
+  ]
+}
+
+function convertirCeldaEnObjeto(obj, cols, rows, opts) {
+  if (!obj || typeof obj !== 'object' || !('celda' in obj)) return obj
+  return { ...obj, celda: celdaRejillaAPorcentaje(obj.celda, cols, rows, opts) }
+}
+
+/**
+ * @param {object} mapa
+ * @returns {{ mapa: object, normalized: boolean }}
+ */
+export function normalizarMapaACoordenadasLibres(mapa) {
+  if (!mapa || typeof mapa !== 'object' || !mapaUsaRejilla(mapa)) {
+    return { mapa: mapa ? { ...mapa } : mapa, normalized: false }
+  }
+
+  const cols = Number(mapa.cols)
+  const rows = Number(mapa.rows)
+  const out = { ...mapa }
+
+  if (Array.isArray(out.puntos_interes)) {
+    out.puntos_interes = out.puntos_interes.map((p) => (
+      p && typeof p === 'object'
+        ? convertirCeldaEnObjeto(p, cols, rows, { inclusiveMax: false })
+        : p
+    ))
+  }
+
+  if (out.spawn_entrada && typeof out.spawn_entrada === 'object') {
+    out.spawn_entrada = convertirCeldaEnObjeto(out.spawn_entrada, cols, rows, { inclusiveMax: true })
+  }
+
+  if (Array.isArray(out.spawns_npc)) {
+    out.spawns_npc = out.spawns_npc.map((s) => (
+      s && typeof s === 'object'
+        ? convertirCeldaEnObjeto(s, cols, rows, { inclusiveMax: true })
+        : s
+    ))
+  }
+
+  if (Array.isArray(out.presencias_tacticas)) {
+    out.presencias_tacticas = out.presencias_tacticas.map((p) => (
+      p && typeof p === 'object'
+        ? convertirCeldaEnObjeto(p, cols, rows, { inclusiveMax: true })
+        : p
+    ))
+  }
+
+  for (const k of CAMPOS_REJILLA_MAPA) {
+    delete out[k]
+  }
+
+  return { mapa: out, normalized: true }
+}
+
+/**
+ * @param {string} path
+ * @returns {number|null}
+ */
+export function parseIndicePunto(path) {
+  const m = /\.mapa\.puntos_interes\[(\d+)\]/.exec(String(path || ''))
+  return m ? Number(m[1]) : null
+}
+
 /**
  * Valida si el mapa de una localizacion esta listo para runtime (Owlbear style).
  *

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import FilterInput from './FilterInput.jsx'
+import ColocadorPuntosDialog from './ColocadorPuntosDialog.jsx'
 import MapaIADialog from './MapaIADialog.jsx'
 
 import { urlMapaPublico } from '../../api/mapaIA.js'
@@ -24,6 +25,7 @@ export default function SeccionLocalizaciones({
 
   const [editIdx, setEditIdx] = useState(null)
   const [mapaIdx, setMapaIdx] = useState(null)
+  const [colocadorIdx, setColocadorIdx] = useState(null)
 
   const [mapaAvisos, setMapaAvisos] = useState({})
   const editable = typeof onUpdate === 'function'
@@ -222,6 +224,7 @@ export default function SeccionLocalizaciones({
                     onMoveUp={() => move(realIdx, -1)}
                     onMoveDown={() => move(realIdx, 1)}
                     onGenerarMapa={() => setMapaIdx(realIdx)}
+                    onEditarPuntos={() => setColocadorIdx(realIdx)}
                     onQuitarMapa={() => quitarMapa(realIdx)}
                     avisoMapa={mapaAvisos[loc.id]}
                     isFirst={realIdx === 0}
@@ -246,6 +249,17 @@ export default function SeccionLocalizaciones({
         }}
       />
 
+      <ColocadorPuntosDialog
+        open={colocadorIdx !== null}
+        serverSlug={serverSlug}
+        loc={colocadorIdx !== null ? items[colocadorIdx] : null}
+        validacionCanonica={validacionCanonica}
+        readOnly
+        onClose={() => setColocadorIdx(null)}
+        onApply={(mapa) => {
+          if (colocadorIdx !== null) updateMapa(colocadorIdx, mapa)
+        }}
+      />
 
     </section>
   )
@@ -261,6 +275,7 @@ function LocRow({
   onMoveUp,
   onMoveDown,
   onGenerarMapa,
+  onEditarPuntos,
   onQuitarMapa,
   avisoMapa,
   issuesCanonicos,
@@ -268,7 +283,8 @@ function LocRow({
   isLast,
 }) {
   const [expanded, setExpanded] = useState(false)
-  const tieneMapa = !!loc.mapa?.imagen || loc.mapa?.modo_render === 'piezas'
+  const tieneImagenRaster = !!String(loc.mapa?.imagen || '').trim()
+  const tieneMapa = tieneImagenRaster || loc.mapa?.modo_render === 'piezas'
   const tieneAmbienteAudio = !!String(loc.ambiente?.audio?.src || '').trim()
   const sfxCount = Array.isArray(loc.ambiente?.sfx) ? loc.ambiente.sfx.length : 0
   return (
@@ -301,6 +317,7 @@ function LocRow({
               serverSlug={serverSlug}
               dirty={dirty}
               onGenerar={onGenerarMapa}
+              onEditarPuntos={onEditarPuntos}
               onQuitar={onQuitarMapa}
               avisoMapa={avisoMapa}
               issuesCanonicos={issuesCanonicos}
@@ -347,11 +364,13 @@ function MapaBloque({
   serverSlug,
   dirty,
   onGenerar,
+  onEditarPuntos,
   onQuitar,
   avisoMapa,
   issuesCanonicos = null,
 }) {
-  const tieneMapa = !!loc.mapa?.imagen || loc.mapa?.modo_render === 'piezas'
+  const tieneImagenRaster = !!String(loc.mapa?.imagen || '').trim()
+  const tieneMapa = tieneImagenRaster || loc.mapa?.modo_render === 'piezas'
   const puede = !!serverSlug
   const urlThumb = tieneMapa && serverSlug
     ? urlMapaPublico(serverSlug, loc.mapa.imagen)
@@ -467,6 +486,18 @@ function MapaBloque({
         >
           {tieneMapa ? 'Regenerar con IA' : 'Generar mapa con IA'}
         </button>
+
+        {tieneImagenRaster && (
+          <button
+            type="button"
+            className="btn-secondary av-btn-small"
+            onClick={onEditarPuntos}
+            disabled={!puede}
+            title="Colocar objetos canónicos y transiciones sobre el mapa"
+          >
+            Editar puntos del mapa
+          </button>
+        )}
 
         {tieneMapa && (
           <button
