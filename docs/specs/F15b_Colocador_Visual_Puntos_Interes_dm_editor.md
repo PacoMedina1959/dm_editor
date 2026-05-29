@@ -22,7 +22,7 @@ Revisión sin cambios de código en `dm_editor` y lectura RO de `dm_virtual` (in
 | `objeto_canonico` **ya existe y está validado** dentro de `localizaciones[].mapa.puntos_interes[]` | `dm_virtual/backend/app/core/validar_campana.py` (bloque `objeto_canonico`, códigos `MAPA_PI_OBJETO_*`) y `docs/specs/F4_h_*.md` |
 | El **validador** acepta `celda` como `[float, float]` y solo comprueba rango `0..100` | `validar_campana.py:419-421` (`tablero_ok, cols, rows = True, 101, 101`; `pisable_ok=False`) y `_celda_offset_valida` |
 | **PERO el runtime interpreta `celda` en modo dual** (índice de rejilla vs. porcentaje) | `LienzoOwlbear.jsx:235-251` — ver §1.bis. **Validador ≠ renderer.** |
-| **Todos los mapas del ejemplo declaran `cols`/`rows`** y son IA-generados | 19/19 bloques `puntos_interes` con `cols`/`rows`; `generado_ia.hash` presente. La corona real es `celda: [24, 15]` con `cols: 32, rows: 26` → render en ~76,6 % / ~59,6 %, **no** en 24 %/15 % |
+| **Todos los mapas del ejemplo declaran `cols`/`rows`** y son IA-generados | 19/19 bloques `puntos_interes` con `cols`/`rows`; `generado_ia.hash` presente. La corona real es `celda: [24, 15]` con `cols: 48, rows: 36` → render en ~51,0 % / ~43,1 %, **no** en 24 %/15 % |
 | El editor **no tenía UI** para `puntos_interes` (cerrado en F15b) | `ColocadorPuntosDialog` en `SeccionLocalizaciones` → «Editar puntos del mapa» |
 | F15-C muestra issues `MAPA_PI_*`; el colocador resalta por índice de `path` | `issuesMapaParaLocalizacion` + `parseIndicePunto` |
 
@@ -129,7 +129,7 @@ localizaciones:
       puntos_interes:
         - id: corona_pedestal
           tipo: objeto_canonico
-          celda: [76.56, 59.62]     # PORCENTAJE 0..100 (tras normalizar [24,15] con cols32/rows26)
+          celda: [51.04, 43.06]     # PORCENTAJE 0..100 (tras normalizar [24,15] con cols48/rows36)
           etiqueta_ui: La Corona Perdida
           icono: artefacto
           item_id: corona_perdida   # picker F14, debe ser canonico=true
@@ -244,7 +244,7 @@ Al aplicar: `onApply(mapa)` entrega el mapa ya normalizado en **un solo commit**
 
 ## §8. Compatibilidad
 
-- **Campañas existentes:** `puntos_interes` es opcional; locs sin él no cambian. El ejemplo `cripta_sala` ya trae `corona_pedestal` (`celda: [24, 15]`, mapa con `cols: 32`) → al abrir el colocador se normaliza a % (≈ `[76.56, 59.62]`) **sin moverla visualmente**.
+- **Campañas existentes:** `puntos_interes` es opcional; locs sin él no cambian. El ejemplo `cripta_sala` ya trae `corona_pedestal` (`celda: [24, 15]`, mapa con `cols: 48, rows: 36`) → al abrir el colocador se normaliza a % (≈ `[51.04, 43.06]`) **sin moverla visualmente**.
 - **F14 catálogo:** picker desde vista combinada global+local. Sin `serverSlug` → avisar y permitir teclear `item_id` (el motor valida contra global). Coherente con F15-B.
 - **F15 validación canónica:** reutilización directa; guardado/export ya bloquean con `MAPA_PI_*`. F15b **no** añade reglas JS.
 - **F4.h runtime:** la salida en % es exactamente lo que `LienzoOwlbear` pinta cuando `usaGrid=false`; tras normalizar, autor y jugador ven la misma posición.
