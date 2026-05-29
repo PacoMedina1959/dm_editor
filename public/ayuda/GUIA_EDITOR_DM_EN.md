@@ -72,6 +72,17 @@ Large lists get a **search** filter when there are enough entries.
 - **Scene map:** graph view by act (transitions, endings, broken links). Good for dead ends or bad targets.  
 - **AI preview (scene):** shows the **context** the engine builds for the LLM for that scene (debug what the model “sees”).
 
+### Map points of interest (2.5D map)
+
+In **Locations**, expand a loc with a **map image** (`mapa.imagen`) and click **Edit map points** (2.5D Map block).
+
+- Place **`objeto_canonico`** (F14 catalog item with `canonico: true`) and **`transicion`** (door to a connected location with a valid map).
+- Coordinates are **0–100 percent** on the canvas (`celda: [x, y]`). If the map had AI grid metadata (`cols`/`rows`), opening the placer **normalizes to free mode** (on-screen notice): visual position stays the same, but `cols`/`rows` are removed from YAML.
+- Modal edits are **not persisted** until **Apply** (in-editor commit) and then **Save to server** (canonical F15 validation gate).
+- Engine `MAPA_PI_*` issues appear on the location row and, after validation, the affected marker is highlighted in red.
+- **`objeto_canonico`** is for picking up an item at the table (F4.h). **`transicion`** defines a map destination in YAML; the player view may not render it yet — it does not replace `objeto_canonico` for “opening another map” with an item.
+- If on-screen markers drift with browser zoom, use the **x / y %** fields, **Apply**, and **Save to server** again.
+
 ---
 
 ## 7. Engine alignment (important warnings)

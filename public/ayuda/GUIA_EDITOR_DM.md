@@ -72,6 +72,17 @@ En listas grandes aparece **búsqueda** cuando hay bastantes entradas.
 - **Mapa de escenas:** vista de grafo por actos (avances, finales, enlaces rotos). Útil para detectar escenas sin salida o destinos erróneos.  
 - **Preview IA (escena):** muestra el **contexto** que el motor construye para el LLM en una escena concreta (útil para depurar qué “ve” la IA).
 
+### Colocador de puntos de interés (mapa 2.5D)
+
+En **Localizaciones**, expande una loc con **imagen de mapa** (`mapa.imagen`) y pulsa **Editar puntos del mapa** (bloque Mapa 2.5D).
+
+- Coloca **`objeto_canonico`** (ítem del catálogo F14 con `canonico: true`) y **`transicion`** (puerta a otra localización conectada con mapa válido).
+- Las coordenadas son **porcentaje 0–100** en el lienzo (`celda: [x, y]`). Si el mapa traía rejilla IA (`cols`/`rows`), al abrir el colocador se **normaliza a modo libre** (aviso en pantalla): la posición visual no cambia, pero desaparecen `cols`/`rows` del YAML.
+- Los cambios del modal **no se guardan en disco** hasta **Aplicar** (commit en memoria del editor) y luego **Guardar en servidor** (puerta de validación canónica F15).
+- Errores `MAPA_PI_*` del motor se muestran en la fila de la loc y, tras validar, el marcador afectado se resalta en rojo.
+- **`objeto_canonico`** sirve para recoger un ítem en mesa (F4.h). **`transicion`** define un destino de mapa en YAML; la mesa del jugador puede no pintarla aún — no sustituye a `objeto_canonico` para “abrir otro mapa” con un ítem.
+- Si el marcador en pantalla no coincide con el zoom del navegador, usa los campos numéricos **x / y %**, **Aplicar** y vuelve a **Guardar en servidor**.
+
 ---
 
 ## 7. Coherencia con el motor (avisos importantes)
