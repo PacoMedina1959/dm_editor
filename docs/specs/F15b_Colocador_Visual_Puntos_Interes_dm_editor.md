@@ -6,7 +6,7 @@
 | **Estado** | `cerrada` |
 | **Prioridad** | media (tras F15 cerrada; primera UI de autoría sobre F4.h) |
 | **Commit base** | `426ccef` (docs F15b; base funcional post-F15-D `a3e4e0e`) |
-| **Commit cierre** | `092d384` (F15b-B click-to-place; cadena A→D en `d93434d`…`092d384`) |
+| **Commit cierre** | `092d384` (código); `41e8658` (cierre docs SPEC/HANDOFF/GUIA) |
 | **Fecha** | 2026-05-29 |
 | **Repo** | `dm_editor` (motor fuente de verdad, RO: `../dm_virtual`) |
 | **Depende de** | F15 (validación canónica + issues `MAPA_*` por loc), F14 (catálogo global/local), F4.h (contrato `puntos_interes`) |
@@ -296,7 +296,7 @@ Al aplicar: `onApply(mapa)` entrega el mapa ya normalizado en **un solo commit**
 
 ## §12. Cierre de la SPEC
 
-**Estado `cerrada` (2026-05-28):** F15b-A→D completadas. `Commit cierre` de código: `092d384`.
+**Estado `cerrada` (2026-05-28):** F15b-A→D completadas. Código: `092d384`; documentación de cierre: `41e8658`.
 
 - [x] Fases A–D cumplen criterios de aceptación (§10).
 - [x] Pruebas §11 ejecutadas (manual + script idempotencia 19 mapas; coordenadas %/rejilla).
