@@ -252,17 +252,18 @@ export default function SeccionLocalizaciones({
         }}
       />
 
-      <ColocadorPuntosDialog
-        open={colocadorIdx !== null}
-        serverSlug={serverSlug}
-        loc={colocadorIdx !== null ? items[colocadorIdx] : null}
-        validacionCanonica={validacionCanonica}
-        readOnly
-        onClose={() => setColocadorIdx(null)}
-        onApply={(mapa) => {
-          if (colocadorIdx !== null) updateMapa(colocadorIdx, mapa, null, { replace: true })
-        }}
-      />
+      {colocadorIdx !== null && (
+        <ColocadorPuntosDialog
+          key={colocadorIdx}
+          serverSlug={serverSlug}
+          loc={items[colocadorIdx]}
+          localizaciones={items}
+          validacionCanonica={validacionCanonica}
+          readOnly={false}
+          onClose={() => setColocadorIdx(null)}
+          onApply={(mapa) => updateMapa(colocadorIdx, mapa, null, { replace: true })}
+        />
+      )}
 
     </section>
   )

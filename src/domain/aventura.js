@@ -194,6 +194,53 @@ export function parseIndicePunto(path) {
 }
 
 /**
+ * Crea un punto de interés nuevo con id único y defaults por tipo (F15b-B).
+ * El id evita colisión con los existentes (el motor emite `MAPA_PI_ID_DUPLICADO`).
+ * `celda` en porcentaje 0..100 (modo libre); por defecto el centro del lienzo.
+ *
+ * @param {'objeto_canonico'|'transicion'} tipo
+ * @param {Array<{id?:string}>} puntosExistentes
+ * @param {[number, number]} [celda]
+ * @returns {object}
+ */
+export function nuevoPuntoInteres(tipo, puntosExistentes = [], celda = [50, 50]) {
+  const ids = new Set((Array.isArray(puntosExistentes) ? puntosExistentes : []).map(p => String(p?.id || '')))
+  let n = ids.size + 1
+  let id = `pi_${n}`
+  while (ids.has(id)) { n += 1; id = `pi_${n}` }
+  const base = { id, tipo, celda: [celda[0], celda[1]] }
+  if (tipo === 'objeto_canonico') {
+    return { ...base, etiqueta_ui: '', icono: '', item_id: '', requiere_confirmacion: true }
+  }
+  if (tipo === 'transicion') {
+    return { ...base, etiqueta_ui: '', icono: '', destino: '' }
+  }
+  return base
+}
+
+/**
+ * Localizaciones válidas como `destino` de una transición desde `loc` (F15b-B):
+ * deben estar en `loc.conexiones` y tener `mapa.proyeccion ∈ {tactico, dimetrico_2_1}`.
+ * Solo lectura del YAML en memoria; NO revalida la regla del motor.
+ *
+ * @param {object} loc
+ * @param {object[]} localizaciones
+ * @returns {string[]} ids de destino válidos
+ */
+export function destinosTransicionValidos(loc, localizaciones = []) {
+  const conexiones = new Set(
+    (Array.isArray(loc?.conexiones) ? loc.conexiones : [])
+      .map(c => String(c || '').trim())
+      .filter(Boolean),
+  )
+  const proyeccionesOk = new Set(['tactico', 'dimetrico_2_1'])
+  return (Array.isArray(localizaciones) ? localizaciones : [])
+    .filter(l => conexiones.has(String(l?.id || '').trim()))
+    .filter(l => proyeccionesOk.has(String(l?.mapa?.proyeccion || '').trim()))
+    .map(l => String(l.id).trim())
+}
+
+/**
  * Valida si el mapa de una localizacion esta listo para runtime (Owlbear style).
  *
  * @param {object} loc
