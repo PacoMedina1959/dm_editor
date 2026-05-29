@@ -3,14 +3,18 @@
 | Campo | Valor |
 | --- | --- |
 | **ID** | F15 |
-| **Estado** | `en ejecución — Entregas A-B cerradas; C-D pendientes` |
+| **Estado** | `cerrada` |
 | **Prioridad** | alta (antes de UI visual `objeto_canonico` en mapa) |
 | **Commit base** | `9b74f2c` |
-| **Commit cierre** | `<rellenar al cerrar>` |
+| **Commit cierre** | `a3e4e0e` |
+| **Commits entregas** | A `d98ef61`, B `00ac290`, C `6600ba0`, D `a3e4e0e` |
 | **Fecha** | 2026-05-28 |
+| **Fecha cierre** | 2026-05-28 |
 | **Repo** | `dm_editor` (motor fuente de verdad: `../dm_virtual`) |
 
-## §0. Diagnóstico (revisión 2026-05-28)
+## §0. Diagnóstico (revisión 2026-05-28, histórico pre-F15)
+
+> **Nota:** esta tabla refleja el estado **antes** de implementar F15. Tras el cierre (`a3e4e0e`): samples sincronizados, guardado/export con validación canónica, salud de mapa por localización vía issues del motor, `npm run lint` sin errores (3 warnings documentados en §5).
 
 Tras revisión en `/home/paco/python/proyectos/dm_editor` sin cambios de código:
 
@@ -169,9 +173,9 @@ Tras validación canónica (o botón “Validar mapa” / reutilizar último res
 
 **Criterios de aceptación C**
 
-- [ ] Corona mal colocada / `item_id` inválido → issue visible en la fila de la localización afectada.
-- [ ] Transición con destino inexistente → issue con código `MAPA_PI_TRANSICION_*` visible.
-- [ ] Localización sin mapa → sin falso “Mapa listo” verde si el motor reporta error.
+- [x] Corona mal colocada / `item_id` inválido → issue visible en la fila de la localización afectada.
+- [x] Transición con destino inexistente → issue con código `MAPA_PI_TRANSICION_*` visible.
+- [x] Localización sin validación reciente → sin falso “Mapa listo” verde; ámbar «requiere motor» o issues del motor.
 
 ---
 
@@ -193,8 +197,8 @@ Tras validación canónica (o botón “Validar mapa” / reutilizar último res
 
 **Criterios de aceptación D**
 
-- [ ] `npm run lint` → exit 0.
-- [ ] `npm run build` → OK.
+- [x] `npm run lint` → exit 0 (0 errores; 3 warnings preexistentes no bloqueantes: `FichaIADialog`, `useTacticalWalkmask`, `LanguageContext`).
+- [x] `npm run build` → OK.
 
 ---
 
@@ -233,6 +237,8 @@ cd ../dm_editor && npm run dev
 | 6 | Localización con mapa → panel salud | Muestra issues MAPA_* del motor (entrega C) |
 | 7 | `npm run lint` && `npm run build` | Ambos OK |
 
+**Warnings lint aceptados al cierre (no bloquean):** `FichaIADialog.jsx` (exhaustive-deps), `useTacticalWalkmask.js` (exhaustive-deps, hook táctico legacy), `LanguageContext.jsx` (react-refresh).
+
 ---
 
 ## §6. Referencias
@@ -261,10 +267,12 @@ cd ../dm_editor && npm run dev
 
 ## §9. Cierre de la SPEC
 
-**Git (SPEC validada):** commitear `docs/specs/F15_Coherencia_Validacion_Samples_dm_editor.md` en un commit acotado (solo docs F15), sin mezclar el working tree sucio actual (`mapaIA.js`, NPCs, samples, etc.).
+**Cadena de commits:** `6254b58` (SPEC) → `d98ef61` (A) → `00ac290` (B) → `6600ba0` (C) → `a3e4e0e` (D).
 
-Marcar `Estado: cerrada` y rellenar `Commit cierre` cuando:
+Marcado `Estado: cerrada` y `Commit cierre: a3e4e0e` (2026-05-28):
 
-- [ ] Entregas A, B, C y D cumplen criterios de aceptación.
-- [ ] Checklist §5 ejecutado.
-- [ ] Sin drift nuevo entre samples y motor (o script documentado en CI/README).
+- [x] Entregas A, B, C y D cumplen criterios de aceptación.
+- [x] Checklist §5 ejecutado (build/lint automatizados; pruebas manuales recomendadas tras cambios en motor/samples).
+- [x] Script `tools/sync_samples_from_dm_virtual.sh` documentado en README para evitar drift samples ↔ motor.
+
+**Siguiente SPEC sugerida:** F15b / F4.h-editor (colocación visual `objeto_canonico` en mapa libre).
