@@ -22,8 +22,8 @@ Revisión sin cambios de código en `dm_editor` y lectura RO de `dm_virtual` (in
 | `objeto_canonico` **ya existe y está validado** dentro de `localizaciones[].mapa.puntos_interes[]` | `dm_virtual/backend/app/core/validar_campana.py` (bloque `objeto_canonico`, códigos `MAPA_PI_OBJETO_*`) y `docs/specs/F4_h_*.md` |
 | El **validador** acepta `celda` como `[float, float]` y solo comprueba rango `0..100` | `validar_campana.py:419-421` (`tablero_ok, cols, rows = True, 101, 101`; `pisable_ok=False`) y `_celda_offset_valida` |
 | **PERO el runtime interpreta `celda` en modo dual** (índice de rejilla vs. porcentaje) | `LienzoOwlbear.jsx:235-251` — ver §1.bis. **Validador ≠ renderer.** |
-| **Todos los mapas del ejemplo declaran `cols`/`rows`** y son IA-generados | 19/19 bloques `puntos_interes` con `cols`/`rows`; `generado_ia.hash` presente. La corona real es `celda: [24, 15]` con `cols: 32, rows: 26` → render en ~76,6 % / ~59,6 %, **no** en 24 %/15 % |
-| El editor **no tiene UI** para `puntos_interes` | No existe lienzo por-localización; `MapaIADialog` solo genera/sube imagen, `MapaMundoDialog` posiciona locs, `MapaEscenas` es grafo de escenas |
+| **Todos los mapas del ejemplo declaran `cols`/`rows`** y son IA-generados | 19/19 bloques `puntos_interes` con `cols`/`rows`; `generado_ia.hash` presente. La corona real es `celda: [24, 15]` con `cols: 48, rows: 36` → render en ~51,0 % / ~43,1 %, **no** en 24 %/15 % |
+| El editor **no tenía UI** para `puntos_interes` (ahora F15b-A añade el colocador, solo lectura — `d93434d`) | No existía lienzo por-localización; `MapaIADialog` solo genera/sube imagen, `MapaMundoDialog` posiciona locs, `MapaEscenas` es grafo de escenas |
 | F15-C ya muestra issues `MAPA_PI_*` por fila de loc, pero el autor **no puede crearlos/moverlos** | `SeccionLocalizaciones.jsx` + `issuesMapaParaLocalizacion` |
 
 **Veredicto:** el trabajo de F15b es de **UX** (un lienzo para colocar visualmente lo que hoy solo se escribe a mano), **pero con una decisión previa bloqueante**: el espacio de coordenadas de `celda` no es "0..100 libre" de forma incondicional — es **relativo a rejilla cuando el mapa tiene `cols`/`rows`** (caso de todos los mapas canónicos actuales) y porcentaje en caso contrario. Mezclar puntos en % dentro de un mapa con `cols`/`rows` produce posiciones erróneas silenciosas. Esta SPEC resuelve eso **normalizando el mapa a modo libre al abrir el colocador (Opción B)**.
@@ -74,7 +74,7 @@ Reglas de la normalización:
 - Es **idempotente**: un mapa ya sin `cols`/`rows` no se toca.
 - Equivale a la posición que runtime y backend ya calculaban (centro de celda), así que **no mueve visualmente** puntos ni spawns; solo cambia su representación numérica.
 - Se persiste por la **puerta canónica F15-B** (Guardar/Exportar revalidan). No se escribe nada a disco fuera de ese flujo.
-- Se aplica en **un único commit** del estado (un solo `updateMapa`), nunca dejando un estado intermedio con puntos normalizados pero el mapa aún con `cols`/`rows`.
+- Se aplica en **un único commit** del estado (un solo `updateMapa(..., { replace: true })` — reemplaza, no fusiona; ver §6), nunca dejando un estado intermedio con puntos normalizados pero el mapa aún con `cols`/`rows`.
 - Se avisa al autor de forma explícita ("Este mapa se normaliza a coordenadas libres; puntos y spawns conservan su posición"). No es una migración silenciosa.
 
 ### §1.ter. Consumidores de `celda` que dependen de rejilla (evidencia)
@@ -129,7 +129,7 @@ localizaciones:
       puntos_interes:
         - id: corona_pedestal
           tipo: objeto_canonico
-          celda: [76.56, 59.62]     # PORCENTAJE 0..100 (tras normalizar [24,15] con cols32/rows26)
+          celda: [51.04, 43.06]     # PORCENTAJE 0..100 (tras normalizar [24,15] con cols48/rows36)
           etiqueta_ui: La Corona Perdida
           icono: artefacto
           item_id: corona_perdida   # picker F14, debe ser canonico=true
@@ -188,8 +188,8 @@ localizaciones:
 A (leer/render/normalizar) → B (editar) → C (integración guardado) → D (pulido + lint)
 ```
 
-- **F15b-A — Lectura / render:** pintar `puntos_interes` existentes sobre la imagen (solo lectura) + panel lateral; **normalización Opción B al abrir** (§1.bis). Marcar errores por `path`.
-- **F15b-B — Edición:** añadir / mover / eliminar / editar; autogenerar `id`; pickers `item_id` y `destino` (filtrado); escribir vía `updateSection` (que ya resetea `validacionCanonica`).
+- **F15b-A — Lectura / render: ✅ implementada (`d93434d` + fix `5d8c1c3`).** Pinta `puntos_interes` existentes sobre la imagen (solo lectura) + panel lateral; **normalización Opción B al abrir** (§1.bis); errores por `path`. Pendiente: cierre visual del round-trip §10 en `PlayerView`.
+- **F15b-B — Edición:** añadir / mover / eliminar / editar; autogenerar `id`; pickers `item_id` y `destino` (filtrado). **Dos decisiones fijadas (ver §7):** (1) la edición vive en **estado local del modal** y se persiste en **un único commit** al pulsar «Aplicar» (mismo `updateMapa(..., { replace: true })` que A), **no** con `updateSection` por cada cambio; (2) el diálogo necesita **`localizaciones` y el catálogo F14** cableados (hoy no los recibe).
 - **F15b-C — Integración guardado:** confirmar que la puerta canónica F15-B bloquea con `MAPA_PI_*` y que el marcador erróneo se resalta. Documentar en `GUIA_EDITOR_DM`.
 - **F15b-D — Pulido:** `npm run lint` en verde y `npm run build` OK.
 
@@ -199,7 +199,7 @@ A (leer/render/normalizar) → B (editar) → C (integración guardado) → D (p
 
 | Ruta | Rol |
 | --- | --- |
-| `src/components/aventura/ColocadorPuntosDialog.jsx` (nuevo) | Lienzo modal: imagen + marcadores + panel lateral. Props: `loc`, `serverSlug`, `validacionCanonica` (issues por `path`), `readOnly`, `onApply(mapa)` (mapa **completo** normalizado — ver nota crítica), `onClose` |
+| `src/components/aventura/ColocadorPuntosDialog.jsx` (nuevo) | Lienzo modal: imagen + marcadores + panel lateral. Props: `loc`, `serverSlug`, `validacionCanonica` (issues por `path`), `readOnly`, `onApply(mapa)` (mapa **completo** normalizado — ver nota crítica), `onClose`. **En B (edición):** añadir prop `localizaciones` (lista completa, para filtrar `destino`) y fuente del **catálogo F14** (`cargarCatalogoObjetos(slug)` para el picker `item_id`). |
 | `src/components/aventura/SeccionLocalizaciones.jsx` | Botón "Editar puntos del mapa" (gating por `mapa.imagen`) + wiring; pasar `validacionCanonica`. **`updateMapa` debe REEMPLAZAR el mapa al aplicar el colocador (`{ replace: true }`), no fusionar** — ver nota crítica abajo |
 | `src/domain/aventura.js` | Helpers **puros**: `nuevoPuntoInteres(tipo)`, `normalizarMapaACoordenadasLibres(mapa)` (Opción B — convierte `puntos_interes` + `spawn_entrada` + `spawns_npc` [+ `presencias_tacticas` defensivo] y **luego** borra `cols/rows/tile_*/origen_px/pisable`; idempotente), `parseIndicePunto(path)`, merge seguro de punto |
 | `src/api/aventuras.js` / `src/api/mapaIA.js` | Reutilizar `cargarCatalogoObjetos` (picker) y `urlMapaPublico(slug, mapa.imagen)` (fondo del lienzo, como `MapaBloque`). **Sin endpoints nuevos** |
@@ -215,7 +215,7 @@ export function parseIndicePunto(path) {
 }
 ```
 
-**Nota crítica — aplicar = REEMPLAZAR, no fusionar (corrección F15b-A):** el `mapa` que entrega el colocador es un objeto **completo** ya normalizado (con `cols/rows/tile_*/origen_px/pisable` **eliminados**). Si la persistencia fusiona con el mapa previo (`{ ...loc.mapa, ...mapa }`), los campos de rejilla del mapa antiguo **reaparecen** y el runtime vuelve a `usaGrid=true`, re-interpretando como rejilla toda celda `< cols` (incluidos los spawns) → **desplazamiento silencioso**. `updateMapa` ofrece `{ replace: true }`: usa `{ ...mapa }` (sin spread del previo) y omite el aviso de "cambio riesgoso". Verificado: sin esta opción, `cols/rows` no desaparecían tras Guardar y los spawns se movían.
+**Nota crítica — aplicar = REEMPLAZAR, no fusionar (corrección F15b-A):** el `mapa` que entrega el colocador es un objeto **completo** ya normalizado (con `cols/rows/tile_*/origen_px/pisable` **eliminados**). Si la persistencia fusiona con el mapa previo (`{ ...loc.mapa, ...mapa }`), los campos de rejilla del mapa antiguo **reaparecen** y el runtime vuelve a `usaGrid=true`, re-interpretando como rejilla toda celda `< cols` (incluidos los spawns) → **desplazamiento silencioso**. `updateMapa` ofrece `{ replace: true }`: usa `{ ...mapa }` (sin spread del previo) y omite el aviso de "cambio riesgoso". Verificado: sin esta opción, `cols/rows` no desaparecían tras Guardar y los spawns se movían. Nota: tras el `replace`, `updateMapa` aún pasa por `normalizarMapaTactico` (fija `tipo`/`proyeccion`) y `enlazarTiledRasterHermanoSiFalta` (añade `tiled.json` por convención si falta) — son **metadatos**, **no restauran rejilla** (`cols`/`rows` siguen ausentes).
 
 **Anti-patrones:** no copiar reglas de `objeto_canonico`/`transicion` a `domain/aventura.js`; no revalidar `item_id`/`destino`/conectividad en JS; no añadir campos que el motor ignore; no hacer snap a rejilla; **no fusionar el mapa normalizado con el previo al persistir**.
 
@@ -236,13 +236,23 @@ Entrada: `SeccionLocalizaciones` → `MapaBloque` → botón **"Editar puntos de
 
 **Implementación del lienzo (nota técnica):** la conversión píxel→% debe usar el **rectángulo real de la imagen** renderizada (con `object-fit`/letterboxing), no el del contenedor. El runtime ya resuelve esto con `mapBox`/`imgRect` (`LienzoOwlbear.jsx:336-348`); replicar ese patrón para que las posiciones del editor coincidan con las del jugador.
 
-Al aplicar: `onApply` entrega el `mapa` ya normalizado completo (puntos + `spawn_entrada`/`spawns_npc` convertidos y rejilla eliminada, merge preservando campos/tipos desconocidos) en **un solo commit** (`updateMapa`/`updateSection`), sin estados intermedios con puntos en % y mapa aún con `cols`. El guardado pasa por la puerta canónica F15-B.
+Al aplicar: `onApply` entrega el `mapa` ya normalizado completo en **un solo commit** que **REEMPLAZA** `loc.mapa` (`updateMapa(..., { replace: true })` — **no** fusiona a nivel mapa; ver nota crítica §6), sin estados intermedios con puntos en % y mapa aún con `cols`. El "merge preservando campos/tipos desconocidos" aplica **solo dentro de `puntos_interes`** al editar en B (conservar los puntos no editables), nunca al objeto `mapa`. El guardado pasa por la puerta canónica F15-B.
+
+### Decisiones de F15b-B (edición) — fijadas
+
+1. **Estado de edición = local al modal; commit único en «Aplicar».** Las operaciones (añadir/mover/eliminar/editar) mutan una **copia de trabajo** dentro del diálogo, sembrada desde el mapa ya normalizado. Solo «Aplicar al mapa» persiste, y lo hace con el **mismo `updateMapa(..., { replace: true })`** que A (reemplaza, no fusiona). **No** se usa `updateSection` por cada cambio. Motivos: una sola entrada en `useUndoRedo` por sesión de edición (no una por drag), `validacionCanonica` no se resetea en cada micro-cambio, y se preserva el invariante de reemplazo. «Cerrar sin aplicar» descarta. (La obligación de §5-B de escribir vía `updateSection` se cumple en el momento de aplicar: `updateMapa → onUpdate → updateSection`.)
+
+2. **Wiring de dependencias al diálogo.** El colocador necesita dos entradas que hoy no recibe:
+   - **`localizaciones`** (lista completa): para el `<select>` de `destino`, filtrado a conexiones cuyo `mapa.proyeccion ∈ {tactico, dimetrico_2_1}` (lectura en memoria, **sin** revalidar la regla en JS). `SeccionLocalizaciones` ya tiene `items` en scope → `localizaciones={items}`.
+   - **Catálogo F14**: para el picker `item_id`, vía `cargarCatalogoObjetos(slug)` filtrando `canonico === true`. Sin `serverSlug` → entrada manual de `item_id` con aviso ("validación contra catálogo global"). Decidir carga dentro del diálogo (estado loading/empty) o por prop; ambas válidas, sin endpoints nuevos.
+
+3. **Feedback de validación durante la edición.** Editar resetea `validacionCanonica` a `null` (vía `updateMapa`/`updateSection`), así que el resaltado de errores por `path` desaparece hasta el siguiente guardado/validación. Mostrar aviso explícito en el panel ("cambios sin validar; guarda para ver issues del motor"). No reimplementar validación en JS.
 
 ---
 
 ## §8. Compatibilidad
 
-- **Campañas existentes:** `puntos_interes` es opcional; locs sin él no cambian. El ejemplo `cripta_sala` ya trae `corona_pedestal` (`celda: [24, 15]`, mapa con `cols: 32`) → al abrir el colocador se normaliza a % (≈ `[76.56, 59.62]`) **sin moverla visualmente**.
+- **Campañas existentes:** `puntos_interes` es opcional; locs sin él no cambian. El ejemplo `cripta_sala` ya trae `corona_pedestal` (`celda: [24, 15]`, mapa con `cols: 48, rows: 36`) → al abrir el colocador se normaliza a % (≈ `[51.04, 43.06]`) **sin moverla visualmente**.
 - **F14 catálogo:** picker desde vista combinada global+local. Sin `serverSlug` → avisar y permitir teclear `item_id` (el motor valida contra global). Coherente con F15-B.
 - **F15 validación canónica:** reutilización directa; guardado/export ya bloquean con `MAPA_PI_*`. F15b **no** añade reglas JS.
 - **F4.h runtime:** la salida en % es exactamente lo que `LienzoOwlbear` pinta cuando `usaGrid=false`; tras normalizar, autor y jugador ven la misma posición.
@@ -257,6 +267,7 @@ Al aplicar: `onApply` entrega el `mapa` ya normalizado completo (puntos + `spawn
 - **Duplicar validación (medio).** Mitigación: solo delegación + resaltado por `path`; único feedback "duro" = el del motor.
 - **Aspect-ratio / letterboxing (medio).** Mitigación: usar rect real de la imagen (`imgRect`), no el contenedor (§7).
 - **Spawns desincronizados por la normalización (alto si se omite).** Borrar `cols`/`rows` sin convertir `spawn_entrada`/`spawns_npc` desplaza entrada de grupo y NPCs. Mitigación: §1.bis convierte los tres campos antes de borrar la rejilla; criterio de aceptación dedicado (§10).
+- **Reinyección de rejilla por fusión al aplicar (alto si se omite — bug real de F15b-A).** Persistir el mapa normalizado fusionándolo con el previo (`{ ...loc.mapa, ...mapa }`) reintroduce `cols`/`rows` → el runtime vuelve a modo rejilla y desplaza celdas. Mitigación: aplicar con `{ replace: true }` (§6); corregido en `5d8c1c3`.
 - **Acoplamiento al `path` del motor (bajo).** Mitigación: `parseIndicePunto` tolerante; si no casa, degradar a lista de mensajes.
 - **Regla de pies del visor (cosmético).** Tras quitar `cols`, `LienzoOwlbear.jsx:489` (`cols || 20`) usa el default 20 para la escala de regla. Es solo visual (no afecta posiciones); no bloquea F15b.
 - **Confusión por el nombre `celda` (bajo).** Mitigación: tooltip/documentación "`celda` = % 0..100 en modo libre".
@@ -265,7 +276,7 @@ Al aplicar: `onApply` entrega el `mapa` ya normalizado completo (puntos + `spawn
 
 ## §10. Criterios de aceptación
 
-- [ ] Cargar ejemplo → `cripta_sala` muestra `corona_pedestal` en su posición; al abrir el colocador el mapa se normaliza (desaparecen `cols`/`rows`) y la corona **no se mueve** respecto al jugador.
+- [ ] Cargar ejemplo → `cripta_sala` muestra `corona_pedestal` en su posición. Al **abrir** el colocador la normalización ocurre en memoria (no persiste); **tras «Aplicar al mapa» y Guardar**, el YAML de la loc ya **no tiene `cols`/`rows`** y la corona **no se mueve** en `PlayerView`.
 - [ ] Normalización **idempotente**: reabrir el colocador sobre un mapa ya normalizado no cambia `celda` ni el `mapa`.
 - [ ] Añadir `objeto_canonico` con `item_id` canónico válido → guarda; con `item_id` inválido → guardado bloqueado y marcador en rojo (`MAPA_PI_OBJETO_*`).
 - [ ] Añadir `transicion`: el `<select>` solo ofrece destinos conectados con mapa y proyección válida; un destino forzado inválido → `MAPA_PI_TRANSICION_DESTINO_*` visible y marcador resaltado.
@@ -294,7 +305,11 @@ Al aplicar: `onApply` entrega el `mapa` ya normalizado completo (puntos + `spawn
 
 ## §12. Cierre de la SPEC
 
-**Estado `validada` (2026-05-29):** lista para implementación por fases (A→D). `Commit base` de código: `426ccef`.
+**Estado `validada` (2026-05-29):** implementación por fases (A→D). `Commit base` de código: `426ccef`.
+
+**Progreso de implementación:**
+- **F15b-A** ✅ `d93434d` (colocador solo lectura + normalización Opción B) + `5d8c1c3` (fix: aplicar reemplaza, no fusiona). Falta el check visual §10 en `PlayerView` para darla por cerrada.
+- **F15b-B/C/D** pendientes (decisiones fijadas en §5-B/§7).
 
 Marcar `Estado: cerrada` y rellenar `Commit cierre` cuando:
 
