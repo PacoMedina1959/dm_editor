@@ -4,6 +4,7 @@
     "nombre": "Poción de curación",
     "nombre_en": "Healing potion",
     "categoria": "consumible",
+    "apilable": true,
     "subtipo": "curacion",
     "efectos": {},
     "stats": { "curacion": 5 },
@@ -29,6 +30,7 @@
     "nombre": "Vendajes",
     "nombre_en": "Bandages",
     "categoria": "consumible",
+    "apilable": true,
     "subtipo": "curacion",
     "efectos": {},
     "stats": { "curacion": 3 },
@@ -211,6 +213,7 @@
     "nombre": "Ración de viaje",
     "nombre_en": "Travel ration",
     "categoria": "consumible",
+    "apilable": true,
     "subtipo": "comida",
     "efectos": {},
     "stats": { "curacion": 3 },
@@ -245,6 +248,7 @@
     "nombre": "Antorcha",
     "nombre_en": "Torch",
     "categoria": "util",
+    "apilable": true,
     "subtipo": "luz",
     "efectos": {},
     "precio": 2,
@@ -469,6 +473,7 @@
     },
     "precio": 0,
     "usable_en_combate": true,
+    "usable_fuera_combate": true,
     "descripcion": "Restaura una pequeña cantidad de salud a un aliado."
   }
 }

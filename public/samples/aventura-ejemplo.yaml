@@ -1546,45 +1546,23 @@ localizaciones:
         origen: manual
         ancho: 1672
         alto: 941
-      tile_w: 44
-      tile_h: 22
-      cols: 48
-      rows: 36
-      origen_px:
-        - 661
-        - 0
-      pisable: |-
-        #################
-        #################
-        #################
-        #################
-        ###############..
-        ##############..#
-        ################.
-        #################
-        ####....#########
-        ####....#########
-        ####....#########
-        #################
-        #################
-        #################
-        ################.
-        ################.
-        #################
-        #################
-        #################
-        #################
-        #################
       spawn_entrada:
         celda:
-          - 7
-          - 31
+          - 15.63
+          - 87.5
+      niebla:
+        activa: true
+        radio_vision_pct: 10
+        revelar_al_entrar: false
+        paso_muestreo_pct: 3
+      movimiento:
+        activa: true
       puntos_interes:
         - id: ir_cripta_01
           tipo: transicion
           celda:
-            - 8
-            - 20
+            - 5.08
+            - 59.51
           destino: cripta_01
           etiqueta_ui: Ir a cripta_01
           icono: escalera_sube
@@ -1592,8 +1570,8 @@ localizaciones:
         - id: ir_cripta_01_2
           tipo: transicion
           celda:
-            - 16
-            - 10
+            - 92.54
+            - 60.73
           destino: cripta_camara
           etiqueta_ui: Ir a cripta_corona
           icono: escalera_baja
@@ -1601,24 +1579,23 @@ localizaciones:
         - id: corona_pedestal
           tipo: objeto_canonico
           celda:
-            - 24
-            - 15
+            - 50
+            - 48
           etiqueta_ui: La Corona Perdida
           icono: artefacto
           item_id: corona_perdida
           evento_al_recoger: tomar_corona
           requiere_confirmacion: true
           texto_confirmacion: >
-            La Corona descansa sobre el pedestal de la sala. Si la recoges,
-            quedará incorporada al inventario del personaje y se activará el
-            evento de la cripta.
+            La Corona descansa sobre el pedestal de la sala. Si la recoges, quedará incorporada al
+            inventario del personaje y se activará el evento de la cripta.
       presencias_tacticas:
         - id: espectros_juramentados_01
           tipo: bestiario
           ref: espectro_juramentado
           celda:
-            - 44
-            - 5
+            - 92.71
+            - 15.28
           cantidad: 4
           visible: true
           etiqueta_ui: Espectros Juramentados
@@ -1641,14 +1618,14 @@ localizaciones:
       - afueras_sur
       - mina_veta
     mapa:
-      imagen: mapas/mina_entrada/mina_entrada__manual__d927988a.png
+      imagen: mapas/mina_entrada/mina_entrada__manual__136281b0.png
       tipo: tactico
       proyeccion: dimetrico_2_1
       generado_ia:
-        hash: d927988aa7106eca
+        hash: 136281b006c1a494
         origen: manual
-        ancho: 2816
-        alto: 1536
+        ancho: 1672
+        alto: 941
       tile_w: 128
       tile_h: 61
       cols: 14
@@ -1711,6 +1688,8 @@ localizaciones:
           cantidad: 1
           visible: true
           etiqueta_ui: Araña Tejedora
+      tiled:
+        json: mapas/mina_entrada/mina_entrada__manual__136281b0.tmj
   - id: mina_veta
     nombre: Mina — Veta del Corazón
     nombre_en: Mine — Heart Vein
@@ -1724,68 +1703,52 @@ localizaciones:
       - mina_entrada
     notas_dm: Final 'destruir la corona' requiere llegar aquí con la Corona.
     mapa:
-      imagen: mapas/mina_veta/mina_veta__56c6c692.png
+      imagen: mapas/mina_veta/mina_veta__manual__97f34522.png
       tipo: tactico
       proyeccion: dimetrico_2_1
       generado_ia:
-        hash: 56c6c692f9d4290d
-        prompt: >-
-          An underground mine tunnel. Scene elements: wooden scaffolding and support beams, rail
-          tracks, abandoned mining carts, hanging lanterns, rough stone walls. Indoor scene:
-          enclosed by walls and ceiling, no open sky visible. Cutaway open-top view showing the
-          interior from above, no ceiling or roof obstructing the floor plan, low perimeter walls
-          only. isometric 2.5D video game level, dimetric 2:1 projection, top-down angled view at 30
-          degrees, strict isometric grid with parallel edges and no perspective vanishing point,
-          large flat playable floor area centered in the frame covering at least 60 percent of the
-          image, props and obstacles pushed against the perimeter, center of the floor intentionally
-          left empty for token placement. dark fantasy digital painting, in the visual style of
-          Diablo 2 and Baldur's Gate 2, dramatic rim lighting, volumetric fog, detailed stone and
-          wood textures, muted cool color palette with warm accent highlights, high detail,
-          cinematic composition, ArtStation quality. medieval fantástica setting, Valle de las
-          Montañas de Hierro. Scene context (for understanding only; do not render any of these
-          words as text or labels in the image): La sección más profunda. Aquí se extrajo el hierro
-          especial con el que se forjó la Corona. Las paredes brillan con un tono rojizo
-          antinatural. Es el único lugar donde la Corona puede ser destruida. Negative: no
-          characters, no people, no humans, no creatures, no animals, no text, no letters, no
-          captions, no watermark, no logo, no UI elements, no HUD, no frame borders, no signatures,
-          no place names, no location titles, no scene headings, no floating text, no callouts.
-        seed: 1996586579
-        modelo: gemini-gemini-2.5-flash-image
-        ancho: 1024
-        alto: 1024
-      tile_w: 68
-      tile_h: 43
-      cols: 10
-      rows: 10
-      origen_px:
-        - 487
-        - 456
-      pisable: |
-        ##########
-        ##########
-        ##########
-        ##########
-        ##########
-        ##########
-        ##########
-        ##########
-        ##########
-        ##########
+        hash: 97f345228171caec
+        origen: manual
+        ancho: 1672
+        alto: 941
       spawn_entrada:
         celda:
-          - 5
-          - 5
+          - 55
+          - 55
+      niebla:
+        activa: true
+        radio_vision_pct: 10
+        radio_vision_combate_pct: 14
+        revelar_al_entrar: false
+        paso_muestreo_pct: 3
+      movimiento:
+        activa: true
       puntos_interes:
         - id: ir_mina_entrada
           tipo: transicion
           celda:
-            - 8
-            - 2
+            - 78.58
+            - 28.55
           destino: mina_entrada
           etiqueta_ui: Ir a mina_entrada
           icono: salida
           oculto: false
+        - id: fragua_corazon
+          tipo: consumir_objeto_canonico
+          celda:
+            - 24
+            - 42
+          item_id: corona_perdida
+          evento_al_consumir: destruir_corona
+          etiqueta_ui: Fragua del Corazón
+          icono: fragua
+          requiere_confirmacion: true
+          texto_confirmacion: >
+            Fundir la Corona en la Veta del Corazón es irreversible: la Corona se destruye para
+            siempre y los espectros quedan liberados. ¿Continuar?
       spawns_npc: []
+      tiled:
+        json: mapas/mina_veta/mina_veta__manual__97f34522.tmj
 npcs:
   - id: marta
     nombre: Marta la Tabernera
@@ -4007,15 +3970,6 @@ escenas:
       bestiario: completo
     info_oculta: []
     condiciones_final:
-      - final: destruir_corona
-        descripcion: Llevar la Corona a la Veta del Corazón y destruirla
-        operador: all
-        reglas:
-          - tipo: evento
-            evento: destruir_corona
-            descripcion_humana: El jugador funde la Corona en la fragua original
-          - tipo: ubicacion_visitada
-            lugar: mina_veta
       - final: entregar_baron
         descripcion: Entregar la Corona a Aldric o ir hacia la capital
         operador: all
