@@ -35,6 +35,7 @@ export default function CatalogoPage() {
   const [subtipo, setSubtipo] = useState('')
   const [precioStr, setPrecioStr] = useState('0')
   const [usableCombate, setUsableCombate] = useState(false)
+  const [apilable, setApilable] = useState(false)
   const [overrideGlobal, setOverrideGlobal] = useState(false)
   const [descripcion, setDescripcion] = useState('')
   const [statsText, setStatsText] = useState('{}')
@@ -79,6 +80,7 @@ export default function CatalogoPage() {
     setSubtipo('')
     setPrecioStr('0')
     setUsableCombate(false)
+    setApilable(false)
     setOverrideGlobal(false)
     setDescripcion('')
     setStatsText('{}')
@@ -177,6 +179,7 @@ export default function CatalogoPage() {
     setSubtipo(String(row.subtipo ?? ''))
     setPrecioStr(String(row.precio ?? 0))
     setUsableCombate(Boolean(row.usable_en_combate))
+    setApilable(Boolean(row.apilable))
     setOverrideGlobal(Boolean(row.override))
     setDescripcion(String(row.descripcion ?? ''))
     setStatsText(JSON.stringify(row.stats && typeof row.stats === 'object' ? row.stats : {}, null, 2))
@@ -205,6 +208,7 @@ export default function CatalogoPage() {
     setSubtipo(String(entry.subtipo ?? ''))
     setPrecioStr(String(entry.precio ?? 0))
     setUsableCombate(Boolean(entry.usable_en_combate))
+    setApilable(Boolean(entry.apilable))
     setOverrideGlobal(true)
     setDescripcion(String(entry.descripcion ?? ''))
     setStatsText(JSON.stringify(entry.stats && typeof entry.stats === 'object' ? entry.stats : {}, null, 2))
@@ -226,6 +230,7 @@ export default function CatalogoPage() {
     setSubtipo(tpl.subtipo)
     setPrecioStr(String(tpl.precio))
     setUsableCombate(tpl.usable_en_combate)
+    setApilable(false)
     setOverrideGlobal(false)
     setDescripcion(tpl.descripcion)
     setStatsText(JSON.stringify(tpl.stats, null, 2))
@@ -287,6 +292,7 @@ export default function CatalogoPage() {
       stats,
       precio,
       usable_en_combate: usableCombate,
+      ...(apilable ? { apilable: true } : {}),
       descripcion: descripcion.trim(),
     }
 
@@ -449,6 +455,7 @@ export default function CatalogoPage() {
             <div className="catalogo-form-row">
               <label className="field field-grow"><span className="field-label">precio</span><input className="catalogo-input" type="number" min={0} step={1} value={precioStr} onChange={(e) => setPrecioStr(e.target.value)} /></label>
               <label className="field field-check"><input type="checkbox" checked={usableCombate} onChange={(e) => setUsableCombate(e.target.checked)} /><span className="field-label">usable_en_combate</span></label>
+              <label className="field field-check"><input type="checkbox" checked={apilable} onChange={(e) => setApilable(e.target.checked)} /><span className="field-label">apilable</span></label>
             </div>
             <label className="field"><span className="field-label">descripcion</span><textarea className="catalogo-textarea" rows={3} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></label>
             <label className="field"><span className="field-label">stats (JSON objeto)</span><textarea className="catalogo-textarea catalogo-textarea-mono" rows={5} value={statsText} onChange={(e) => setStatsText(e.target.value)} spellCheck={false} /></label>
