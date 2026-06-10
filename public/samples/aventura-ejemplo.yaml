@@ -2093,6 +2093,7 @@ npcs:
     nombre: Gorin el Herrero
     nombre_en: Gorin the Blacksmith
     autorevelar_desde_narrativa: true
+    ubicacion_secreta: true
     ubicacion: bodega
     vende:
       - espada_corta
