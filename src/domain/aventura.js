@@ -198,7 +198,7 @@ export function parseIndicePunto(path) {
  * El id evita colisión con los existentes (el motor emite `MAPA_PI_ID_DUPLICADO`).
  * `celda` en porcentaje 0..100 (modo libre); por defecto el centro del lienzo.
  *
- * @param {'objeto_canonico'|'transicion'} tipo
+ * @param {'objeto_canonico'|'transicion'|'puerta_bloqueada'} tipo
  * @param {Array<{id?:string}>} puntosExistentes
  * @param {[number, number]} [celda]
  * @returns {object}
@@ -214,6 +214,16 @@ export function nuevoPuntoInteres(tipo, puntosExistentes = [], celda = [50, 50])
   }
   if (tipo === 'transicion') {
     return { ...base, etiqueta_ui: '', icono: '', destino: '' }
+  }
+  if (tipo === 'puerta_bloqueada') {
+    return {
+      ...base,
+      etiqueta_ui: '',
+      dificultad: 12,
+      requiere_objeto: 'ganzuas',
+      transicion_al_exito: '',
+      oculto: false,
+    }
   }
   return base
 }

@@ -9,7 +9,7 @@ import {
   parseIndicePunto,
 } from '../../domain/aventura.js'
 
-const TIPOS_EDITABLES = new Set(['objeto_canonico', 'transicion'])
+const TIPOS_EDITABLES = new Set(['objeto_canonico', 'transicion', 'puerta_bloqueada'])
 
 function round2(n) {
   return Math.round(n * 100) / 100
@@ -34,6 +34,7 @@ function celdaAPorcentaje(celda) {
 export default function ColocadorPuntosDialog({
   loc,
   localizaciones = [],
+  eventosDefinidos = [],
   serverSlug,
   validacionCanonica = null,
   onClose,
@@ -52,7 +53,7 @@ export default function ColocadorPuntosDialog({
   const [selIdx, setSelIdx] = useState(null)
   const [catalogo, setCatalogo] = useState(null)
   const [draggingIdx, setDraggingIdx] = useState(null)
-  const [modoAñadir, setModoAñadir] = useState(null) // null | 'objeto_canonico' | 'transicion'
+  const [modoAñadir, setModoAñadir] = useState(null) // null | 'objeto_canonico' | 'transicion' | 'puerta_bloqueada'
 
   // Catálogo F14 para el picker `item_id` (solo con slug). setState solo en callback async.
   useEffect(() => {
@@ -78,6 +79,20 @@ export default function ColocadorPuntosDialog({
       .filter(([, v]) => v && v.canonico === true)
       .map(([id, v]) => ({ id, nombre: String(v?.nombre || id) }))
   }, [catalogo])
+
+  const objetosCatalogo = useMemo(() => {
+    if (!catalogo || typeof catalogo !== 'object') return null
+    return Object.entries(catalogo)
+      .map(([id, v]) => ({ id, nombre: String(v?.nombre || id) }))
+      .sort((a, b) => a.id.localeCompare(b.id, 'es'))
+  }, [catalogo])
+
+  const eventosOpciones = useMemo(() => (
+    (Array.isArray(eventosDefinidos) ? eventosDefinidos : [])
+      .map((evt) => ({ id: String(evt?.id || '').trim(), nombre: String(evt?.descripcion || evt?.nombre || evt?.id || '').trim() }))
+      .filter((evt) => evt.id)
+      .sort((a, b) => a.id.localeCompare(b.id, 'es'))
+  ), [eventosDefinidos])
 
   const destinosValidos = useMemo(
     () => destinosTransicionValidos(loc, localizaciones),
@@ -174,6 +189,16 @@ export default function ColocadorPuntosDialog({
 
   const updatePunto = useCallback((idx, patch) => {
     setPuntos((prev) => prev.map((p, i) => (i === idx ? { ...p, ...patch } : p)))
+  }, [setPuntos])
+
+  const setPuntoCampo = useCallback((idx, key, value, opts = {}) => {
+    setPuntos((prev) => prev.map((p, i) => {
+      if (i !== idx) return p
+      const next = { ...p }
+      if (opts.omitirVacio && String(value || '').trim() === '') delete next[key]
+      else next[key] = value
+      return next
+    }))
   }, [setPuntos])
 
   const moverPuntoPct = useCallback((idx, x, y) => {
@@ -280,6 +305,13 @@ export default function ColocadorPuntosDialog({
               >
                 + Transición
               </button>
+              <button
+                type="button"
+                className={modoAñadir === 'puerta_bloqueada' ? 'btn-primary av-btn-small' : 'btn-secondary av-btn-small'}
+                onClick={() => setModoAñadir(t => (t === 'puerta_bloqueada' ? null : 'puerta_bloqueada'))}
+              >
+                🔒 Puerta
+              </button>
               <span style={{ fontSize: 11, color: modoAñadir ? '#fbbf24' : '#94a3b8' }}>
                 {modoAñadir
                   ? 'Haz clic en el mapa para colocar el nuevo punto (Esc cancela).'
@@ -316,6 +348,7 @@ export default function ColocadorPuntosDialog({
                 const tipo = String(punto?.tipo || '').trim()
                 const editable = TIPOS_EDITABLES.has(tipo)
                 const err = indicesConError.has(idx)
+                const esPuerta = tipo === 'puerta_bloqueada'
                 const arrastrable = !readOnly && editable
                 const seleccionado = idx === selIdx
                 return (
@@ -332,17 +365,24 @@ export default function ColocadorPuntosDialog({
                       left: mapBox.left + (pct.x / 100) * mapBox.width,
                       top: mapBox.top + (pct.y / 100) * mapBox.height,
                       transform: 'translate(-50%, -50%)',
-                      width: seleccionado ? 16 : 12,
-                      height: seleccionado ? 16 : 12,
+                      width: esPuerta ? (seleccionado ? 22 : 18) : (seleccionado ? 16 : 12),
+                      height: esPuerta ? (seleccionado ? 22 : 18) : (seleccionado ? 16 : 12),
                       borderRadius: '50%',
                       border: seleccionado ? '2px solid #e2e8f0' : '2px solid #0f172a',
-                      background: err ? '#f87171' : editable ? '#60a5fa' : '#94a3b8',
+                      background: err ? '#f87171' : esPuerta ? '#fbbf24' : editable ? '#60a5fa' : '#94a3b8',
+                      color: '#0f172a',
+                      fontSize: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       cursor: arrastrable ? (draggingIdx === idx ? 'grabbing' : 'grab') : 'default',
                       pointerEvents: readOnly ? 'none' : 'auto',
                       touchAction: 'none',
                       zIndex: seleccionado ? 3 : 2,
                     }}
-                  />
+                  >
+                    {esPuerta ? '🔒' : null}
+                  </div>
                 )
               })}
 
@@ -395,8 +435,11 @@ export default function ColocadorPuntosDialog({
                   )}
                   {selEditable && (
                     <div style={{ display: 'grid', gap: 6, marginTop: 6 }}>
+                      <Campo label="id" value={sel.id ?? ''} onChange={v => updatePunto(selIdx, { id: v })} />
                       <Campo label="Etiqueta UI" value={sel.etiqueta_ui ?? ''} onChange={v => updatePunto(selIdx, { etiqueta_ui: v })} />
-                      <Campo label="Icono" value={sel.icono ?? ''} onChange={v => updatePunto(selIdx, { icono: v })} />
+                      {selTipo !== 'puerta_bloqueada' && (
+                        <Campo label="Icono" value={sel.icono ?? ''} onChange={v => updatePunto(selIdx, { icono: v })} />
+                      )}
                       <div style={{ display: 'flex', gap: 6 }}>
                         <CampoNum label="x %" value={selPct?.x ?? 0} onChange={v => moverPuntoPct(selIdx, v, selPct?.y ?? 0)} />
                         <CampoNum label="y %" value={selPct?.y ?? 0} onChange={v => moverPuntoPct(selIdx, selPct?.x ?? 0, v)} />
@@ -438,6 +481,58 @@ export default function ColocadorPuntosDialog({
                             )}
                           </select>
                         </label>
+                      )}
+
+                      {selTipo === 'puerta_bloqueada' && (
+                        <>
+                          <CampoEnteroMin label="dificultad" min={1} value={sel.dificultad ?? 12} onChange={v => updatePunto(selIdx, { dificultad: v })} />
+                          <label className="av-field">
+                            <span className="av-field-label">transicion_al_exito</span>
+                            <select className="av-input" value={sel.transicion_al_exito ?? ''} onChange={e => updatePunto(selIdx, { transicion_al_exito: e.target.value })}>
+                              <option value="">— elegir —</option>
+                              {destinosValidos.map(d => <option key={d} value={d}>{d}</option>)}
+                              {sel.transicion_al_exito && !destinosValidos.includes(sel.transicion_al_exito) && (
+                                <option value={sel.transicion_al_exito}>{sel.transicion_al_exito} (no conectado / sin mapa válido)</option>
+                              )}
+                            </select>
+                          </label>
+                          {objetosCatalogo ? (
+                            <label className="av-field">
+                              <span className="av-field-label">requiere_objeto</span>
+                              <select className="av-input" value={sel.requiere_objeto ?? 'ganzuas'} onChange={e => updatePunto(selIdx, { requiere_objeto: e.target.value })}>
+                                <option value="">— elegir —</option>
+                                {objetosCatalogo.map(it => <option key={it.id} value={it.id}>{it.id} · {it.nombre}</option>)}
+                                {sel.requiere_objeto && !objetosCatalogo.some(it => it.id === sel.requiere_objeto) && (
+                                  <option value={sel.requiere_objeto}>{sel.requiere_objeto} (no está en catálogo cargado)</option>
+                                )}
+                              </select>
+                            </label>
+                          ) : (
+                            <Campo
+                              label="requiere_objeto (catálogo no disponible — entrada manual)"
+                              value={sel.requiere_objeto ?? 'ganzuas'}
+                              onChange={v => updatePunto(selIdx, { requiere_objeto: v })}
+                            />
+                          )}
+                          <label className="av-field">
+                            <span className="av-field-label">evento_al_exito</span>
+                            <select
+                              className="av-input"
+                              value={sel.evento_al_exito ?? ''}
+                              onChange={e => setPuntoCampo(selIdx, 'evento_al_exito', e.target.value, { omitirVacio: true })}
+                            >
+                              <option value="">— ninguno —</option>
+                              {eventosOpciones.map(evt => <option key={evt.id} value={evt.id}>{evt.id}{evt.nombre ? ` · ${evt.nombre}` : ''}</option>)}
+                              {sel.evento_al_exito && !eventosOpciones.some(evt => evt.id === sel.evento_al_exito) && (
+                                <option value={sel.evento_al_exito}>{sel.evento_al_exito} (no definido)</option>
+                              )}
+                            </select>
+                          </label>
+                          <label className="av-field-inline">
+                            <input type="checkbox" checked={sel.oculto === true} onChange={e => updatePunto(selIdx, { oculto: e.target.checked })} />
+                            <span>Oculto</span>
+                          </label>
+                        </>
                       )}
 
                       <button type="button" className="av-btn-danger av-btn-small" onClick={() => eliminarPunto(selIdx)}>
@@ -485,6 +580,22 @@ function CampoNum({ label, value, onChange }) {
         onChange={(e) => {
           const n = Number(e.target.value)
           if (Number.isFinite(n)) onChange(n)
+        }}
+      />
+    </label>
+  )
+}
+
+function CampoEnteroMin({ label, value, min = 1, onChange }) {
+  return (
+    <label className="av-field">
+      <span className="av-field-label">{label}</span>
+      <input
+        type="number" min={min} step={1} className="av-input"
+        value={value}
+        onChange={(e) => {
+          const n = Number(e.target.value)
+          if (Number.isFinite(n)) onChange(Math.max(min, Math.floor(n)))
         }}
       />
     </label>

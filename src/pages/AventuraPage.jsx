@@ -489,6 +489,7 @@ export default function AventuraPage() {
           {visibles.has('localizaciones') && (
             <SeccionLocalizaciones
               localizaciones={data.localizaciones || []}
+              eventosDefinidos={data.eventos_definidos || []}
               npcs={data.npcs || []}
               bestiario={data.bestiario || []}
               assetsTacticos={data.assets_tacticos || []}

@@ -13,6 +13,7 @@ const EMPTY = {
 
 export default function SeccionLocalizaciones({
   localizaciones,
+  eventosDefinidos = [],
   onUpdate,
   onOpenIA,
   serverSlug,
@@ -258,6 +259,7 @@ export default function SeccionLocalizaciones({
           serverSlug={serverSlug}
           loc={items[colocadorIdx]}
           localizaciones={items}
+          eventosDefinidos={eventosDefinidos}
           validacionCanonica={validacionCanonica}
           readOnly={false}
           onClose={() => setColocadorIdx(null)}
