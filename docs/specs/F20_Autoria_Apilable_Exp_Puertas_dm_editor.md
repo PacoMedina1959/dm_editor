@@ -7,7 +7,7 @@
 | **Autor (diseño)** | Fable (Opus) |
 | **Estado** | `cerrada` (2026-06-10; entregas A-D implementadas y verificadas) |
 | **Commit base** | `c89c3ed` (HEAD al commit documental de apertura) |
-| **Commit cierre** | *(rellenar post-commit D; nunca auto-referenciado)* |
+| **Commit cierre** | `595ffb0` (entrega D; rellenado en commit documental posterior) |
 | **Fecha inicio** | 2026-06-10 |
 | **Plantilla** | v6 (`dm_virtual/docs/specs/PLANTILLA_SPEC.md`) — aplica la regla de **commit por entrega** (§9 v6: el reporte de cierre incluye hash o se devuelve) |
 | **Nota de calibre** | 4 entregas atómicas (A–D), cada una pequeña y con commit propio. Repo: **`dm_editor`** exclusivamente. |
@@ -46,7 +46,7 @@ Un autor de campaña puede, sin editar JSON/YAML a mano: marcar un objeto como a
 - [x] **`dm_virtual` no se toca** — solo lectura para resync de samples y validación.
 - [x] **Campos opcionales se omiten en su default** al serializar `apilable`, `exp_requerida` y `clases`.
 - [x] **Guardar/export sigue pasando por la puerta de validación**; no se añade bypass.
-- [x] **Commit por entrega con hash en el reporte**: A `b358c0d`, B `32bd5b2`, C `99750b3`, D pendiente de hash post-commit.
+- [x] **Commit por entrega con hash en el reporte**: A `b358c0d`, B `32bd5b2`, C `99750b3`, D `595ffb0`.
 
 ## §3. Alcance
 
@@ -129,7 +129,7 @@ Tabla criterio→implementación→verificación por entrega + **hash de commit 
 | A | `b358c0d` | `CatalogoPage.jsx`: checkbox `apilable`; serialización solo `true`. | `npm run lint` (0 errores, 3 warnings históricos); `npm run build` OK. |
 | B | `32bd5b2` | `exp_requerida`, `clases`, `CLASES_BASE_EDITOR`; omisión de defaults. | `npm run lint` (0 errores, 3 warnings históricos); `npm run build` OK. |
 | C | `99750b3` | `puerta_bloqueada` en colocador: botón, defaults, panel, selects y marcador. | `npm run lint` (0 errores, 3 warnings históricos); `npm run build` OK. |
-| D | *(rellenar post-commit)* | Resync samples, guía, HANDOFF y cierre SPEC. | `npm run lint`; `npm run build`; API `validar-campana` sample `ok=true`, `error_count=0`, `warning_count=4`. |
+| D | `595ffb0` | Resync samples, guía, HANDOFF y cierre SPEC. | `npm run lint`; `npm run build`; API `validar-campana` sample `ok=true`, `error_count=0`, `warning_count=4`. |
 
 ## §10. Changelog
 
@@ -137,4 +137,5 @@ Tabla criterio→implementación→verificación por entrega + **hash de commit 
 | --- | --- | --- |
 | 2026-06-10 | creación | Redacción inicial (Fable). Cierra los 3 huecos de autoría abiertos por F16/F17/F19 + resync de samples pendiente desde F4.i. Primera SPEC redactada bajo plantilla v6. |
 | 2026-06-10 | entregas A-C | A `b358c0d`, B `32bd5b2`, C `99750b3`: catálogo apilable/Exp/clases y puerta bloqueada en colocador. |
-| 2026-06-10 | entrega D | Resync de samples desde `dm_virtual`; validación canónica del sample con `error_count=0` y 4 warnings históricos `REGLA_HISTORIAL_DESACTIVADA`; docs de cierre actualizadas. Hash D pendiente de relleno post-commit. |
+| 2026-06-10 | entrega D | `595ffb0` — resync de samples desde `dm_virtual`; validación canónica del sample con `error_count=0` y 4 warnings históricos `REGLA_HISTORIAL_DESACTIVADA`; docs de cierre actualizadas. |
+| 2026-06-10 | cierre formal | Hash de cierre `595ffb0` rellenado en commit documental posterior para evitar auto-referencia. |
