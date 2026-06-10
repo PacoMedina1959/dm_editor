@@ -2,6 +2,16 @@
  * Modelo mínimo del catálogo de objetos: objeto raíz id → ficha.
  */
 
+// Mantener en sincronía con `CLASES_BASE` del motor (`dm_virtual/backend/app/core/estado_mundo.py`).
+export const CLASES_BASE_EDITOR = [
+  { id: 'warrior', label: 'Guerrero' },
+  { id: 'mage', label: 'Mago' },
+  { id: 'healer', label: 'Sanador' },
+  { id: 'rogue', label: 'Pícaro' },
+  { id: 'ranger', label: 'Explorador' },
+  { id: 'adventurer', label: 'Aventurero' },
+]
+
 /**
  * @param {unknown} data
  * @returns {{ ok: true, catalog: Record<string, object> } | { ok: false, message: string }}

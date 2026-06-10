@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import {
+  CLASES_BASE_EDITOR,
   catalogoAString,
   entradasOrdenadas,
   idsLocalesConColisionGlobal,
@@ -36,6 +37,8 @@ export default function CatalogoPage() {
   const [precioStr, setPrecioStr] = useState('0')
   const [usableCombate, setUsableCombate] = useState(false)
   const [apilable, setApilable] = useState(false)
+  const [expRequeridaStr, setExpRequeridaStr] = useState('0')
+  const [clasesSel, setClasesSel] = useState([])
   const [overrideGlobal, setOverrideGlobal] = useState(false)
   const [descripcion, setDescripcion] = useState('')
   const [statsText, setStatsText] = useState('{}')
@@ -81,6 +84,8 @@ export default function CatalogoPage() {
     setPrecioStr('0')
     setUsableCombate(false)
     setApilable(false)
+    setExpRequeridaStr('0')
+    setClasesSel([])
     setOverrideGlobal(false)
     setDescripcion('')
     setStatsText('{}')
@@ -180,6 +185,8 @@ export default function CatalogoPage() {
     setPrecioStr(String(row.precio ?? 0))
     setUsableCombate(Boolean(row.usable_en_combate))
     setApilable(Boolean(row.apilable))
+    setExpRequeridaStr(String(row.exp_requerida ?? 0))
+    setClasesSel(Array.isArray(row.clases) ? row.clases.map(String) : [])
     setOverrideGlobal(Boolean(row.override))
     setDescripcion(String(row.descripcion ?? ''))
     setStatsText(JSON.stringify(row.stats && typeof row.stats === 'object' ? row.stats : {}, null, 2))
@@ -209,6 +216,8 @@ export default function CatalogoPage() {
     setPrecioStr(String(entry.precio ?? 0))
     setUsableCombate(Boolean(entry.usable_en_combate))
     setApilable(Boolean(entry.apilable))
+    setExpRequeridaStr(String(entry.exp_requerida ?? 0))
+    setClasesSel(Array.isArray(entry.clases) ? entry.clases.map(String) : [])
     setOverrideGlobal(true)
     setDescripcion(String(entry.descripcion ?? ''))
     setStatsText(JSON.stringify(entry.stats && typeof entry.stats === 'object' ? entry.stats : {}, null, 2))
@@ -231,6 +240,8 @@ export default function CatalogoPage() {
     setPrecioStr(String(tpl.precio))
     setUsableCombate(tpl.usable_en_combate)
     setApilable(false)
+    setExpRequeridaStr('0')
+    setClasesSel([])
     setOverrideGlobal(false)
     setDescripcion(tpl.descripcion)
     setStatsText(JSON.stringify(tpl.stats, null, 2))
@@ -280,6 +291,7 @@ export default function CatalogoPage() {
       setEditorError('«precio» debe ser un número ≥ 0.')
       return
     }
+    const expRequerida = Number(expRequeridaStr)
 
     const entry = {
       id,
@@ -293,6 +305,8 @@ export default function CatalogoPage() {
       precio,
       usable_en_combate: usableCombate,
       ...(apilable ? { apilable: true } : {}),
+      ...(Number.isFinite(expRequerida) && expRequerida > 0 ? { exp_requerida: Math.floor(expRequerida) } : {}),
+      ...(clasesSel.length ? { clases: clasesSel } : {}),
       descripcion: descripcion.trim(),
     }
 
@@ -362,6 +376,14 @@ export default function CatalogoPage() {
     setSelectedId(null)
     setIsNew(false)
     vaciarFormulario()
+  }
+
+  const toggleClase = (claseId) => {
+    setClasesSel((prev) => (
+      prev.includes(claseId)
+        ? prev.filter((id) => id !== claseId)
+        : [...prev, claseId]
+    ))
   }
 
   return (
@@ -457,6 +479,22 @@ export default function CatalogoPage() {
               <label className="field field-check"><input type="checkbox" checked={usableCombate} onChange={(e) => setUsableCombate(e.target.checked)} /><span className="field-label">usable_en_combate</span></label>
               <label className="field field-check"><input type="checkbox" checked={apilable} onChange={(e) => setApilable(e.target.checked)} /><span className="field-label">apilable</span></label>
             </div>
+            <label className="field"><span className="field-label">exp_requerida</span><input className="catalogo-input" type="number" min={0} step={1} value={expRequeridaStr} onChange={(e) => setExpRequeridaStr(e.target.value)} /></label>
+            <fieldset className="field">
+              <legend className="field-label">clases</legend>
+              <div className="catalogo-form-row">
+                {CLASES_BASE_EDITOR.map((clase) => (
+                  <label key={clase.id} className="field field-check">
+                    <input
+                      type="checkbox"
+                      checked={clasesSel.includes(clase.id)}
+                      onChange={() => toggleClase(clase.id)}
+                    />
+                    <span className="field-label">{clase.label} <code>{clase.id}</code></span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <label className="field"><span className="field-label">descripcion</span><textarea className="catalogo-textarea" rows={3} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></label>
             <label className="field"><span className="field-label">stats (JSON objeto)</span><textarea className="catalogo-textarea catalogo-textarea-mono" rows={5} value={statsText} onChange={(e) => setStatsText(e.target.value)} spellCheck={false} /></label>
             <label className="field"><span className="field-label">efectos (JSON objeto)</span><textarea className="catalogo-textarea catalogo-textarea-mono" rows={4} value={efectosText} onChange={(e) => setEfectosText(e.target.value)} spellCheck={false} /></label>
