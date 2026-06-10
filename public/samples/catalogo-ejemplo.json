@@ -10,6 +10,7 @@
     "stats": { "curacion": 5 },
     "precio": 12,
     "usable_en_combate": true,
+    "usable_fuera_combate": true,
     "descripcion": "Restaura salud"
   },
   "servicio_curacion_menor": {
@@ -135,6 +136,7 @@
     "efectos": {},
     "precio": 1,
     "usable_en_combate": false,
+    "usable_fuera_combate": true,
     "descripcion": "Jarra o copa de cerveza"
   },
   "vino": {
@@ -344,6 +346,15 @@
     "usable_en_combate": false,
     "descripcion": "Cáñamo resistente para trepar o atar"
   },
+  "ganzuas": {
+    "id": "ganzuas",
+    "nombre": "Ganzúas",
+    "nombre_en": "Thieves' tools",
+    "categoria": "herramienta",
+    "apilable": true,
+    "precio": 3,
+    "descripcion": "Juego de ganzúas para forzar cerraduras. Se rompen al fallar."
+  },
   "proyectil_arcano": {
     "id": "proyectil_arcano",
     "nombre": "Proyectil arcano",
@@ -475,5 +486,24 @@
     "usable_en_combate": true,
     "usable_fuera_combate": true,
     "descripcion": "Restaura una pequeña cantidad de salud a un aliado."
+  },
+  "curacion_mayor": {
+    "id": "curacion_mayor",
+    "nombre": "Curación mayor",
+    "nombre_en": "Greater healing",
+    "categoria": "hechizo",
+    "subtipo": "sanacion",
+    "efectos": {},
+    "stats": {
+      "curacion": 8,
+      "alcance": 5,
+      "coste": 2
+    },
+    "precio": 25,
+    "exp_requerida": 100,
+    "clases": ["healer", "mage"],
+    "usable_en_combate": true,
+    "usable_fuera_combate": true,
+    "descripcion": "Técnica avanzada de sanación: restaura más salud que la curación menor a un aliado cercano."
   }
 }

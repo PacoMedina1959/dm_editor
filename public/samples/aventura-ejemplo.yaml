@@ -234,12 +234,22 @@ localizaciones:
           destino: herreria
           etiqueta_ui: Ir a taberna
           icono: portal
+          oculto: true
+        - id: puerta_herreria
+          tipo: puerta_bloqueada
+          celda:
+            - 26
+            - 14
+          dificultad: 14
+          transicion_al_exito: herreria
+          etiqueta_ui: Puerta de la herrería
           oculto: false
     notas_dm: >
       Anclas de sesión rápida: entrada principal desde el sur (mercado), salida norte al cuartel,
       salida oeste a la taberna y salida este a la herrería. Focos visuales: fuente central, puestos
       laterales y guardias de patrulla. Gancho interactivo sugerido: un mercader acusa a otro de
-      vender hierro robado de la herrería.
+      vender hierro robado de la herrería. Piloto F17: la entrada este a la herrería es
+      `puerta_herreria` (forzar con ganzúas); `ir_taberna_5` queda oculto para el jugador (escape DM).
   - id: taberna
     nombre: Taberna El Jabalí Rojo
     nombre_en: The Red Boar Tavern
@@ -399,8 +409,8 @@ localizaciones:
     zona: pueblo
     navegacion_mundo: false
     descripcion: >
-      Junto al río. Lleva cerrada tres días. La puerta está atrancada desde dentro. La gente murmura
-      que el herrero Gorin desapareció de la noche a la mañana.
+      Junto al río. Lleva cerrada tres días. La puerta está cerrada a cal y canto, con el cerrojo
+      echado. La gente murmura que el herrero Gorin desapareció de la noche a la mañana.
     conexiones:
       - plaza
     mapa:
@@ -2545,6 +2555,7 @@ npcs:
     vende:
       - pocion_curacion
       - servicio_curacion_menor
+      - curacion_mayor
   - id: syla
     nombre: Syla la Bandida
     nombre_en: Syla the Bandit
@@ -2665,6 +2676,7 @@ npcs:
       - racion_viaje
       - agua
       - habitacion_noche
+      - ganzuas
     actitud_inicial: amistosa
     genero: masculino
     descripcion: >

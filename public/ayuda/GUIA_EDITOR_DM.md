@@ -63,6 +63,12 @@ En listas grandes aparece **búsqueda** cuando hay bastantes entradas.
 3. **Iterar sobre una campaña instalada:** **Servidor** → cargar → editar → **Validar** → **Guardar** (mismo `slug` para actualizar).  
 4. **Copia de seguridad:** **Exportar YAML** antes de cambios arriesgados o antes de probar importaciones grandes.
 
+### Catálogo: apilable, Exp y clases
+
+En **Catálogo** puedes marcar objetos locales como **apilables**. Al guardar, el editor solo escribe `apilable: true`; si está desmarcado, la clave se omite y el motor usa el valor por defecto.
+
+Los objetos que representan aprendizaje, como hechizos de catálogo, pueden declarar **`exp_requerida`** y una o varias **`clases`**. El editor ofrece las clases actuales del motor y omite `exp_requerida: 0` y `clases: []` para mantener limpio el canon. La validación definitiva sigue siendo la del backend de `dm_virtual`.
+
 ---
 
 ## 6. Undo, autoguardado y mapa
@@ -81,6 +87,7 @@ En **Localizaciones**, expande una loc con **imagen de mapa** (`mapa.imagen`) y 
 - Los cambios del modal **no se guardan en disco** hasta **Aplicar** (commit en memoria del editor) y luego **Guardar en servidor** (puerta de validación canónica F15).
 - Errores `MAPA_PI_*` del motor se muestran en la fila de la loc y, tras validar, el marcador afectado se resalta en rojo.
 - **`objeto_canonico`** sirve para recoger un ítem en mesa (F4.h). **`transicion`** define un destino de mapa en YAML; la mesa del jugador puede no pintarla aún — no sustituye a `objeto_canonico` para “abrir otro mapa” con un ítem.
+- **`puerta_bloqueada`** define una puerta forzable con ganzúas: usa **🔒 Puerta**, fija `dificultad`, elige `transicion_al_exito` entre conexiones válidas, `requiere_objeto` desde el catálogo y, si procede, un `evento_al_exito`. El motor valida que el destino exista, esté conectado y sea usable como mapa.
 - Si el marcador en pantalla no coincide con el zoom del navegador, usa los campos numéricos **x / y %**, **Aplicar** y vuelve a **Guardar en servidor**.
 
 ---

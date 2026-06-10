@@ -1,6 +1,6 @@
 # HANDOFF — dm_editor (editor de campañas)
 
-**Fecha:** 2026-05-29 · **Transcript:** `6002b78b-b031-4f19-bb95-986bb7c7aac7`  
+**Fecha:** 2026-06-10 · **Transcript:** `6002b78b-b031-4f19-bb95-986bb7c7aac7`  
 **Repo:** `/home/paco/python/proyectos/dm_editor` (Vite/React, :5180 → proxy API motor)  
 **Hermano:** `dm_virtual` (motor, :8000) — handoff mesa/runtime: `dm_virtual/docs/HANDOFF.md`
 
@@ -20,9 +20,11 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 **F15b cerrada** — SPEC `docs/specs/F15b_Colocador_Visual_Puntos_Interes_dm_editor.md` (`Estado: cerrada`). **HEAD** `5c69c3a`. Cadena: `d93434d` (A) → `5d8c1c3` (replace) → `15b707b`/`092d384` (B) → `41e8658`/`9f8c628`/`c162b14` (docs cierre + cifras `cripta_sala`) → `5c69c3a` (ResizeObserver `mapBox`). Guía: `public/ayuda/GUIA_EDITOR_DM.md` §6.
 
+**F20 cerrada** — SPEC `docs/specs/F20_Autoria_Apilable_Exp_Puertas_dm_editor.md`: autoría de `apilable`, `exp_requerida`/`clases` y `puerta_bloqueada`; samples resincronizados desde `dm_virtual` con `puerta_herreria`, `ganzuas` y `curacion_mayor`. Validación canónica del sample: `error_count=0`, `warning_count=4` (`REGLA_HISTORIAL_DESACTIVADA`, histórico).
+
 **Paralelo en motor (RO):** **F4.h cerrada** — `objeto_canonico` recogible en mapa; corona en `cripta_sala`.
 
-**Siguiente sugerido (solo editor):** backlog Guardian / plantillas (`dm_virtual/docs/00_ESTADO_ACTUAL.md`).
+**Siguiente sugerido (solo editor):** backlog Guardian / plantillas (`dm_virtual/docs/00_ESTADO_ACTUAL.md`) o futuras autorías de clases si el motor amplía `CLASES_BASE`.
 
 **Fuera de este repo (ver `dm_virtual/docs/HANDOFF.md`):** finales en Control/DM, `ENDING.LABEL`, `destruir_corona`, transiciones visibles en lienzo PJ, portales DM automáticos. Idea futura (sin SPEC): `transicion` + `oculto` visible al PJ.
 
@@ -35,6 +37,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 | Motor `dm_virtual` | RO desde editor; F4.h runtime OK |
 | Editor F15 | Cerrada (`a3e4e0e`) |
 | Editor F15b | Cerrada (`5c69c3a`): colocador, Opción B, `replace`, ResizeObserver |
+| Editor F20 | Cerrada: catálogo apilable/Exp/clases, puerta bloqueada en colocador, samples F16/F17/F19 |
 | `npm run lint` / `build` | exit 0 / OK (3 warnings lint documentados en F15) |
 | F14 catálogo editor | OK |
 | UI táctica visual | Eliminada; no reintroducir |
@@ -60,7 +63,10 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 | `src/components/aventura/ColocadorPuntosDialog.jsx` | Modal colocador (+ medición `mapBox`) |
 | `src/components/aventura/SeccionLocalizaciones.jsx` | Entrada «Editar puntos del mapa» |
 | `src/domain/aventura.js` | `normalizarMapaACoordenadasLibres`, `nuevoPuntoInteres`, `parseIndicePunto` |
+| `src/pages/CatalogoPage.jsx` | Catálogo local: apilable, Exp y clases |
+| `src/domain/catalogo.js` | Plantilla/parseo de catálogo y `CLASES_BASE_EDITOR` |
 | `docs/specs/F15_Coherencia_Validacion_Samples_dm_editor.md` | F15 cerrada |
+| `docs/specs/F20_Autoria_Apilable_Exp_Puertas_dm_editor.md` | SPEC cerrada F20 |
 | `public/ayuda/GUIA_EDITOR_DM.md` | Uso colocador §6 |
 | `dm_virtual/docs/specs/F4_h_*.md` | Contrato `objeto_canonico` runtime |
 | `dm_virtual/docs/HANDOFF.md` | Finales, corona destruir, ENDING.LABEL, transiciones PJ |
@@ -74,13 +80,21 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 - ResizeObserver + `visualViewport` + remediación al abrir panel (`5c69c3a`).
 - Validación programática (19 mapas); pasada visual autor.
 
+## Trabajo realizado (F20, sesión)
+
+- Catálogo: checkbox `apilable`, campo `exp_requerida`, selector de `clases` y serialización omitiendo defaults.
+- Colocador: nuevo tipo editable `puerta_bloqueada`, botón 🔒, campos `dificultad`, `transicion_al_exito`, `requiere_objeto`, `evento_al_exito` y `oculto`.
+- Samples: resync desde `dm_virtual` con `puerta_herreria`, `ganzuas`, `curacion_mayor` y flags F19.
+- Verificación: `npm run lint` (0 errores, 3 warnings históricos), `npm run build` OK y `POST /api/editor/validar-campana` sobre sample con `error_count=0`.
+
 ---
 
 ## Trabajo pendiente (prioridad)
 
 1. **Pulido Guardian** en editor — backlog `dm_virtual/docs/00_ESTADO_ACTUAL.md`.
 2. **IDEA — Generador de disparadores (Guardian) con LLM** (2026-06-13; *hacer después*). Hoy los `secretos_protegidos.terminos_sensibles` y los `disparadores.accion_contiene` se escriben **a mano** por PNJ en el `aventura.yaml` de cada aventura: laborioso y frágil — hay que anticipar todos los sinónimos/idiomas (p.ej. Marta lista `bodega, cellar, basement, almacen, sotano`); si olvidas una palabra, el disparo no salta y el PNJ se hace el tonto justo cuando debería abrirse. Propuesta: en la **pestaña Guardian** del editor, un asistente LLM que lea la narrativa/el secreto y **proponga** esas listas para que el autor las **revise y apruebe** (declarativo: el autor manda, el LLM sugiere). Se apoya en la extracción de entidades que ya hace **Persistencia**. Es autoría (su sitio es dm_editor), separado del consumo en runtime (dm_virtual). Surgió diseñando la Pieza 1 (memoria subjetiva profunda gateada por disparo).
-3. **Mesa/motor** — solo en `dm_virtual`: ver su HANDOFF (finales Control, `ENDING.LABEL`, `destruir_corona`, transiciones en lienzo PJ).
+3. **Autoría futura de clases** si `dm_virtual` ejecuta IDEA_CLASES_12: actualizar `CLASES_BASE_EDITOR`.
+4. **Mesa/motor** — solo en `dm_virtual`: ver su HANDOFF (finales Control, `ENDING.LABEL`, `destruir_corona`, transiciones en lienzo PJ).
 
 ---
 
