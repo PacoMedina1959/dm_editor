@@ -79,7 +79,8 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 ## Trabajo pendiente (prioridad)
 
 1. **Pulido Guardian** en editor — backlog `dm_virtual/docs/00_ESTADO_ACTUAL.md`.
-2. **Mesa/motor** — solo en `dm_virtual`: ver su HANDOFF (finales Control, `ENDING.LABEL`, `destruir_corona`, transiciones en lienzo PJ).
+2. **IDEA — Generador de disparadores (Guardian) con LLM** (2026-06-13; *hacer después*). Hoy los `secretos_protegidos.terminos_sensibles` y los `disparadores.accion_contiene` se escriben **a mano** por PNJ en el `aventura.yaml` de cada aventura: laborioso y frágil — hay que anticipar todos los sinónimos/idiomas (p.ej. Marta lista `bodega, cellar, basement, almacen, sotano`); si olvidas una palabra, el disparo no salta y el PNJ se hace el tonto justo cuando debería abrirse. Propuesta: en la **pestaña Guardian** del editor, un asistente LLM que lea la narrativa/el secreto y **proponga** esas listas para que el autor las **revise y apruebe** (declarativo: el autor manda, el LLM sugiere). Se apoya en la extracción de entidades que ya hace **Persistencia**. Es autoría (su sitio es dm_editor), separado del consumo en runtime (dm_virtual). Surgió diseñando la Pieza 1 (memoria subjetiva profunda gateada por disparo).
+3. **Mesa/motor** — solo en `dm_virtual`: ver su HANDOFF (finales Control, `ENDING.LABEL`, `destruir_corona`, transiciones en lienzo PJ).
 
 ---
 
