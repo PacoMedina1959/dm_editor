@@ -26,7 +26,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 **Paralelo en motor (RO):** **F4.h cerrada** — `objeto_canonico` recogible en mapa; corona en `cripta_sala`.
 
-**Siguiente sugerido (solo editor):** backlog Guardian / plantillas (`dm_virtual/docs/00_ESTADO_ACTUAL.md`) o futuras autorías de clases si el motor amplía `CLASES_BASE`.
+**Siguiente sugerido (solo editor):** ver §«Trabajo pendiente» de este HANDOFF (backlog del editor, fuente de verdad). Primero: pulido Guardian (plantillas/validadores) o autorías de clases si el motor amplía `CLASES_BASE`.
 
 **Fuera de este repo (ver `dm_virtual/docs/HANDOFF.md`):** finales en Control/DM, `ENDING.LABEL`, `destruir_corona`, transiciones visibles en lienzo PJ, portales DM automáticos. Idea futura (sin SPEC): `transicion` + `oculto` visible al PJ.
 
@@ -94,7 +94,9 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 ## Trabajo pendiente (prioridad)
 
-1. **Pulido Guardian** en editor — backlog `dm_virtual/docs/00_ESTADO_ACTUAL.md`.
+> **Backlog del editor — fuente de verdad.** Las tareas solo-editor viven **aquí**, no en `dm_virtual/docs/00_ESTADO_ACTUAL.md` (que a partir de ahora lista solo motor/mesa). Migrado el 2026-06-14 al separar backlogs.
+
+1. **Pulido Guardian** en editor: plantillas de `guardian`, validadores de `terminos_sensibles`, warnings si `ficha.motivacion` filtra postura defensiva, y localizador de campos incompletos. (Era el nº5 del backlog del motor.) Antesala natural de la idea LLM del punto 2.
 2. **IDEA — Generador de disparadores (Guardian) con LLM** (2026-06-13; *hacer después*). Hoy los `secretos_protegidos.terminos_sensibles` y los `disparadores.accion_contiene` se escriben **a mano** por PNJ en el `aventura.yaml` de cada aventura: laborioso y frágil — hay que anticipar todos los sinónimos/idiomas (p.ej. Marta lista `bodega, cellar, basement, almacen, sotano`); si olvidas una palabra, el disparo no salta y el PNJ se hace el tonto justo cuando debería abrirse. Propuesta: en la **pestaña Guardian** del editor, un asistente LLM que lea la narrativa/el secreto y **proponga** esas listas para que el autor las **revise y apruebe** (declarativo: el autor manda, el LLM sugiere). Se apoya en la extracción de entidades que ya hace **Persistencia**. Es autoría (su sitio es dm_editor), separado del consumo en runtime (dm_virtual). Surgió diseñando la Pieza 1 (memoria subjetiva profunda gateada por disparo).
 3. **Autoría futura de clases** si `dm_virtual` ejecuta IDEA_CLASES_12: actualizar `CLASES_BASE_EDITOR`.
 4. **Mesa/motor** — solo en `dm_virtual`: ver su HANDOFF (finales Control, `ENDING.LABEL`, `destruir_corona`, transiciones en lienzo PJ).
