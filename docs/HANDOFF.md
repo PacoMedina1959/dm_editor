@@ -22,6 +22,8 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 
 **F20 cerrada** — SPEC `docs/specs/F20_Autoria_Apilable_Exp_Puertas_dm_editor.md`: autoría de `apilable`, `exp_requerida`/`clases` y `puerta_bloqueada`; samples resincronizados desde `dm_virtual` con `puerta_herreria`, `ganzuas` y `curacion_mayor`. Validación canónica del sample: `error_count=0`, `warning_count=4` (`REGLA_HISTORIAL_DESACTIVADA`, histórico).
 
+**UX catálogo global/local hecho** (paso nº6 de `dm_virtual/docs/00_ESTADO_ACTUAL.md`): claridad global/runtime ya existía; añadido **comprobador de referencias huérfanas** en el catálogo (botón → `validar-campana`, filtra los códigos `MAPA_PI_OBJETO_ITEM_INVALIDO` / `MAPA_PI_CONSUMIR_ITEM_INVALIDO` / `MAPA_PI_PUERTA_OBJETO_INVALIDO` / `CATALOGO_ID_DESCONOCIDO` y ofrece «Crear «id»») y **pulido de «Crear override»** (la tabla global marca `override local`/`colisión local` y enlaza a «Ver local» en vez de sobrescribir en silencio). Solo aplica al catálogo de objetos; los assets tácticos son otro modelo (sin global/local). Idea futura: navegación a la incidencia desde la página **Validar** para el resto de referencias rotas (eventos, destinos, bestiario/NPC).
+
 **Paralelo en motor (RO):** **F4.h cerrada** — `objeto_canonico` recogible en mapa; corona en `cripta_sala`.
 
 **Siguiente sugerido (solo editor):** backlog Guardian / plantillas (`dm_virtual/docs/00_ESTADO_ACTUAL.md`) o futuras autorías de clases si el motor amplía `CLASES_BASE`.
@@ -40,6 +42,7 @@ Antes de generar el HANDOFF, identifica explícitamente el proyecto objetivo y d
 | Editor F20 | Cerrada: catálogo apilable/Exp/clases, puerta bloqueada en colocador, samples F16/F17/F19 |
 | `npm run lint` / `build` | exit 0 / OK (3 warnings lint documentados en F15) |
 | F14 catálogo editor | OK |
+| UX catálogo global/local | Hecho (nº6): referencias huérfanas + pulido override |
 | UI táctica visual | Eliminada; no reintroducir |
 
 **Higiene git:** `main` sincronizado con `origin/main` (último push incluye F15b completo). **Stash:** `stash@{0}: WIP pre-F15-A` — **no aplicar** salvo decisión explícita.

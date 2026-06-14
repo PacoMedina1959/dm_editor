@@ -387,6 +387,46 @@ code,
   font-size: 0.9rem;
 }
 
+.catalogo-ref-list {
+  margin: 0.5rem 0 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.catalogo-ref-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.catalogo-global-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.badge-override,
+.badge-colision {
+  font-size: 0.72rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 0.5rem;
+  white-space: nowrap;
+}
+
+.badge-override {
+  background: #1f3a2a;
+  color: #7ad29a;
+}
+
+.badge-colision {
+  background: #3a1f1f;
+  color: #e08a8a;
+}
+
 .catalogo-grid {
   display: grid;
   grid-template-columns: 1fr minmax(18rem, 22rem);

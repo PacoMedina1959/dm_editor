@@ -116,3 +116,44 @@ export function idsLocalesConColisionGlobal(localCatalog, globalCatalog) {
 export function catalogoResueltoPreview(globalCatalog, localCatalog) {
   return { ...(globalCatalog || {}), ...(localCatalog || {}) }
 }
+
+/**
+ * Códigos del motor (`validar_campana.py`) que señalan una referencia a un
+ * objeto que **no resuelve** en el catálogo global+local de la campaña. El
+ * editor no replica la lógica: filtra el veredicto del motor por estos códigos.
+ */
+export const CODIGOS_REF_HUERFANA = new Set([
+  'MAPA_PI_OBJETO_ITEM_INVALIDO',
+  'MAPA_PI_CONSUMIR_ITEM_INVALIDO',
+  'MAPA_PI_PUERTA_OBJETO_INVALIDO',
+  'CATALOGO_ID_DESCONOCIDO',
+])
+
+/**
+ * Extrae el id de objeto que falta a partir del mensaje del motor, cuyo patrón
+ * es `«campo» referencia «id», no presente…` (el id es el segundo «…»).
+ * @param {{ message?: string }} issue
+ * @returns {string|null}
+ */
+export function idReferenciaHuerfana(issue) {
+  const tokens = String(issue?.message || '').match(/«([^»]+)»/g)
+  if (!tokens || tokens.length < 2) return null
+  return tokens[1].slice(1, -1).trim() || null
+}
+
+/**
+ * Subconjunto de issues que son referencias huérfanas a catálogo, anotando el
+ * id que falta.
+ * @param {Array<{ code?: string, path?: string, message?: string, severity?: string }>} issues
+ * @returns {Array<{ id: string|null, path: string, code: string, message: string }>}
+ */
+export function referenciasHuerfanas(issues) {
+  return (Array.isArray(issues) ? issues : [])
+    .filter((it) => CODIGOS_REF_HUERFANA.has(String(it?.code || '')))
+    .map((it) => ({
+      id: idReferenciaHuerfana(it),
+      path: String(it?.path || ''),
+      code: String(it?.code || ''),
+      message: String(it?.message || ''),
+    }))
+}

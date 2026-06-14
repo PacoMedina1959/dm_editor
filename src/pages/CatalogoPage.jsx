@@ -6,12 +6,15 @@ import {
   idsLocalesConColisionGlobal,
   parseCatalogoJsonText,
   plantillaItem,
+  referenciasHuerfanas,
 } from '../domain/catalogo.js'
 import {
+  cargarAventura,
   cargarCatalogoObjetos,
   cargarCatalogoObjetosGlobal,
   guardarCatalogoObjetos,
 } from '../api/aventuras.js'
+import { postValidarCampana } from '../api/validarCampana.js'
 import { formatPrecioUi, nombreVisible } from '../utils/catalogoUi.js'
 
 const LANG = 'es'
@@ -25,6 +28,8 @@ export default function CatalogoPage() {
   const [serverMsg, setServerMsg] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [globalBusqueda, setGlobalBusqueda] = useState('')
+  const [refHuerfanas, setRefHuerfanas] = useState(null)
+  const [refBusy, setRefBusy] = useState(false)
 
   const [selectedId, setSelectedId] = useState(null)
   const [isNew, setIsNew] = useState(false)
@@ -74,6 +79,8 @@ export default function CatalogoPage() {
     () => idsLocalesConColisionGlobal(localCatalog, globalCatalog),
     [localCatalog, globalCatalog],
   )
+
+  const localIds = useMemo(() => new Set(Object.keys(localCatalog || {})), [localCatalog])
 
   const vaciarFormulario = () => {
     setIdEdit('')
@@ -138,6 +145,30 @@ export default function CatalogoPage() {
       setServerMsg('Catálogo local guardado en el paquete de aventura.')
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  const comprobarReferencias = async () => {
+    const s = slug.trim()
+    if (!s) return
+    setLoadError(null)
+    setServerMsg(null)
+    setRefBusy(true)
+    try {
+      const { yaml_text: yamlText } = await cargarAventura(s)
+      const data = await postValidarCampana(yamlText, catalogoAString(localCatalog || {}))
+      const huerfanas = referenciasHuerfanas(data?.issues)
+      setRefHuerfanas(huerfanas)
+      setServerMsg(
+        huerfanas.length
+          ? `${huerfanas.length} referencia(s) a objetos que no existen en el catálogo de «${s}».`
+          : `Sin referencias huérfanas: todos los objetos citados por «${s}» resuelven en el catálogo.`,
+      )
+    } catch (e) {
+      setRefHuerfanas(null)
+      setLoadError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setRefBusy(false)
     }
   }
 
@@ -233,6 +264,30 @@ export default function CatalogoPage() {
     setSelectedId(null)
     const tpl = plantillaItem(baseId)
     setIdEdit(tpl.id)
+    setNombre(tpl.nombre)
+    setNombreEn(tpl.nombre_en)
+    setCategoria(tpl.categoria)
+    setSubtipo(tpl.subtipo)
+    setPrecioStr(String(tpl.precio))
+    setUsableCombate(tpl.usable_en_combate)
+    setApilable(false)
+    setExpRequeridaStr('0')
+    setClasesSel([])
+    setOverrideGlobal(false)
+    setDescripcion(tpl.descripcion)
+    setStatsText(JSON.stringify(tpl.stats, null, 2))
+    setEfectosText(JSON.stringify(tpl.efectos, null, 2))
+    setEditorError(null)
+    requestAnimationFrame(() => idInputRef.current?.focus?.())
+  }
+
+  const nuevoItemConId = (idDeseado) => {
+    const id = String(idDeseado || '').trim()
+    if (!id) return
+    setIsNew(true)
+    setSelectedId(null)
+    const tpl = plantillaItem(id)
+    setIdEdit(id)
     setNombre(tpl.nombre)
     setNombreEn(tpl.nombre_en)
     setCategoria(tpl.categoria)
@@ -402,6 +457,9 @@ export default function CatalogoPage() {
         <button type="button" className="btn-secondary" onClick={cargarGlobal}>Cargar global</button>
         <button type="button" className="btn-secondary" onClick={cargarLocalServidor}>Cargar local</button>
         <button type="button" className="btn-primary" onClick={guardarLocalServidor}>Guardar local</button>
+        <button type="button" className="btn-secondary" onClick={comprobarReferencias} disabled={refBusy}>
+          {refBusy ? 'Comprobando…' : 'Comprobar referencias'}
+        </button>
         <button type="button" className="btn-secondary" onClick={nuevoItem}>Nuevo ítem local</button>
         <button type="button" className="btn-secondary" onClick={exportarJson}>Exportar objetos.json</button>
         <label className="btn-file">
@@ -423,6 +481,34 @@ export default function CatalogoPage() {
       {colisiones.length > 0 && (
         <div className="alert alert-error" role="alert">
           Colisiones con global sin override: {colisiones.join(', ')}
+        </div>
+      )}
+
+      {refHuerfanas && refHuerfanas.length > 0 && (
+        <div className="alert alert-error catalogo-ref-huerfanas" role="alert">
+          <strong>Referencias huérfanas ({refHuerfanas.length})</strong>
+          <p className="muted">
+            La aventura cita estos objetos, pero no resuelven en el catálogo (global + local). El motor los rechaza al validar.
+          </p>
+          <ul className="catalogo-ref-list">
+            {refHuerfanas.map((ref, i) => (
+              <li key={`${ref.path}-${i}`} className="catalogo-ref-item">
+                <code className="issue-path" title={ref.path}>{ref.path || '—'}</code>
+                <span className="issue-code">{ref.code}</span>
+                {ref.id ? (
+                  <button
+                    type="button"
+                    className="btn-secondary av-btn-small"
+                    onClick={() => nuevoItemConId(ref.id)}
+                  >
+                    Crear «{ref.id}»
+                  </button>
+                ) : (
+                  <span className="muted">{ref.message}</span>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -530,9 +616,20 @@ export default function CatalogoPage() {
                   <td>{formatPrecioUi(row.precio, LANG)}</td>
                   <td>{row.usable_en_combate ? 'Sí' : '—'}</td>
                   <td>
-                    <button type="button" className="btn-secondary av-btn-small" onClick={() => crearOverrideDesdeGlobal(row.id)}>
-                      Crear override
-                    </button>
+                    {localIds.has(row.id) ? (
+                      <span className="catalogo-global-accion">
+                        <span className={localCatalog[row.id]?.override ? 'badge-override' : 'badge-colision'}>
+                          {localCatalog[row.id]?.override ? 'override local' : 'colisión local'}
+                        </span>
+                        <button type="button" className="btn-link-id av-btn-small" onClick={() => seleccionarFila(row.id)}>
+                          Ver local
+                        </button>
+                      </span>
+                    ) : (
+                      <button type="button" className="btn-secondary av-btn-small" onClick={() => crearOverrideDesdeGlobal(row.id)}>
+                        Crear override
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
