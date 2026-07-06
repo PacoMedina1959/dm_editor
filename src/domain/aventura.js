@@ -563,7 +563,13 @@ export function validarAventura(data) {
     if (!esc.objetivo?.trim()) avisos.push(`${tag}: no tiene objetivo definido.`)
   }
 
-  // Eventos definidos sin uso en ninguna escena
+  // Eventos definidos sin uso en ninguna escena. Además de las referencias en
+  // escenas, el motor dispara eventos por mecanismos que no viven en escenas y
+  // que aquí darían falso positivo:
+  //  - `conocer_{npc}` automático al conocer al PNJ (gestor_escenas);
+  //  - `evento_completado` de los encargos de PNJ;
+  //  - eventos con `deteccion_automatica` (se disparan por estado del mundo) o
+  //    `alias_de` (shim de compatibilidad) se justifican solos.
   if (eventoIds.size > 0) {
     const eventosUsados = new Set()
     for (const esc of escenas) {
@@ -573,8 +579,15 @@ export function validarAventura(data) {
       for (const cf of asArray(esc.condiciones_final))
         for (const r of asArray(cf.reglas)) if (r.tipo === 'evento' && r.evento) eventosUsados.add(r.evento)
     }
+    for (const npc of asArray(data.npcs)) if (npc.id) eventosUsados.add(`conocer_${npc.id}`)
+    for (const enc of asArray(data.economia?.recuperacion?.encargos))
+      if (enc.evento_completado) eventosUsados.add(enc.evento_completado)
+    const autojustificado = new Set()
+    for (const ev of asArray(data.eventos_definidos))
+      if (ev.id && (ev.deteccion_automatica || ev.alias_de)) autojustificado.add(ev.id)
     for (const id of eventoIds) {
-      if (!eventosUsados.has(id)) avisos.push(`Evento definido «${id}» no se usa en ninguna escena.`)
+      if (!eventosUsados.has(id) && !autojustificado.has(id))
+        avisos.push(`Evento definido «${id}» no se usa en ninguna escena.`)
     }
   }
 
